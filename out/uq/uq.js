@@ -121,6 +121,9 @@ class Uq {
         let parts = tuidName.split('.');
         return this.getTuid(parts[0], parts[1]);
     }
+    async schema(entityName) {
+        return await this.uqApi.schema(entityName);
+    }
     async saveTuid(tuid, body) {
         return await this.uqApi.saveTuid(tuid, body);
     }
@@ -129,6 +132,12 @@ class Uq {
     }
     async getTuidVId(ownerEntity) {
         return await this.uqApi.getTuidVId(ownerEntity);
+    }
+    async loadTuidMainValue(tuidName, id, allProps) {
+        return await this.uqApi.loadTuidMainValue(tuidName, id, allProps);
+    }
+    async loadTuidDivValue(tuidName, divName, id, ownerId, allProps) {
+        return await this.uqApi.loadTuidDivValue(tuidName, divName, id, ownerId, allProps);
     }
     async setMap(map, body) {
         await this.uqApi.setMap(map, body);

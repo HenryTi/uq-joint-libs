@@ -75,8 +75,8 @@ export abstract class Tuid extends Entity {
             ret = this.cache.getValue(id);
         }
         if (ret !== undefined) return ret;
-        let openApi = await this.getApiFrom();
-        let tuidValue = await this.internalLoadTuidValue(openApi, id, ownerId, allProps);
+        //let openApi = await this.getApiFrom();
+        let tuidValue = await this.internalLoadTuidValue(this.uq, id, ownerId, allProps);
         if (tuidValue.length > 0)
             ret = tuidValue[0];
         else
@@ -87,12 +87,12 @@ export abstract class Tuid extends Entity {
             this.cache.setValue(id, ret);
         return ret;
     }
-    protected abstract internalLoadTuidValue(openApi: UqApi, id: number, ownerId: number, allProps: boolean): Promise<any>;
+    protected abstract internalLoadTuidValue(uq:Uq, id: number, ownerId: number, allProps: boolean): Promise<any>;
 }
 
 export class TuidMain extends Tuid {
     get Main() { return this }
-    get uqApi() { return this.uq.uqApi };
+    //get uqApi() { return this.uq.uqApi };
 
     divs: { [name: string]: TuidDiv };
 
@@ -110,8 +110,8 @@ export class TuidMain extends Tuid {
             }
         }
     }
-    protected async internalLoadTuidValue(openApi: UqApi, id: number, ownerId: number, allProps: boolean): Promise<any> {
-        return openApi.loadTuidMainValue(this.name, id, allProps);
+    protected async internalLoadTuidValue(uq: Uq, id: number, ownerId: number, allProps: boolean): Promise<any> {
+        return uq.loadTuidMainValue(this.name, id, allProps);
     }
 }
 
@@ -136,7 +136,7 @@ export class TuidDiv extends Tuid {
     }
     */
 
-    protected async internalLoadTuidValue(openApi: UqApi, id: number, ownerId: number, allProps: boolean): Promise<any> {
-        return openApi.loadTuidDivValue(this.owner.name, this.name, id, ownerId, allProps);
+    protected async internalLoadTuidValue(uq: Uq, id: number, ownerId: number, allProps: boolean): Promise<any> {
+        return await uq.loadTuidDivValue(this.owner.name, this.name, id, ownerId, allProps);
     }
 }

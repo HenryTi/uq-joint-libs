@@ -15,7 +15,7 @@ declare abstract class MapData {
  */
 export declare class MapToUq extends MapData {
     protected tuidId(tuid: string, value: any): Promise<string | number>;
-    protected getTuidVid(uq: string, entity: string): any;
+    protected getTuidVid(uqFullName: string, entity: string): any;
 }
 /**
  * 根据外部系统的no从映射表中获取tonva中的id(映射表中不存在的话，调用getTuidVid生成一个，并写入映射表)

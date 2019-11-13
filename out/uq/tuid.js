@@ -74,8 +74,8 @@ class Tuid extends entity_1.Entity {
         }
         if (ret !== undefined)
             return ret;
-        let openApi = await this.getApiFrom();
-        let tuidValue = await this.internalLoadTuidValue(openApi, id, ownerId, allProps);
+        //let openApi = await this.getApiFrom();
+        let tuidValue = await this.internalLoadTuidValue(this.uq, id, ownerId, allProps);
         if (tuidValue.length > 0)
             ret = tuidValue[0];
         else
@@ -90,8 +90,6 @@ class Tuid extends entity_1.Entity {
 exports.Tuid = Tuid;
 class TuidMain extends Tuid {
     get Main() { return this; }
-    get uqApi() { return this.uq.uqApi; }
-    ;
     setSchema(schema) {
         super.setSchema(schema);
         let { arrs } = schema;
@@ -106,8 +104,8 @@ class TuidMain extends Tuid {
             }
         }
     }
-    async internalLoadTuidValue(openApi, id, ownerId, allProps) {
-        return openApi.loadTuidMainValue(this.name, id, allProps);
+    async internalLoadTuidValue(uq, id, ownerId, allProps) {
+        return uq.loadTuidMainValue(this.name, id, allProps);
     }
 }
 exports.TuidMain = TuidMain;
@@ -131,8 +129,8 @@ class TuidDiv extends Tuid {
         return await this.owner.getApiFrom();
     }
     */
-    async internalLoadTuidValue(openApi, id, ownerId, allProps) {
-        return openApi.loadTuidDivValue(this.owner.name, this.name, id, ownerId, allProps);
+    async internalLoadTuidValue(uq, id, ownerId, allProps) {
+        return await uq.loadTuidDivValue(this.owner.name, this.name, id, ownerId, allProps);
     }
 }
 exports.TuidDiv = TuidDiv;

@@ -11,13 +11,7 @@ const faceSchemas_1 = require("./tool/faceSchemas");
 const uqs_1 = require("./uq/uqs");
 const centerApi_1 = require("./tool/centerApi");
 const host_1 = require("./tool/host");
-//import { faceUser } from "../settings/bus/webUserBus";
 const logger = log4js_1.getLogger('joint');
-/*
-const uqInEntities = config.get<{ name: string, intervalUnit: number }[]>("afterFirstEntities");
-const uqBusSettings = config.get<string[]>("uqBus");
-*/
-//const interval = config.get<number>("interval");
 class Joint {
     constructor(settings) {
         this.tickCount = -1;
@@ -56,9 +50,15 @@ class Joint {
     createRouter() {
         return router_1.createRouter(this.settings);
     }
-    async getUqApi(uqFullName) {
+    /*
+    async getUqApi(uqFullName:string):Promise<UqApi> {
         let uq = await this.uqs.getUq(uqFullName);
         return uq.uqApi;
+    }
+    */
+    async getUq(uqFullName) {
+        let uq = await this.uqs.getUq(uqFullName);
+        return uq;
     }
     async init() {
         await host_1.host.start();

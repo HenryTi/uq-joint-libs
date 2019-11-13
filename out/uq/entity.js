@@ -4,6 +4,8 @@ const tab = '\t';
 const ln = '\n';
 class Entity {
     constructor(entities, name, typeId) {
+        //protected get tvApi() {return this.uq.uqApi;}
+        //async getApiFrom() {return this.uq.uqApi;}
         this.fieldMaps = {};
         this.uq = entities;
         this.name = name;
@@ -11,8 +13,6 @@ class Entity {
         this.sys = this.name.indexOf('$') >= 0;
     }
     get sName() { return this.jName || this.name; }
-    get tvApi() { return this.uq.uqApi; }
-    async getApiFrom() { return this.uq.uqApi; }
     fieldMap(arr) {
         if (arr === undefined)
             arr = '$';
@@ -43,7 +43,7 @@ class Entity {
     async loadSchema() {
         if (this.schema !== undefined)
             return;
-        let schema = await this.uq.uqApi.schema(this.name);
+        let schema = await this.uq.schema(this.name);
         this.setSchema(schema);
     }
     setSchema(schema) {

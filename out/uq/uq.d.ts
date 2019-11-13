@@ -8,7 +8,7 @@ export declare class Uq {
     private id;
     private tuids;
     private tuidArr;
-    uqApi: UqApi;
+    protected uqApi: UqApi;
     constructor(uqs: Uqs, uqFullName: string);
     init(): Promise<void>;
     buildData(data: any, props: {
@@ -18,6 +18,7 @@ export declare class Uq {
     getFromUq(uqFullName: string): Promise<Uq>;
     getTuidFromUq(uqFullName: string, tuidName: string): Promise<Tuid>;
     getTuidFromName(tuidName: string): Tuid;
+    schema(entityName: string): Promise<any>;
     saveTuid(tuid: string, body: any): Promise<{
         id: number;
         inId: number;
@@ -27,6 +28,8 @@ export declare class Uq {
         inId: number;
     }>;
     getTuidVId(ownerEntity: string): Promise<number>;
+    loadTuidMainValue(tuidName: string, id: number, allProps: boolean): Promise<any>;
+    loadTuidDivValue(tuidName: string, divName: string, id: number, ownerId: number, allProps: boolean): Promise<any>;
     setMap(map: string, body: any): Promise<void>;
     delMap(map: string, body: any): Promise<void>;
     private initUqApi;

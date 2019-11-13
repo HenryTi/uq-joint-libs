@@ -8,12 +8,11 @@ import { host } from "../tool/host";
 export class Uq {
     private uqs: Uqs;
     private uqFullName: string;
-    //private unit: number;
     private id: number;
     private tuids: { [name: string]: TuidMain } = {};
     private tuidArr: TuidMain[] = [];
 
-    uqApi: UqApi;
+    protected uqApi: UqApi;
 
     constructor(uqs: Uqs, uqFullName: string) {
         this.uqs = uqs;
@@ -124,6 +123,10 @@ export class Uq {
         return this.getTuid(parts[0], parts[1]);
     }
 
+    async schema(entityName:string): Promise<any> {
+        return await this.uqApi.schema(entityName);
+    }
+
     async saveTuid(tuid: string, body: any): Promise<{ id: number, inId: number }> {
         return await this.uqApi.saveTuid(tuid, body);
     }
@@ -134,6 +137,14 @@ export class Uq {
 
     async getTuidVId(ownerEntity: string): Promise<number> {
         return await this.uqApi.getTuidVId(ownerEntity);
+    }
+
+    async loadTuidMainValue(tuidName: string, id: number, allProps: boolean):Promise<any> {
+        return await this.uqApi.loadTuidMainValue(tuidName, id, allProps);
+    }
+
+    async loadTuidDivValue(tuidName: string, divName: string, id: number, ownerId: number, allProps: boolean):Promise<any> {
+        return await this.uqApi.loadTuidDivValue(tuidName, divName, id, ownerId, allProps);
     }
 
     async setMap(map: string, body: any) {

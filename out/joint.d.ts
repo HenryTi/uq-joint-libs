@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr } from "./defines";
 import { Uqs } from "./uq/uqs";
-import { UqApi } from "./tool/uqApi";
+import { Uq } from "./uq/uq";
 export declare class Joint {
     protected uqs: Uqs;
     protected settings: Settings;
@@ -13,7 +13,7 @@ export declare class Joint {
     };
     readonly unit: number;
     createRouter(): Router;
-    getUqApi(uqFullName: string): Promise<UqApi>;
+    getUq(uqFullName: string): Promise<Uq>;
     init(): Promise<void>;
     start(): Promise<void>;
     private tick;

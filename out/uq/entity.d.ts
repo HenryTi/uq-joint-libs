@@ -15,8 +15,6 @@ export declare abstract class Entity {
     returns: ArrFields[];
     constructor(entities: Uq, name: string, typeId: number);
     face: any;
-    protected readonly tvApi: import("../tool/uqApi").UqApi;
-    getApiFrom(): Promise<import("../tool/uqApi").UqApi>;
     private fieldMaps;
     fieldMap(arr?: string): FieldMap;
     loadSchema(): Promise<void>;

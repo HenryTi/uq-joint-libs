@@ -11,20 +11,10 @@ import { createMapTable } from "./tool/createMapTable";
 import { faceSchemas } from "./tool/faceSchemas";
 import { Uqs } from "./uq/uqs";
 import { centerApi } from "./tool/centerApi";
-import { UqApi } from "./tool/uqApi";
 import { host } from "./tool/host";
-//import config from 'config';
-import { decrypt } from "./tool/hashPassword";
-//import { faceUser } from "../settings/bus/webUserBus";
+import { Uq } from "./uq/uq";
 
 const logger = getLogger('joint');
-
-/*
-const uqInEntities = config.get<{ name: string, intervalUnit: number }[]>("afterFirstEntities");
-const uqBusSettings = config.get<string[]>("uqBus");
-*/
-
-//const interval = config.get<number>("interval");
 
 export class Joint {
     protected uqs: Uqs;
@@ -53,9 +43,16 @@ export class Joint {
         return createRouter(this.settings);
     }
 
+    /*
     async getUqApi(uqFullName:string):Promise<UqApi> {
         let uq = await this.uqs.getUq(uqFullName);
         return uq.uqApi;
+    }
+    */
+
+    async getUq(uqFullName:string):Promise<Uq> {
+        let uq = await this.uqs.getUq(uqFullName);
+        return uq;
     }
 
     async init() {

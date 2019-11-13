@@ -180,15 +180,17 @@ export class MapToUq extends MapData {
         return ret[0]['id'];
     }
 
-    protected async getTuidVid(uq: string, entity: string) {
+    protected async getTuidVid(uqFullName: string, entity: string) {
         try {
-            let uqApi = await this.joint.getUqApi(uq);
-            let vId = await uqApi.getTuidVId(entity);
+            //let uqApi = await this.joint.getUqApi(uq);
+            //let vId = await uqApi.getTuidVId(entity);
+            let uq = await this.joint.getUq(uqFullName);
+            let vId = await uq.getTuidVId(entity);
             return vId;
         } catch (error) {
             console.error(error);
             if (error.code === 'EITMEOUT')
-                return this.getTuidVid(uq, entity);
+                return this.getTuidVid(uqFullName, entity);
             else
                 throw error;
         }
