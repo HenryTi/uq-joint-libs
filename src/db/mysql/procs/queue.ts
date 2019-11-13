@@ -32,10 +32,12 @@ const readQueueInP:Procedure = {
         insert into moniker (moniker) values (_moniker);
         set _monikerId=last_insert_id();
     end if;
-    select queue_in into _uniqueId from queue_p where moniker=0 for update;
+    select queue_in+1 into _uniqueId from queue_p where moniker=0 for update;
     if _uniqueId is null then
         set _uniqueId=1;
         insert into queue_in (moniker, queue_in, queue_out) values (0, _uniqueId, 0);
+    else
+        update queue_in set queue_in=_uniqueId where moniker=0;
     end if;
     select ifnull((select a.queue_in
         from queue_p a
