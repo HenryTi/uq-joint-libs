@@ -32,9 +32,9 @@ const readQueueInP = {
     select queue_in+1 into _uniqueId from queue_p where moniker=0 for update;
     if _uniqueId is null then
         set _uniqueId=1;
-        insert into queue_in (moniker, queue_in, queue_out) values (0, _uniqueId, 0);
+        insert into queue_p (moniker, queue_in, queue_out) values (0, _uniqueId, 0);
     else
-        update queue_in set queue_in=_uniqueId where moniker=0;
+        update queue_p set queue_in=_uniqueId where moniker=0;
     end if;
     select ifnull((select a.queue_in
         from queue_p a
