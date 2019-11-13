@@ -1,0 +1,1 @@
+{"version":3,"file":"upgrade.js","sourceRoot":"","sources":["../../src/db/upgrade.ts"],"names":[],"mappings":";;AAAA,iDAA0C;AAE1C,mBAAO,EAAE,CAAC,IAAI,CAAC,CAAC,CAAC,EAAE;IACf,OAAO,CAAC,GAAG,CAAC,4BAA4B,CAAC,CAAC;IAC1C,OAAO,CAAC,IAAI,EAAE,CAAC;AACnB,CAAC,CAAC,CAAC"}

@@ -1,0 +1,38 @@
+import { Uq } from './uq';
+import { Field, ArrFields, FieldMap } from './field';
+import { Tuid } from './tuid';
+export declare abstract class Entity {
+    protected uq: Uq;
+    protected schema: any;
+    private jName;
+    sys?: boolean;
+    readonly name: string;
+    readonly typeId: number;
+    abstract readonly typeName: string;
+    readonly sName: string;
+    fields: Field[];
+    arrFields: ArrFields[];
+    returns: ArrFields[];
+    constructor(entities: Uq, name: string, typeId: number);
+    face: any;
+    protected readonly tvApi: import("../tool/uqApi").UqApi;
+    getApiFrom(): Promise<import("../tool/uqApi").UqApi>;
+    private fieldMaps;
+    fieldMap(arr?: string): FieldMap;
+    loadSchema(): Promise<void>;
+    setSchema(schema: any): void;
+    schemaStringify(): string;
+    tuidFromField(field: Field): Tuid;
+    tuidFromName(fieldName: string, arrName?: string): Tuid;
+    protected buildParams(params: any): any;
+    private buildFieldsParams;
+    pack(data: any): string;
+    private escape;
+    private packRow;
+    private packArr;
+    unpackSheet(data: string): any;
+    unpackReturns(data: string): any;
+    private unpackRow;
+    private to;
+    private unpackArr;
+}
