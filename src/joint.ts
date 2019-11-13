@@ -461,13 +461,15 @@ export class Joint {
             for (; ;) {
                 if (pull === undefined) break;
                 console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
-                let queue: number;
+                let queue: number, uniqueId: number;
                 let retp = await tableFromProc('read_queue_in_p', [moniker]);
-                if (retp.length > 0) {
-                    queue = retp[0].queue;
-                } else {
-                    queue = 0;
-                }
+                //if (retp.length > 0) {
+                    let r = retp[0];
+                    queue = r.queue;
+                    uniqueId = r.uniqueId;
+                //} else {
+                //    queue = 0;
+                //}
                 let message = await pull(this, uqBus, queue);
                 if (message === undefined) break;
                 let { lastPointer: newQueue, data } = message;
@@ -478,7 +480,7 @@ export class Joint {
                 // henry??? 暂时不处理bus version
                 let busVersion = 0;
                 let packed = await faceSchemas.packBusData(face, inBody);
-                await this.uqs.writeBus(face, joinName, newQueue, busVersion, packed);
+                await this.uqs.writeBus(face, joinName, uniqueId/*newQueue*/, busVersion, packed);
                 await execProc('write_queue_in_p', [moniker, newQueue]);
             }
         }

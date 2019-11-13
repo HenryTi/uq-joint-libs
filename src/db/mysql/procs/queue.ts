@@ -22,9 +22,26 @@ const readQueueInP:Procedure = {
     label: '_exit',
     code:
 `
-    select a.queue_in as queue
-        from queue_p a join moniker b on a.moniker=b.id
-        where b.moniker=_moniker;
+    declare _monikerId int;
+    declare _uniqueId bigint;
+
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION ROLLBACK;
+    start transaction;
+    select a.id into _monikerId from moniker as a where a.moniker=_moniker for update;
+    if _monikerId is null then
+        insert into moniker (moniker) values (_moniker);
+        set _monikerId=last_insert_id();
+    end if;
+    select queue_in into _uniqueId from queue_p where moniker=0 for update;
+    if _uniqueId is null then
+        set _uniqueId=1;
+        insert into queue_in (moniker, queue_in, queue_out) values (0, _uniqueId, 0);
+    end if;
+    select ifnull((select a.queue_in
+        from queue_p a
+        where a.moniker=_monikerId), 0) as queue,
+        _uniqueId as uniqueId;
+    commit;
 `
 }
 

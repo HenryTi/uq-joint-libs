@@ -1,7 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-//import { Joint } from "../joint";
-//import { UqApi } from "../tool/uqApi";
 const uq_1 = require("./uq");
 const $unitx = '$$$/$unitx';
 class Uqs {
