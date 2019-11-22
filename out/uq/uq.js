@@ -312,6 +312,16 @@ class Uq {
         this.queryArr.push(query);
         return query;
     }
+    tuid(name) { return this.tuids[name.toLowerCase()]; }
+    /*
+    tuidDiv(name:string, div:string):TuidDiv {
+        let tuid = this.tuids[name.toLowerCase()]
+        return tuid && tuid.div(div.toLowerCase());
+    }
+    */
+    action(name) { return this.actions[name.toLowerCase()]; }
+    sheet(name) { return this.sheets[name.toLowerCase()]; }
+    query(name) { return this.queries[name.toLowerCase()]; }
 }
 exports.Uq = Uq;
 class UqUnitx extends Uq {

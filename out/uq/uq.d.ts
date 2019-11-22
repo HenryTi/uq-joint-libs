@@ -2,6 +2,9 @@ import { Tuid } from "./tuid";
 import { Field, ArrFields } from "./field";
 import { UqApi } from "../tool/uqApi";
 import { Uqs } from "./uqs";
+import { Sheet } from "./sheet";
+import { Action } from "./action";
+import { Query } from "./query";
 export declare class Uq {
     private readonly uqs;
     private readonly uqFullName;
@@ -53,6 +56,10 @@ export declare class Uq {
     private newSheet;
     private newAction;
     private newQuery;
+    tuid(name: string): Tuid;
+    action(name: string): Action;
+    sheet(name: string): Sheet;
+    query(name: string): Query;
 }
 export declare class UqUnitx extends Uq {
     readBus(face: string, queue: number): Promise<any>;

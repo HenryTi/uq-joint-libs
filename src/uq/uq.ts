@@ -1,4 +1,4 @@
-import { TuidMain, Tuid } from "./tuid";
+import { TuidMain, Tuid, TuidDiv } from "./tuid";
 import { Field, ArrFields } from "./field";
 import { UqApi } from "../tool/uqApi";
 import { Uqs } from "./uqs";
@@ -309,6 +309,22 @@ export class Uq {
         this.queryArr.push(query);
         return query;
     }
+
+    tuid(name:string):Tuid {return this.tuids[name.toLowerCase()]}
+    /*
+    tuidDiv(name:string, div:string):TuidDiv {
+        let tuid = this.tuids[name.toLowerCase()]
+        return tuid && tuid.div(div.toLowerCase());
+    }
+    */
+    action(name:string):Action {return this.actions[name.toLowerCase()]}
+    sheet(name:string):Sheet {return this.sheets[name.toLowerCase()]}
+    query(name:string):Query {return this.queries[name.toLowerCase()]}
+    //book(name:string):Book {return this.books[name.toLowerCase()]}
+    //map(name:string):Map {return this.maps[name.toLowerCase()]}
+    //history(name:string):History {return this.histories[name.toLowerCase()]}
+    //pending(name:string):Pending {return this.pendings[name.toLowerCase()]}
+
     /*
     private newBook(name:string, id:number):Book {
         let book = this.books[name];
