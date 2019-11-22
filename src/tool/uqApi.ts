@@ -8,14 +8,75 @@ export interface BusMessage {
     body: string;
 }
 
+export abstract class Caller<T> {
+    protected readonly _params: T;
+    constructor(params: T, waiting: boolean) {
+        this._params = params;
+        this.waiting = waiting;
+    }
+    protected get params():any {return this._params;}
+    buildParams():any {return this.params;}
+    method: string  = 'POST';
+    abstract get path(): string;
+    get headers(): {[header:string]: string} {return undefined}
+    waiting: boolean;
+}
+
+const methodsWithBody = ['POST', 'PUT'];
+
 /**
  * 这个OpenApi好像是没有用
  */
 export class UqApi extends Fetch {
     protected unit: number;
-    constructor(baseUrl: string, unit: number) {
+    private apiToken: string;
+    constructor(baseUrl: string, unit: number, apiToken?:string) {
         super(baseUrl);
         this.unit = unit;
+        this.apiToken = apiToken;
+    }
+
+    async xcall(caller:Caller<any>): Promise<void> {
+        let urlPrefix:string = '';
+        let options = this.buildOptions();
+        let {headers, path, method} = caller;
+        if (headers !== undefined) {
+            let h = options.headers;
+            for (let i in headers) {
+                h.append(i, encodeURI(headers[i]));
+            }
+        }
+        options.method = method;
+        let p = caller.buildParams();
+        if (methodsWithBody.indexOf(method) >= 0 && p !== undefined) {
+            options.body = JSON.stringify(p)
+        }
+        //return await this.innerFetch(urlPrefix + path, options, caller.waiting);
+        return await this.innerFetch(urlPrefix + path, method, options.body);
+    }
+    private buildOptions(): {method:string; headers:Headers; body:any} {
+        let headers = this.buildHeaders();
+        let options = {
+            headers: headers,
+            method: undefined as any,
+            body: undefined as any,
+            // cache: 'no-cache',
+        };
+        return options;
+    }
+
+    protected buildHeaders():Headers {
+        //let {language, culture} = nav;
+        let headers = new Headers();
+        //headers.append('Access-Control-Allow-Origin', '*');
+        headers.append('Content-Type', 'application/json;charset=UTF-8');
+        //let lang = language;
+        //if (culture) lang += '-' + culture;
+        //headers.append('Accept-Language', lang);
+        if (this.apiToken) { 
+            headers.append('Authorization', this.apiToken); 
+        }
+        return headers;
     }
 
     protected appendHeaders(headers: Headers) {

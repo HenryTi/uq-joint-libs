@@ -3,10 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const uq_1 = require("./uq");
 const $unitx = '$$$/$unitx';
 class Uqs {
-    constructor(unit) {
+    constructor(unit, userName, password) {
         //private joint: Joint;
         this.uqs = {};
         this.unit = unit;
+        this.userName = userName;
+        this.password = password;
     }
     /*
     async getOpenApi(uq: string): Promise<UqApi> {
@@ -21,13 +23,13 @@ class Uqs {
     }
     async createUq(uqFullName) {
         let uq = new uq_1.Uq(this, uqFullName);
-        await uq.init();
+        await uq.init(this.userName, this.password);
         this.uqs[uqFullName] = uq;
         return uq;
     }
     async init() {
         this.unitx = new uq_1.UqUnitx(this, $unitx);
-        await this.unitx.init();
+        await this.unitx.init(this.userName, this.password);
     }
     async readBus(face, queue) {
         return await this.unitx.readBus(face, queue);

@@ -4,23 +4,34 @@ import { UqApi } from "../tool/uqApi";
 import { Uqs } from "./uqs";
 import { centerApi } from "../tool/centerApi";
 import { host } from "../tool/host";
+import { Sheet } from "./sheet";
+import { Action } from "./action";
+import { Query } from "./query";
 
 export class Uq {
-    private uqs: Uqs;
-    private uqFullName: string;
-    private id: number;
-    private tuids: { [name: string]: TuidMain } = {};
-    private tuidArr: TuidMain[] = [];
+    private readonly uqs: Uqs;
+    private readonly uqFullName: string;
+    private readonly tuids: { [name: string]: TuidMain } = {};
+    private readonly tuidArr: TuidMain[] = [];
+    private readonly sheets: { [name: string]: Sheet } = {};
+    private readonly sheetArr: Sheet[] = [];
+    private readonly actions: {[name:string]: Action} = {};
+    private readonly actionArr: Action[] = [];
+    private readonly queries: {[name:string]: Query} = {};
+    private readonly queryArr: Query[] = [];
 
-    protected uqApi: UqApi;
+    uqApi: UqApi;
+    id: number;
+    uqVersion: number;
 
     constructor(uqs: Uqs, uqFullName: string) {
         this.uqs = uqs;
         this.uqFullName = uqFullName;
+        this.uqVersion = 0;
     }
 
-    async init() {
-        await this.initUqApi();
+    async init(userName:string, password:string) {
+        await this.initUqApi(userName, password);
         await this.loadEntities();
     }
 
@@ -155,12 +166,13 @@ export class Uq {
         await this.uqApi.delMap(map, body);
     }
 
-    private async initUqApi(): Promise<void> {
+    private async initUqApi(userName:string, password:string): Promise<void> {
         let {unit} = this.uqs;
         let uqUrl = await centerApi.urlFromUq(unit, this.uqFullName);
         let { db, url, urlTest } = uqUrl;
-        let realUrl = host.getUrlOrTest(db, url, urlTest)
-        this.uqApi = new UqApi(realUrl, unit);
+        let realUrl = host.getUrlOrTest(db, url, urlTest);
+        let loginResult = await centerApi.login({user:userName, pwd:password});
+        this.uqApi = new UqApi(realUrl, unit, loginResult && loginResult.token);
     }
 
     private buildTuids(tuids: any) {
@@ -199,15 +211,13 @@ export class Uq {
                 let tuid = this.newTuid(name, id);
                 tuid.sys = false;
                 break;
-            /*
+            case 'sheet':this.newSheet(name, id); break;
             case 'action': this.newAction(name, id); break;
             case 'query': this.newQuery(name, id); break;
-            case 'book': this.newBook(name, id); break;
-            case 'map': this.newMap(name, id); break;
-            case 'history': this.newHistory(name, id); break;
-            case 'sheet':this.newSheet(name, id); break;
-            case 'pending': this.newPending(name, id); break;
-            */
+            //case 'book': this.newBook(name, id); break;
+            //case 'map': this.newMap(name, id); break;
+            //case 'history': this.newHistory(name, id); break;
+            //case 'pending': this.newPending(name, id); break;
         }
     }
 
@@ -222,8 +232,9 @@ export class Uq {
         this.buildEntities(entities);
     }
 
-    private buildEntities(entities: any) {
-        let { access, tuids } = entities;
+    buildEntities(entities: any) {
+        let { access, tuids, version } = entities;
+        this.uqVersion = version;
         this.buildTuids(tuids);
         this.buildAccess(access);
     }
@@ -275,6 +286,59 @@ export class Uq {
             this.buildFieldTuid(fields, mainFields);
         }
     }
+
+    private newSheet(name: string, entityId: number): Sheet {
+        let sheet = this.sheets[name];
+        if (sheet !== undefined) return sheet;
+        sheet = this.sheets[name] = new Sheet(this, name, entityId);
+        this.sheetArr.push(sheet);
+        return sheet;
+    }
+    
+    private newAction(name:string, id:number):Action {
+        let action = this.actions[name];
+        if (action !== undefined) return action;
+        action = this.actions[name] = new Action(this, name, id)
+        this.actionArr.push(action);
+        return action;
+    }
+    private newQuery(name:string, id:number):Query {
+        let query = this.queries[name];
+        if (query !== undefined) return query;
+        query = this.queries[name] = new Query(this, name, id)
+        this.queryArr.push(query);
+        return query;
+    }
+    /*
+    private newBook(name:string, id:number):Book {
+        let book = this.books[name];
+        if (book !== undefined) return book;
+        book = this.books[name] = new Book(this, name, id);
+        this.bookArr.push(book);
+        return book;
+    }
+    private newMap(name:string, id:number):Map {
+        let map = this.maps[name];
+        if (map !== undefined) return map;
+        map = this.maps[name] = new Map(this, name, id)
+        this.mapArr.push(map);
+        return map;
+    }
+    private newHistory(name:string, id:number):History {
+        let history = this.histories[name];
+        if (history !== undefined) return;
+        history = this.histories[name] = new History(this, name, id)
+        this.historyArr.push(history);
+        return history;
+    }
+    private newPending(name:string, id:number):Pending {
+        let pending = this.pendings[name];
+        if (pending !== undefined) return;
+        pending = this.pendings[name] = new Pending(this, name, id)
+        this.pendingArr.push(pending);
+        return pending;
+    }
+    */
 }
 
 export class UqUnitx extends Uq {

@@ -97,6 +97,9 @@ export interface Settings {
     uqBusSettings: string[];
     scanInterval?: number;
 
+    userName?: string;
+    password?: string;
+
     bus?: { [busName: string]: UqBus };
     pullReadFromSql?: (sql: string, queue: number | string) => Promise<DataPullResult>;    
 }

@@ -4,15 +4,25 @@ const tuid_1 = require("./tuid");
 const uqApi_1 = require("../tool/uqApi");
 const centerApi_1 = require("../tool/centerApi");
 const host_1 = require("../tool/host");
+const sheet_1 = require("./sheet");
+const action_1 = require("./action");
+const query_1 = require("./query");
 class Uq {
     constructor(uqs, uqFullName) {
         this.tuids = {};
         this.tuidArr = [];
+        this.sheets = {};
+        this.sheetArr = [];
+        this.actions = {};
+        this.actionArr = [];
+        this.queries = {};
+        this.queryArr = [];
         this.uqs = uqs;
         this.uqFullName = uqFullName;
+        this.uqVersion = 0;
     }
-    async init() {
-        await this.initUqApi();
+    async init(userName, password) {
+        await this.initUqApi(userName, password);
         await this.loadEntities();
     }
     async buildData(data, props) {
@@ -145,12 +155,13 @@ class Uq {
     async delMap(map, body) {
         await this.uqApi.delMap(map, body);
     }
-    async initUqApi() {
+    async initUqApi(userName, password) {
         let { unit } = this.uqs;
         let uqUrl = await centerApi_1.centerApi.urlFromUq(unit, this.uqFullName);
         let { db, url, urlTest } = uqUrl;
         let realUrl = host_1.host.getUrlOrTest(db, url, urlTest);
-        this.uqApi = new uqApi_1.UqApi(realUrl, unit);
+        let loginResult = await centerApi_1.centerApi.login({ user: userName, pwd: password });
+        this.uqApi = new uqApi_1.UqApi(realUrl, unit, loginResult && loginResult.token);
     }
     buildTuids(tuids) {
         for (let i in tuids) {
@@ -192,15 +203,19 @@ class Uq {
                 let tuid = this.newTuid(name, id);
                 tuid.sys = false;
                 break;
-            /*
-            case 'action': this.newAction(name, id); break;
-            case 'query': this.newQuery(name, id); break;
-            case 'book': this.newBook(name, id); break;
-            case 'map': this.newMap(name, id); break;
-            case 'history': this.newHistory(name, id); break;
-            case 'sheet':this.newSheet(name, id); break;
-            case 'pending': this.newPending(name, id); break;
-            */
+            case 'sheet':
+                this.newSheet(name, id);
+                break;
+            case 'action':
+                this.newAction(name, id);
+                break;
+            case 'query':
+                this.newQuery(name, id);
+                break;
+            //case 'book': this.newBook(name, id); break;
+            //case 'map': this.newMap(name, id); break;
+            //case 'history': this.newHistory(name, id); break;
+            //case 'pending': this.newPending(name, id); break;
         }
     }
     fromObj(name, obj) {
@@ -213,7 +228,8 @@ class Uq {
         this.buildEntities(entities);
     }
     buildEntities(entities) {
-        let { access, tuids } = entities;
+        let { access, tuids, version } = entities;
+        this.uqVersion = version;
         this.buildTuids(tuids);
         this.buildAccess(access);
     }
@@ -271,6 +287,30 @@ class Uq {
                 continue;
             this.buildFieldTuid(fields, mainFields);
         }
+    }
+    newSheet(name, entityId) {
+        let sheet = this.sheets[name];
+        if (sheet !== undefined)
+            return sheet;
+        sheet = this.sheets[name] = new sheet_1.Sheet(this, name, entityId);
+        this.sheetArr.push(sheet);
+        return sheet;
+    }
+    newAction(name, id) {
+        let action = this.actions[name];
+        if (action !== undefined)
+            return action;
+        action = this.actions[name] = new action_1.Action(this, name, id);
+        this.actionArr.push(action);
+        return action;
+    }
+    newQuery(name, id) {
+        let query = this.queries[name];
+        if (query !== undefined)
+            return query;
+        query = this.queries[name] = new query_1.Query(this, name, id);
+        this.queryArr.push(query);
+        return query;
     }
 }
 exports.Uq = Uq;

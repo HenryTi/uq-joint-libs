@@ -6,12 +6,28 @@ export interface BusMessage {
     from: string;
     body: string;
 }
+export declare abstract class Caller<T> {
+    protected readonly _params: T;
+    constructor(params: T, waiting: boolean);
+    protected readonly params: any;
+    buildParams(): any;
+    method: string;
+    abstract readonly path: string;
+    readonly headers: {
+        [header: string]: string;
+    };
+    waiting: boolean;
+}
 /**
  * 这个OpenApi好像是没有用
  */
 export declare class UqApi extends Fetch {
     protected unit: number;
-    constructor(baseUrl: string, unit: number);
+    private apiToken;
+    constructor(baseUrl: string, unit: number, apiToken?: string);
+    xcall(caller: Caller<any>): Promise<void>;
+    private buildOptions;
+    protected buildHeaders(): Headers;
     protected appendHeaders(headers: Headers): void;
     bus(faces: string, faceUnitMessages: string): Promise<any>;
     readBus(face: string, queue: number): Promise<BusMessage>;

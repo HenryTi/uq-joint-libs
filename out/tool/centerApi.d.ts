@@ -1,5 +1,21 @@
 import { Fetch } from './fetch';
+interface Guest {
+    id: number;
+    guest: number;
+    token: string;
+}
+interface User extends Guest {
+    id: number;
+    name: string;
+    nick?: string;
+    icon?: string;
+}
 declare class CenterApi extends Fetch {
+    login(params: {
+        user: string;
+        pwd: string;
+        guest?: number;
+    }): Promise<User>;
     busSchema(owner: string, bus: string): Promise<string>;
     serviceBus(serviceUID: string, serviceBuses: string): Promise<void>;
     unitx(unit: number): Promise<any>;

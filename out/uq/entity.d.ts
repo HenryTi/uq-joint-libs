@@ -2,9 +2,10 @@ import { Uq } from './uq';
 import { Field, ArrFields, FieldMap } from './field';
 import { Tuid } from './tuid';
 export declare abstract class Entity {
-    protected uq: Uq;
     protected schema: any;
     private jName;
+    uq: Uq;
+    ver: number;
     sys?: boolean;
     readonly name: string;
     readonly typeId: number;
@@ -22,7 +23,7 @@ export declare abstract class Entity {
     schemaStringify(): string;
     tuidFromField(field: Field): Tuid;
     tuidFromName(fieldName: string, arrName?: string): Tuid;
-    protected buildParams(params: any): any;
+    buildParams(params: any): any;
     private buildFieldsParams;
     pack(data: any): string;
     private escape;

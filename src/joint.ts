@@ -24,11 +24,11 @@ export class Joint {
 
     constructor(settings: Settings) {
         this.settings = settings;
-        let { unit, uqIns: allUqIns, scanInterval } = settings;
+        let { unit, uqIns: allUqIns, scanInterval, userName, password } = settings;
         this.unit = unit;
         this.scanInterval = scanInterval || 3000;
         if (allUqIns === undefined) return;
-        this.uqs = new Uqs(unit);
+        this.uqs = new Uqs(unit, userName, password);
         for (let uqIn of allUqIns) {
             let { entity, type } = uqIn;
             if (this.uqInDict[entity] !== undefined) throw 'can not have multiple ' + entity;

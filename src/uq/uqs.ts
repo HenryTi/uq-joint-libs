@@ -6,9 +6,13 @@ export class Uqs {
     //private joint: Joint;
     private uqs: { [name: string]: Uq } = {};
     private unitx: UqUnitx;
+    private userName: string;
+    private password: string;
 
-    constructor(unit: number) {
+    constructor(unit: number, userName: string, password: string) {
         this.unit = unit;
+        this.userName = userName;
+        this.password = password;
     }
 
     readonly unit:number;
@@ -26,14 +30,14 @@ export class Uqs {
 
     private async createUq(uqFullName: string): Promise<Uq> {
         let uq = new Uq(this, uqFullName);
-        await uq.init();
+        await uq.init(this.userName, this.password);
         this.uqs[uqFullName] = uq;
         return uq;
     }
 
     async init() {
         this.unitx = new UqUnitx(this, $unitx);
-        await this.unitx.init();
+        await this.unitx.init(this.userName, this.password);
     }
 
     async readBus(face: string, queue: number): Promise<any> {

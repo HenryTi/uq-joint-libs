@@ -1,16 +1,46 @@
-//import config from 'config';
+import jwtDecode from 'jwt-decode';
 import { Fetch } from './fetch';
 
-/*
-const centerHost = config.get<string>('centerhost');
-const centerUrl = urlSetCenterHost(config.get<string>('center'));
-
-export function urlSetCenterHost(url:string):string {
-    return url.replace('://centerhost/', '://'+centerHost+'/');
+interface Guest {
+    id: number;             // id = 0
+    guest: number;
+    token: string;
 }
-*/
+
+interface User extends Guest {
+    id: number;
+    name: string;
+    nick?: string;
+    icon?: string;
+}
+
+function decodeUserToken(token: string): User {
+    let ret:any = jwtDecode(token);
+    let user: User = {
+        id: ret.id,
+        name: ret.name,
+        guest: ret.guest,
+        token: token,
+    };
+    return user;
+}
 
 class CenterApi extends Fetch {
+    async login(params: {user: string, pwd: string, guest?: number}):Promise<User> {
+        let ret = await this.get('user/login', params);
+        switch (typeof ret) {
+            default: return;
+            case 'string': return decodeUserToken(ret);
+            case 'object':
+                let token = ret.token;
+                let user = decodeUserToken(token);
+                let {nick, icon} = ret;
+                if (nick) user.nick = nick;
+                if (icon) user.icon = icon;
+                return user;
+        }
+    }
+
     async busSchema(owner: string, bus: string): Promise<string> {
         let ret = await this.get('open/bus', { owner: owner, bus: bus });
         return ret.schema;

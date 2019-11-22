@@ -11,6 +11,7 @@ class Entity {
         this.name = name;
         this.typeId = typeId;
         this.sys = this.name.indexOf('$') >= 0;
+        this.ver = 0;
     }
     get sName() { return this.jName || this.name; }
     fieldMap(arr) {
@@ -52,7 +53,8 @@ class Entity {
         if (this.schema !== undefined)
             return;
         this.schema = schema;
-        let { name, fields, arrs, returns } = schema;
+        let { name, fields, arrs, returns, version } = schema;
+        this.ver = version || 0;
         if (name !== this.name)
             this.jName = name;
         this.uq.buildFieldTuid(this.fields = fields);

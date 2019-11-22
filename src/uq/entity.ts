@@ -6,9 +6,11 @@ const tab = '\t';
 const ln = '\n';
 
 export abstract class Entity {
-    protected uq: Uq;
     protected schema: any;
     private jName: string;
+
+    uq: Uq;
+    ver: number;
     sys?: boolean;
     readonly name: string;
     readonly typeId: number;
@@ -23,6 +25,7 @@ export abstract class Entity {
         this.name = name;
         this.typeId = typeId;
         this.sys = this.name.indexOf('$') >= 0;
+        this.ver = 0;
     }
 
     public face: any;           // 对应字段的label, placeHolder等等的中文，或者语言的翻译
@@ -63,7 +66,8 @@ export abstract class Entity {
         if (schema === undefined) return;
         if (this.schema !== undefined) return;
         this.schema = schema;
-        let {name, fields, arrs, returns} = schema;
+        let {name, fields, arrs, returns, version} = schema;
+        this.ver = version || 0;
         if (name !== this.name) this.jName = name;
         this.uq.buildFieldTuid(this.fields = fields);
         this.uq.buildArrFieldsTuid(this.arrFields = arrs, fields);
@@ -106,7 +110,7 @@ export abstract class Entity {
         return getTuid(fn, arr.fields);
     }
 
-    protected buildParams(params:any):any {
+    buildParams(params:any):any {
         let result = {};
         let fields = this.fields;
         if (fields !== undefined) this.buildFieldsParams(result, fields, params);

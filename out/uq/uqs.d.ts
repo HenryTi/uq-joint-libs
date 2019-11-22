@@ -2,7 +2,9 @@ import { Uq } from "./uq";
 export declare class Uqs {
     private uqs;
     private unitx;
-    constructor(unit: number);
+    private userName;
+    private password;
+    constructor(unit: number, userName: string, password: string);
     readonly unit: number;
     getUq(uqFullName: string): Promise<Uq>;
     private createUq;

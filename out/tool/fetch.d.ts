@@ -6,5 +6,5 @@ export declare abstract class Fetch {
     protected get(url: string, params?: any): Promise<any>;
     protected post(url: string, params: any): Promise<any>;
     protected appendHeaders(headers: Headers): void;
-    private innerFetch;
+    protected innerFetch(url: string, method: string, body?: any): Promise<any>;
 }

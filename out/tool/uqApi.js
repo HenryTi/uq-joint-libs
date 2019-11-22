@@ -1,13 +1,67 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const node_fetch_1 = require("node-fetch");
 const fetch_1 = require("./fetch");
+class Caller {
+    constructor(params, waiting) {
+        this.method = 'POST';
+        this._params = params;
+        this.waiting = waiting;
+    }
+    get params() { return this._params; }
+    buildParams() { return this.params; }
+    get headers() { return undefined; }
+}
+exports.Caller = Caller;
+const methodsWithBody = ['POST', 'PUT'];
 /**
  * 这个OpenApi好像是没有用
  */
 class UqApi extends fetch_1.Fetch {
-    constructor(baseUrl, unit) {
+    constructor(baseUrl, unit, apiToken) {
         super(baseUrl);
         this.unit = unit;
+        this.apiToken = apiToken;
+    }
+    async xcall(caller) {
+        let urlPrefix = '';
+        let options = this.buildOptions();
+        let { headers, path, method } = caller;
+        if (headers !== undefined) {
+            let h = options.headers;
+            for (let i in headers) {
+                h.append(i, encodeURI(headers[i]));
+            }
+        }
+        options.method = method;
+        let p = caller.buildParams();
+        if (methodsWithBody.indexOf(method) >= 0 && p !== undefined) {
+            options.body = JSON.stringify(p);
+        }
+        //return await this.innerFetch(urlPrefix + path, options, caller.waiting);
+        return await this.innerFetch(urlPrefix + path, method, options.body);
+    }
+    buildOptions() {
+        let headers = this.buildHeaders();
+        let options = {
+            headers: headers,
+            method: undefined,
+            body: undefined,
+        };
+        return options;
+    }
+    buildHeaders() {
+        //let {language, culture} = nav;
+        let headers = new node_fetch_1.Headers();
+        //headers.append('Access-Control-Allow-Origin', '*');
+        headers.append('Content-Type', 'application/json;charset=UTF-8');
+        //let lang = language;
+        //if (culture) lang += '-' + culture;
+        //headers.append('Accept-Language', lang);
+        if (this.apiToken) {
+            headers.append('Authorization', this.apiToken);
+        }
+        return headers;
     }
     appendHeaders(headers) {
         headers.append('unit', String(this.unit));

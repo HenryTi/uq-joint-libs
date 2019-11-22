@@ -31,7 +31,7 @@ export abstract class Fetch {
     protected appendHeaders(headers:Headers) {
     }
 
-    private async innerFetch(url: string, method:string, body?:any): Promise<any> {
+    protected async innerFetch(url: string, method:string, body?:any): Promise<any> {
         // console.log('innerFetch ' + method + '  ' + this.baseUrl + url);
         var headers = new Headers();
         headers.append('Accept', 'application/json'); // This one is enough for GET requests

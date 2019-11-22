@@ -1,16 +1,37 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-//import config from 'config';
+const jwt_decode_1 = __importDefault(require("jwt-decode"));
 const fetch_1 = require("./fetch");
-/*
-const centerHost = config.get<string>('centerhost');
-const centerUrl = urlSetCenterHost(config.get<string>('center'));
-
-export function urlSetCenterHost(url:string):string {
-    return url.replace('://centerhost/', '://'+centerHost+'/');
+function decodeUserToken(token) {
+    let ret = jwt_decode_1.default(token);
+    let user = {
+        id: ret.id,
+        name: ret.name,
+        guest: ret.guest,
+        token: token,
+    };
+    return user;
 }
-*/
 class CenterApi extends fetch_1.Fetch {
+    async login(params) {
+        let ret = await this.get('user/login', params);
+        switch (typeof ret) {
+            default: return;
+            case 'string': return decodeUserToken(ret);
+            case 'object':
+                let token = ret.token;
+                let user = decodeUserToken(token);
+                let { nick, icon } = ret;
+                if (nick)
+                    user.nick = nick;
+                if (icon)
+                    user.icon = icon;
+                return user;
+        }
+    }
     async busSchema(owner, bus) {
         let ret = await this.get('open/bus', { owner: owner, bus: bus });
         return ret.schema;

@@ -94,6 +94,8 @@ export interface Settings {
     }[];
     uqBusSettings: string[];
     scanInterval?: number;
+    userName?: string;
+    password?: string;
     bus?: {
         [busName: string]: UqBus;
     };

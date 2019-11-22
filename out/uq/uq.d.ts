@@ -3,14 +3,21 @@ import { Field, ArrFields } from "./field";
 import { UqApi } from "../tool/uqApi";
 import { Uqs } from "./uqs";
 export declare class Uq {
-    private uqs;
-    private uqFullName;
-    private id;
-    private tuids;
-    private tuidArr;
-    protected uqApi: UqApi;
+    private readonly uqs;
+    private readonly uqFullName;
+    private readonly tuids;
+    private readonly tuidArr;
+    private readonly sheets;
+    private readonly sheetArr;
+    private readonly actions;
+    private readonly actionArr;
+    private readonly queries;
+    private readonly queryArr;
+    uqApi: UqApi;
+    id: number;
+    uqVersion: number;
     constructor(uqs: Uqs, uqFullName: string);
-    init(): Promise<void>;
+    init(userName: string, password: string): Promise<void>;
     buildData(data: any, props: {
         [name: string]: UqProp;
     }): Promise<any>;
@@ -38,11 +45,14 @@ export declare class Uq {
     private fromType;
     private fromObj;
     protected loadEntities(): Promise<void>;
-    private buildEntities;
+    buildEntities(entities: any): void;
     getTuid(name: string, div?: string, tuidUrl?: string): Tuid;
     private newTuid;
     buildFieldTuid(fields: Field[], mainFields?: Field[]): void;
     buildArrFieldsTuid(arrFields: ArrFields[], mainFields: Field[]): void;
+    private newSheet;
+    private newAction;
+    private newQuery;
 }
 export declare class UqUnitx extends Uq {
     readBus(face: string, queue: number): Promise<any>;
