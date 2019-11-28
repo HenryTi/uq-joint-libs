@@ -42,9 +42,6 @@ export abstract class Fetch {
         if (this.apiToken !== undefined) headers.append('Authorization', this.apiToken);
         this.appendHeaders(headers);
         url = this.baseUrl + url;
-        if (url.endsWith('/sheet/Order') === true) {
-            debugger;
-        }
         switch (typeof (body)) {
             default: body = JSON.stringify(body); break;
             case 'string': break;
