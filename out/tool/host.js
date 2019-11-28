@@ -48,7 +48,7 @@ function centerUrlFromHost(host) {
             host = host.substr(0, host.length - 1);
         return host + '/tv/';
     }
-    return `http://${host}/tv`;
+    return `http://${host}/tv/`;
 }
 function centerWsFromHost(host) {
     let https = 'https://';

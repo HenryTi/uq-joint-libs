@@ -21,10 +21,11 @@ class UqApi extends fetch_1.Fetch {
     constructor(baseUrl, unit, apiToken) {
         super(baseUrl);
         this.unit = unit;
-        this.apiToken = apiToken;
+        this._apiToken = apiToken;
     }
+    get apiToken() { return this._apiToken; }
     async xcall(caller) {
-        let urlPrefix = '';
+        let urlPrefix = 'tv/';
         let options = this.buildOptions();
         let { headers, path, method } = caller;
         if (headers !== undefined) {
@@ -39,7 +40,7 @@ class UqApi extends fetch_1.Fetch {
             options.body = JSON.stringify(p);
         }
         //return await this.innerFetch(urlPrefix + path, options, caller.waiting);
-        return await this.innerFetch(urlPrefix + path, method, options.body);
+        return await this.innerFetchResult(urlPrefix + path, method, options.body);
     }
     buildOptions() {
         let headers = this.buildHeaders();

@@ -187,7 +187,12 @@ class Uq {
         let { db, url, urlTest } = uqUrl;
         let realUrl = host_1.host.getUrlOrTest(db, url, urlTest);
         let loginResult = await centerApi_1.centerApi.login({ user: userName, pwd: password });
-        this.uqApi = new uqApi_1.UqApi(realUrl, unit, loginResult && loginResult.token);
+        let uqToken;
+        if (loginResult !== undefined) {
+            let parts = this.uqFullName.split('/');
+            uqToken = await centerApi_1.centerApi.uqToken(unit, parts[0], parts[1]);
+        }
+        this.uqApi = new uqApi_1.UqApi(realUrl, unit, uqToken && uqToken.token);
     }
     buildTuids(tuids) {
         for (let i in tuids) {

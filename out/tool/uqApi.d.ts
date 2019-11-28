@@ -22,8 +22,9 @@ export declare abstract class Caller<T> {
  * 这个OpenApi好像是没有用
  */
 export declare class UqApi extends Fetch {
+    private _apiToken;
     protected unit: number;
-    private apiToken;
+    protected readonly apiToken: string;
     constructor(baseUrl: string, unit: number, apiToken?: string);
     xcall(caller: Caller<any>): Promise<any>;
     private buildOptions;

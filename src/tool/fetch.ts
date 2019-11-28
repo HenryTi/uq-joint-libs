@@ -1,7 +1,9 @@
 import fetch, {Headers} from 'node-fetch';
+//import { centerApi } from './centerApi';
 
 export abstract class Fetch {
     private baseUrl:string;
+    protected get apiToken(): string {return undefined;}
     constructor(baseUrl?:string) {
         this.baseUrl = baseUrl;
     }
@@ -31,25 +33,33 @@ export abstract class Fetch {
     protected appendHeaders(headers:Headers) {
     }
 
-    protected async innerFetch(url: string, method:string, body?:any): Promise<any> {
+
+    protected async innerFetchResult(url: string, method:string, body?:any): Promise<any> {
         // console.log('innerFetch ' + method + '  ' + this.baseUrl + url);
         var headers = new Headers();
         headers.append('Accept', 'application/json'); // This one is enough for GET requests
         headers.append('Content-Type', 'application/json'); // This one sends body
+        if (this.apiToken !== undefined) headers.append('Authorization', this.apiToken);
         this.appendHeaders(headers);
-        let res = await fetch(
-            this.baseUrl + url,
-            {
-                headers: headers, /*{
-                    "Content-Type": 'application/json',
-                    "Accept": 'application/json',
-                    //"Authorization": 'this.apiToken',
-                    //"Access-Control-Allow-Origin": '*'
-                },*/
-                method: method,
-                body: JSON.stringify(body),
-            }
-        );
+        url = this.baseUrl + url;
+        if (url.endsWith('/sheet/Order') === true) {
+            debugger;
+        }
+        switch (typeof (body)) {
+            default: body = JSON.stringify(body); break;
+            case 'string': break;
+        }
+        let fetchInit = {
+            headers: headers, /*{
+                "Content-Type": 'application/json',
+                "Accept": 'application/json',
+                //"Authorization": 'this.apiToken',
+                //"Access-Control-Allow-Origin": '*'
+            },*/
+            method: method,
+            body: body,
+        };
+        let res = await fetch(url, fetchInit);
         if (res.status !== 200) {
             console.error(res.statusText, res.status);
             throw {
@@ -64,8 +74,14 @@ export abstract class Fetch {
             throw json.error;
         }
         if (json.ok === true) {
-            return json.res;
+            return json;
         }
         return json;
+    }
+
+    private async innerFetch(url: string, method:string, body?:any): Promise<any> {
+        let ret = await this.innerFetchResult(url, method, body);
+        if (ret) return ret.res;
+        return ret;
     }
 }

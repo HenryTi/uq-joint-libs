@@ -16,20 +16,27 @@ function decodeUserToken(token) {
     return user;
 }
 class CenterApi extends fetch_1.Fetch {
+    get loginResult() { return this._loginResult; }
+    get apiToken() { return this._loginResult && this._loginResult.token; }
     async login(params) {
+        if (this._user === params.user)
+            return this._loginResult;
         let ret = await this.get('user/login', params);
         switch (typeof ret) {
             default: return;
-            case 'string': return decodeUserToken(ret);
+            case 'string':
+                this._user = params.user;
+                return this._loginResult = decodeUserToken(ret);
             case 'object':
+                this._user = params.user;
                 let token = ret.token;
-                let user = decodeUserToken(token);
+                let userRet = decodeUserToken(token);
                 let { nick, icon } = ret;
                 if (nick)
-                    user.nick = nick;
+                    userRet.nick = nick;
                 if (icon)
-                    user.icon = icon;
-                return user;
+                    userRet.icon = icon;
+                return this._loginResult = userRet;
         }
     }
     async busSchema(owner, bus) {
@@ -44,6 +51,9 @@ class CenterApi extends fetch_1.Fetch {
     }
     async unitx(unit) {
         return await this.get('open/unitx', { unit: unit });
+    }
+    async uqToken(unit, uqOwner, uqName) {
+        return await this.get('tie/app-uq', { unit: unit, uqOwner: uqOwner, uqName: uqName, testing: false });
     }
     async uqUrl(unit, uq) {
         return await this.get('open/uq-url', { unit: unit, uq: uq });

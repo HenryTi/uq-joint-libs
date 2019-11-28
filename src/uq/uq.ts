@@ -199,7 +199,14 @@ export class Uq {
         let { db, url, urlTest } = uqUrl;
         let realUrl = host.getUrlOrTest(db, url, urlTest);
         let loginResult = await centerApi.login({user:userName, pwd:password});
-        this.uqApi = new UqApi(realUrl, unit, loginResult && loginResult.token);
+
+        let uqToken:any;
+        if (loginResult !== undefined) {
+            let parts = this.uqFullName.split('/');
+            uqToken = await centerApi.uqToken(unit, parts[0], parts[1]);
+        }
+
+        this.uqApi = new UqApi(realUrl, unit, uqToken && uqToken.token);
     }
 
     private buildTuids(tuids: any) {

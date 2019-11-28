@@ -11,6 +11,10 @@ interface User extends Guest {
     icon?: string;
 }
 declare class CenterApi extends Fetch {
+    private _user;
+    private _loginResult;
+    readonly loginResult: any;
+    protected readonly apiToken: string;
     login(params: {
         user: string;
         pwd: string;
@@ -19,6 +23,7 @@ declare class CenterApi extends Fetch {
     busSchema(owner: string, bus: string): Promise<string>;
     serviceBus(serviceUID: string, serviceBuses: string): Promise<void>;
     unitx(unit: number): Promise<any>;
+    uqToken(unit: number, uqOwner: string, uqName: string): Promise<any>;
     uqUrl(unit: number, uq: number): Promise<any>;
     urlFromUq(unit: number, uqFullName: string): Promise<any>;
     uqDb(name: string): Promise<any>;

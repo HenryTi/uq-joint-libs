@@ -52,6 +52,9 @@ class Entity {
             return;
         if (this.schema !== undefined)
             return;
+        let { call } = schema;
+        if (call !== undefined)
+            schema = call;
         this.schema = schema;
         let { name, fields, arrs, returns, version } = schema;
         this.ver = version || 0;

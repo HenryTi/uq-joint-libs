@@ -8,10 +8,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = __importStar(require("node-fetch"));
+//import { centerApi } from './centerApi';
 class Fetch {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
     }
+    get apiToken() { return undefined; }
     initBaseUrl(baseUrl) {
         this.baseUrl = baseUrl;
     }
@@ -36,17 +38,30 @@ class Fetch {
     }
     appendHeaders(headers) {
     }
-    async innerFetch(url, method, body) {
+    async innerFetchResult(url, method, body) {
         // console.log('innerFetch ' + method + '  ' + this.baseUrl + url);
         var headers = new node_fetch_1.Headers();
         headers.append('Accept', 'application/json'); // This one is enough for GET requests
         headers.append('Content-Type', 'application/json'); // This one sends body
+        if (this.apiToken !== undefined)
+            headers.append('Authorization', this.apiToken);
         this.appendHeaders(headers);
-        let res = await node_fetch_1.default(this.baseUrl + url, {
+        url = this.baseUrl + url;
+        if (url.endsWith('/sheet/Order') === true) {
+            debugger;
+        }
+        switch (typeof (body)) {
+            default:
+                body = JSON.stringify(body);
+                break;
+            case 'string': break;
+        }
+        let fetchInit = {
             headers: headers,
             method: method,
-            body: JSON.stringify(body),
-        });
+            body: body,
+        };
+        let res = await node_fetch_1.default(url, fetchInit);
         if (res.status !== 200) {
             console.error(res.statusText, res.status);
             throw {
@@ -61,9 +76,15 @@ class Fetch {
             throw json.error;
         }
         if (json.ok === true) {
-            return json.res;
+            return json;
         }
         return json;
+    }
+    async innerFetch(url, method, body) {
+        let ret = await this.innerFetchResult(url, method, body);
+        if (ret)
+            return ret.res;
+        return ret;
     }
 }
 exports.Fetch = Fetch;

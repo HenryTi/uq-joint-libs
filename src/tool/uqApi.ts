@@ -28,16 +28,17 @@ const methodsWithBody = ['POST', 'PUT'];
  * 这个OpenApi好像是没有用
  */
 export class UqApi extends Fetch {
+    private _apiToken:string;
     protected unit: number;
-    private apiToken: string;
+    protected get apiToken(): string {return this._apiToken;}
     constructor(baseUrl: string, unit: number, apiToken?:string) {
         super(baseUrl);
         this.unit = unit;
-        this.apiToken = apiToken;
+        this._apiToken = apiToken;
     }
 
     async xcall(caller:Caller<any>): Promise<any> {
-        let urlPrefix:string = '';
+        let urlPrefix:string = 'tv/';
         let options = this.buildOptions();
         let {headers, path, method} = caller;
         if (headers !== undefined) {
@@ -52,7 +53,7 @@ export class UqApi extends Fetch {
             options.body = JSON.stringify(p)
         }
         //return await this.innerFetch(urlPrefix + path, options, caller.waiting);
-        return await this.innerFetch(urlPrefix + path, method, options.body);
+        return await this.innerFetchResult(urlPrefix + path, method, options.body);
     }
     private buildOptions(): {method:string; headers:Headers; body:any} {
         let headers = this.buildHeaders();

@@ -26,18 +26,29 @@ function decodeUserToken(token: string): User {
 }
 
 class CenterApi extends Fetch {
+    private _user: string;
+    private _loginResult:any;
+    get loginResult():any {return this._loginResult}
+
+    protected get apiToken(): string {return this._loginResult && this._loginResult.token;}
+
     async login(params: {user: string, pwd: string, guest?: number}):Promise<User> {
+        if (this._user === params.user) return this._loginResult;
+
         let ret = await this.get('user/login', params);
         switch (typeof ret) {
             default: return;
-            case 'string': return decodeUserToken(ret);
+            case 'string':
+                this._user = params.user;
+                return this._loginResult = decodeUserToken(ret);
             case 'object':
+                this._user = params.user;
                 let token = ret.token;
-                let user = decodeUserToken(token);
+                let userRet = decodeUserToken(token);
                 let {nick, icon} = ret;
-                if (nick) user.nick = nick;
-                if (icon) user.icon = icon;
-                return user;
+                if (nick) userRet.nick = nick;
+                if (icon) userRet.icon = icon;
+                return this._loginResult = userRet;
         }
     }
 
@@ -55,6 +66,10 @@ class CenterApi extends Fetch {
 
     async unitx(unit: number): Promise<any> {
         return await this.get('open/unitx', { unit: unit });
+    }
+
+    async uqToken(unit: number, uqOwner: string, uqName:string):Promise<any> {
+        return await this.get('tie/app-uq', {unit:unit, uqOwner:uqOwner, uqName:uqName, testing:false});
     }
 
     async uqUrl(unit: number, uq: number): Promise<any> {
