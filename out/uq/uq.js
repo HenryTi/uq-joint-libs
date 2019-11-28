@@ -7,6 +7,7 @@ const host_1 = require("../tool/host");
 const sheet_1 = require("./sheet");
 const action_1 = require("./action");
 const query_1 = require("./query");
+const map_1 = require("./map");
 class Uq {
     constructor(uqs, uqFullName) {
         this.tuids = {};
@@ -17,6 +18,8 @@ class Uq {
         this.actionArr = [];
         this.queries = {};
         this.queryArr = [];
+        this.maps = {};
+        this.mapArr = [];
         this.uqs = uqs;
         this.uqFullName = uqFullName;
         this.uqVersion = 0;
@@ -212,16 +215,26 @@ class Uq {
             case 'query':
                 this.newQuery(name, id);
                 break;
+            case 'map':
+                this.newMap(name, id);
+                break;
             //case 'book': this.newBook(name, id); break;
-            //case 'map': this.newMap(name, id); break;
             //case 'history': this.newHistory(name, id); break;
             //case 'pending': this.newPending(name, id); break;
         }
     }
     fromObj(name, obj) {
         switch (obj['$']) {
-            //case 'sheet': this.buildSheet(name, obj); break;
+            case 'sheet':
+                this.buildSheet(name, obj);
+                break;
         }
+    }
+    buildSheet(name, obj) {
+        let sheet = this.sheets[name];
+        if (sheet === undefined)
+            sheet = this.newSheet(name, obj.id);
+        sheet.build(obj);
     }
     async loadEntities() {
         let entities = await this.uqApi.loadEntities();
@@ -322,6 +335,18 @@ class Uq {
     action(name) { return this.actions[name.toLowerCase()]; }
     sheet(name) { return this.sheets[name.toLowerCase()]; }
     query(name) { return this.queries[name.toLowerCase()]; }
+    map(name) { return this.maps[name.toLowerCase()]; }
+    //book(name:string):Book {return this.books[name.toLowerCase()]}
+    //history(name:string):History {return this.histories[name.toLowerCase()]}
+    //pending(name:string):Pending {return this.pendings[name.toLowerCase()]}
+    newMap(name, id) {
+        let map = this.maps[name];
+        if (map !== undefined)
+            return map;
+        map = this.maps[name] = new map_1.Map(this, name, id);
+        this.mapArr.push(map);
+        return map;
+    }
 }
 exports.Uq = Uq;
 class UqUnitx extends Uq {

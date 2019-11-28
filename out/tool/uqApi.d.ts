@@ -25,7 +25,7 @@ export declare class UqApi extends Fetch {
     protected unit: number;
     private apiToken;
     constructor(baseUrl: string, unit: number, apiToken?: string);
-    xcall(caller: Caller<any>): Promise<void>;
+    xcall(caller: Caller<any>): Promise<any>;
     private buildOptions;
     protected buildHeaders(): Headers;
     protected appendHeaders(headers: Headers): void;

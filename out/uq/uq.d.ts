@@ -5,6 +5,7 @@ import { Uqs } from "./uqs";
 import { Sheet } from "./sheet";
 import { Action } from "./action";
 import { Query } from "./query";
+import { Map } from "./map";
 export declare class Uq {
     private readonly uqs;
     private readonly uqFullName;
@@ -16,6 +17,8 @@ export declare class Uq {
     private readonly actionArr;
     private readonly queries;
     private readonly queryArr;
+    private readonly maps;
+    private readonly mapArr;
     uqApi: UqApi;
     id: number;
     uqVersion: number;
@@ -47,6 +50,7 @@ export declare class Uq {
     private buildAccess;
     private fromType;
     private fromObj;
+    private buildSheet;
     protected loadEntities(): Promise<void>;
     buildEntities(entities: any): void;
     getTuid(name: string, div?: string, tuidUrl?: string): Tuid;
@@ -54,12 +58,14 @@ export declare class Uq {
     buildFieldTuid(fields: Field[], mainFields?: Field[]): void;
     buildArrFieldsTuid(arrFields: ArrFields[], mainFields: Field[]): void;
     private newSheet;
-    private newAction;
-    private newQuery;
+    newAction(name: string, id: number): Action;
+    newQuery(name: string, id: number): Query;
     tuid(name: string): Tuid;
     action(name: string): Action;
     sheet(name: string): Sheet;
     query(name: string): Query;
+    map(name: string): Map;
+    private newMap;
 }
 export declare class UqUnitx extends Uq {
     readBus(face: string, queue: number): Promise<any>;

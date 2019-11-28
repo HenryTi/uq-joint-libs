@@ -7,6 +7,7 @@ import { host } from "../tool/host";
 import { Sheet } from "./sheet";
 import { Action } from "./action";
 import { Query } from "./query";
+import { Map } from "./map";
 
 export class Uq {
     private readonly uqs: Uqs;
@@ -19,6 +20,8 @@ export class Uq {
     private readonly actionArr: Action[] = [];
     private readonly queries: {[name:string]: Query} = {};
     private readonly queryArr: Query[] = [];
+    private readonly maps: {[name:string]: Map} = {};
+    private readonly mapArr: Map[] = [];
 
     uqApi: UqApi;
     id: number;
@@ -214,8 +217,8 @@ export class Uq {
             case 'sheet':this.newSheet(name, id); break;
             case 'action': this.newAction(name, id); break;
             case 'query': this.newQuery(name, id); break;
+            case 'map': this.newMap(name, id); break;
             //case 'book': this.newBook(name, id); break;
-            //case 'map': this.newMap(name, id); break;
             //case 'history': this.newHistory(name, id); break;
             //case 'pending': this.newPending(name, id); break;
         }
@@ -223,10 +226,14 @@ export class Uq {
 
     private fromObj(name: string, obj: any) {
         switch (obj['$']) {
-            //case 'sheet': this.buildSheet(name, obj); break;
+            case 'sheet': this.buildSheet(name, obj); break;
         }
     }
-
+    private buildSheet(name:string, obj:any) {
+        let sheet = this.sheets[name];
+        if (sheet === undefined) sheet = this.newSheet(name, obj.id);
+        sheet.build(obj);
+    }
     protected async loadEntities() {
         let entities = await this.uqApi.loadEntities();
         this.buildEntities(entities);
@@ -295,14 +302,14 @@ export class Uq {
         return sheet;
     }
     
-    private newAction(name:string, id:number):Action {
+    newAction(name:string, id:number):Action {
         let action = this.actions[name];
         if (action !== undefined) return action;
         action = this.actions[name] = new Action(this, name, id)
         this.actionArr.push(action);
         return action;
     }
-    private newQuery(name:string, id:number):Query {
+    newQuery(name:string, id:number):Query {
         let query = this.queries[name];
         if (query !== undefined) return query;
         query = this.queries[name] = new Query(this, name, id)
@@ -320,10 +327,18 @@ export class Uq {
     action(name:string):Action {return this.actions[name.toLowerCase()]}
     sheet(name:string):Sheet {return this.sheets[name.toLowerCase()]}
     query(name:string):Query {return this.queries[name.toLowerCase()]}
+    map(name:string):Map {return this.maps[name.toLowerCase()]}
     //book(name:string):Book {return this.books[name.toLowerCase()]}
-    //map(name:string):Map {return this.maps[name.toLowerCase()]}
     //history(name:string):History {return this.histories[name.toLowerCase()]}
     //pending(name:string):Pending {return this.pendings[name.toLowerCase()]}
+
+    private newMap(name:string, id:number):Map {
+        let map = this.maps[name];
+        if (map !== undefined) return map;
+        map = this.maps[name] = new Map(this, name, id)
+        this.mapArr.push(map);
+        return map;
+    }
 
     /*
     private newBook(name:string, id:number):Book {
@@ -332,13 +347,6 @@ export class Uq {
         book = this.books[name] = new Book(this, name, id);
         this.bookArr.push(book);
         return book;
-    }
-    private newMap(name:string, id:number):Map {
-        let map = this.maps[name];
-        if (map !== undefined) return map;
-        map = this.maps[name] = new Map(this, name, id)
-        this.mapArr.push(map);
-        return map;
     }
     private newHistory(name:string, id:number):History {
         let history = this.histories[name];

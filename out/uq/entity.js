@@ -64,6 +64,14 @@ class Entity {
         //this.newArr = this.buildArrCreater(arrs);
         //this.newRet = this.buildArrCreater(returns);
     }
+    /*
+    buildFieldsTuid() {
+        let {name, fields, arrs, returns, version} = this.schema;
+        this.uq.buildFieldTuid(this.fields = fields);
+        this.uq.buildArrFieldsTuid(this.arrFields = arrs, fields);
+        this.uq.buildArrFieldsTuid(this.returns = returns, fields);
+    }
+    */
     schemaStringify() {
         return JSON.stringify(this.schema, (key, value) => {
             if (key === '_tuid')

@@ -77,6 +77,15 @@ export abstract class Entity {
         //this.newRet = this.buildArrCreater(returns);
     }
 
+    /*
+    buildFieldsTuid() {
+        let {name, fields, arrs, returns, version} = this.schema;
+        this.uq.buildFieldTuid(this.fields = fields);
+        this.uq.buildArrFieldsTuid(this.arrFields = arrs, fields);
+        this.uq.buildArrFieldsTuid(this.returns = returns, fields);
+    }
+    */
+
     schemaStringify():string {
         return JSON.stringify(this.schema, (key:string, value:any) => {
             if (key === '_tuid') return undefined;

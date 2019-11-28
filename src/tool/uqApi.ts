@@ -36,7 +36,7 @@ export class UqApi extends Fetch {
         this.apiToken = apiToken;
     }
 
-    async xcall(caller:Caller<any>): Promise<void> {
+    async xcall(caller:Caller<any>): Promise<any> {
         let urlPrefix:string = '';
         let options = this.buildOptions();
         let {headers, path, method} = caller;
