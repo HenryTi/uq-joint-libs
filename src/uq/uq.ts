@@ -9,18 +9,42 @@ import { Action } from "./action";
 import { Query } from "./query";
 import { Map } from "./map";
 
+function createIgnoreCaseProxy<T>():{[name:string]: T} {
+    return new Proxy({}, {
+        get: function(target, key, receiver) {
+                if (typeof key === 'string') {
+                let lk = (key as string).toLowerCase();
+                let ret = target[lk];
+                return ret;
+            }
+            else {
+                return target[key];
+            }
+        },
+        set: function(target, p, value:any, receiver):boolean {
+            if (typeof p === 'string') {
+                target[p.toLowerCase()] = value;
+            }
+            else {
+                target[p] = value;
+            }
+            return true;
+        }
+    });
+}
+
 export class Uq {
     private readonly uqs: Uqs;
     private readonly uqFullName: string;
-    private readonly tuids: { [name: string]: TuidMain } = {};
+    private readonly tuids: { [name: string]: TuidMain } = createIgnoreCaseProxy<TuidMain>();
     private readonly tuidArr: TuidMain[] = [];
-    private readonly sheets: { [name: string]: Sheet } = {};
+    private readonly sheets: { [name: string]: Sheet } = createIgnoreCaseProxy<Sheet>();
     private readonly sheetArr: Sheet[] = [];
-    private readonly actions: {[name:string]: Action} = {};
+    private readonly actions: {[name:string]: Action} = createIgnoreCaseProxy<Action>();
     private readonly actionArr: Action[] = [];
-    private readonly queries: {[name:string]: Query} = {};
+    private readonly queries: {[name:string]: Query} = createIgnoreCaseProxy<Query>();
     private readonly queryArr: Query[] = [];
-    private readonly maps: {[name:string]: Map} = {};
+    private readonly maps: {[name:string]: Map} = createIgnoreCaseProxy<Map>();
     private readonly mapArr: Map[] = [];
 
     uqApi: UqApi;
@@ -118,7 +142,7 @@ export class Uq {
     }
 
     async getTuidFromUq(uqFullName: string, tuidName: string): Promise<Tuid> {
-        tuidName = tuidName.toLowerCase();
+        //tuidName = tuidName.toLowerCase();
         if (uqFullName === undefined) return this.getTuidFromName(tuidName);
         let uq = await this.uqs.getUq(uqFullName);
         if (uq === undefined) return;
@@ -317,17 +341,17 @@ export class Uq {
         return query;
     }
 
-    tuid(name:string):Tuid {return this.tuids[name.toLowerCase()]}
+    tuid(name:string):Tuid {return this.tuids[name]}
     /*
     tuidDiv(name:string, div:string):TuidDiv {
         let tuid = this.tuids[name.toLowerCase()]
         return tuid && tuid.div(div.toLowerCase());
     }
     */
-    action(name:string):Action {return this.actions[name.toLowerCase()]}
-    sheet(name:string):Sheet {return this.sheets[name.toLowerCase()]}
-    query(name:string):Query {return this.queries[name.toLowerCase()]}
-    map(name:string):Map {return this.maps[name.toLowerCase()]}
+    action(name:string):Action {return this.actions[name]}
+    sheet(name:string):Sheet {return this.sheets[name]}
+    query(name:string):Query {return this.queries[name]}
+    map(name:string):Map {return this.maps[name]}
     //book(name:string):Book {return this.books[name.toLowerCase()]}
     //history(name:string):History {return this.histories[name.toLowerCase()]}
     //pending(name:string):Pending {return this.pendings[name.toLowerCase()]}

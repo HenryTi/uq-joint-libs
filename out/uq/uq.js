@@ -8,17 +8,40 @@ const sheet_1 = require("./sheet");
 const action_1 = require("./action");
 const query_1 = require("./query");
 const map_1 = require("./map");
+function createIgnoreCaseProxy() {
+    return new Proxy({}, {
+        get: function (target, key, receiver) {
+            if (typeof key === 'string') {
+                let lk = key.toLowerCase();
+                let ret = target[lk];
+                return ret;
+            }
+            else {
+                return target[key];
+            }
+        },
+        set: function (target, p, value, receiver) {
+            if (typeof p === 'string') {
+                target[p.toLowerCase()] = value;
+            }
+            else {
+                target[p] = value;
+            }
+            return true;
+        }
+    });
+}
 class Uq {
     constructor(uqs, uqFullName) {
-        this.tuids = {};
+        this.tuids = createIgnoreCaseProxy();
         this.tuidArr = [];
-        this.sheets = {};
+        this.sheets = createIgnoreCaseProxy();
         this.sheetArr = [];
-        this.actions = {};
+        this.actions = createIgnoreCaseProxy();
         this.actionArr = [];
-        this.queries = {};
+        this.queries = createIgnoreCaseProxy();
         this.queryArr = [];
-        this.maps = {};
+        this.maps = createIgnoreCaseProxy();
         this.mapArr = [];
         this.uqs = uqs;
         this.uqFullName = uqFullName;
@@ -114,7 +137,7 @@ class Uq {
         return uq;
     }
     async getTuidFromUq(uqFullName, tuidName) {
-        tuidName = tuidName.toLowerCase();
+        //tuidName = tuidName.toLowerCase();
         if (uqFullName === undefined)
             return this.getTuidFromName(tuidName);
         let uq = await this.uqs.getUq(uqFullName);
@@ -325,17 +348,17 @@ class Uq {
         this.queryArr.push(query);
         return query;
     }
-    tuid(name) { return this.tuids[name.toLowerCase()]; }
+    tuid(name) { return this.tuids[name]; }
     /*
     tuidDiv(name:string, div:string):TuidDiv {
         let tuid = this.tuids[name.toLowerCase()]
         return tuid && tuid.div(div.toLowerCase());
     }
     */
-    action(name) { return this.actions[name.toLowerCase()]; }
-    sheet(name) { return this.sheets[name.toLowerCase()]; }
-    query(name) { return this.queries[name.toLowerCase()]; }
-    map(name) { return this.maps[name.toLowerCase()]; }
+    action(name) { return this.actions[name]; }
+    sheet(name) { return this.sheets[name]; }
+    query(name) { return this.queries[name]; }
+    map(name) { return this.maps[name]; }
     //book(name:string):Book {return this.books[name.toLowerCase()]}
     //history(name:string):History {return this.histories[name.toLowerCase()]}
     //pending(name:string):Pending {return this.pendings[name.toLowerCase()]}
