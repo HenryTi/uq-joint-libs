@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import { Entity } from "./entity";
 import { Uq } from "./uq";
-import { UqApi } from '../tool/uqApi';
+import { EntityCaller } from "./caller";
+import { Field } from "./field";
 
 const maxCacheSize = 1000;
 class Cache {
@@ -34,6 +36,10 @@ class Cache {
     }
 }
 
+export interface TuidSaveResult {
+    id: number;
+    inId: number;
+}
 
 export abstract class Tuid extends Entity {
     private cache: Cache = new Cache;
@@ -88,6 +94,85 @@ export abstract class Tuid extends Entity {
         return ret;
     }
     protected abstract internalLoadTuidValue(uq:Uq, id: number, ownerId: number, allProps: boolean): Promise<any>;
+    //isImport = false;
+    //abstract get hasDiv():boolean;// {return this.divs!==undefined}
+    //abstract div(name:string):TuidDiv;
+    //abstract async loadMain(id:number):Promise<any>;
+    //abstract async load(id:number):Promise<any>;
+    //abstract async all():Promise<any[]>;
+
+    async save(id:number, props:any):Promise<TuidSaveResult> {
+        /*
+        let {fields} = this.schema;
+        let params:any = {$id: id};
+        for (let field of fields as Field[]) {
+            let {name, tuid, type} = field;
+            let val = props[name];
+            if (tuid !== undefined) {
+                if (typeof val === 'object') {
+                    if (val !== null) val = val.id;
+                }
+            }
+            else {
+                switch (type) {
+                    case 'date':
+                    case 'datetime':
+                        val = new Date(val).toISOString();
+                        val = (val as string).replace('T', ' ');
+                        val = (val as string).replace('Z', '');
+                        break;
+                }
+            }
+            params[name] = val;
+        }
+        let ret = await this.uqApi.tuidSave(this.name, params);
+        return ret;
+        */
+        let ret = new SaveCaller(this, {id:id, props:props}).request();
+        /*
+        if (id !== undefined) {
+            this.idCache.remove(id);
+            this.localArr.removeItem(id);
+        }
+        */
+        return ret;
+    }
+    async all():Promise<any[]> {
+        let ret: any[] = await new AllCaller(this, {}).request();
+        return ret;
+    }
+    async search(key:string, pageStart:string|number, pageSize:number):Promise<any[]> {
+        let ret:any[] = await this.searchArr(undefined, key, pageStart, pageSize);
+        return ret;
+    }
+    async searchArr(owner:number, key:string, pageStart:string|number, pageSize:number):Promise<any> {
+        //let api = this.uqApi;
+        //let ret = await api.tuidSearch(this.name, undefined, owner, key, pageStart, pageSize);
+        let params:any = {arr:undefined, owner:owner, key:key, pageStart:pageStart, pageSize:pageSize};
+        let ret = await new SearchCaller(this, params).request();
+        let {fields} = this.schema;
+        //for (let row of ret) {
+        //    this.cacheFieldsInValue(row, fields);
+        //}
+        return ret;
+    }
+    async loadArr(arr:string, owner:number, id:number):Promise<any> {
+        if (id === undefined || id === 0) return;
+        //let api = this.uqApi;
+        //return await api.tuidArrGet(this.name, arr, owner, id);
+        return await new LoadArrCaller(this, {arr:arr, owner:owner, id:id}).request();
+    }
+    async saveArr(arr:string, owner:number, id:number, props:any) {
+        //let params = _.clone(props);
+        //params["$id"] = id;
+        //return await this.uqApi.tuidArrSave(this.name, arr, owner, params);
+        return await new SaveArrCaller(this, {arr:arr, owner:owner, id:id, props:props}).request();
+    }
+
+    async posArr(arr:string, owner:number, id:number, order:number) {
+        //return await this.uqApi.tuidArrPos(this.name, arr, owner, id, order);
+        return await new ArrPosCaller(this, {arr:arr, owner:owner, id:id, order:order}).request();
+    }
 }
 
 export class TuidMain extends Tuid {
@@ -138,5 +223,124 @@ export class TuidDiv extends Tuid {
 
     protected async internalLoadTuidValue(uq: Uq, id: number, ownerId: number, allProps: boolean): Promise<any> {
         return await uq.loadTuidDivValue(this.owner.name, this.name, id, ownerId, allProps);
+    }
+}
+
+abstract class TuidCaller<T> extends EntityCaller<T> {
+    protected get entity(): Tuid {return this._entity as Tuid};
+}
+
+// 包含main字段的load id
+// 当前为了兼容，先调用的包含所有字段的内容
+class GetCaller extends TuidCaller<number> {
+    method = 'GET';
+    get path():string {return `tuid/${this.entity.name}/${this.params}`}
+}
+
+class IdsCaller extends TuidCaller<{divName:string, ids:number[]}> {
+    get path():string {
+        let {divName} = this.params;
+        return `tuidids/${this.entity.name}/${divName !== undefined?divName:'$'}`;
+    }
+    buildParams():any {return this.params.ids}
+    xresult(res:any):any {
+        return (res as string).split('\n');
+    }
+}
+
+
+class SaveCaller extends TuidCaller<{id:number, props:any}> {
+    get path():string {return `tuid/${this.entity.name}`}
+    buildParams():any {
+        let {fields, arrFields} = this.entity;
+        let {id, props} = this.params;
+        let params:any = {$id: id};
+        this.transParams(params, props, fields);
+        if (arrFields !== undefined) {
+            for (let arr of arrFields) {
+                let arrName = arr.name;
+                let arrParams = [];
+                let arrFields = arr.fields;
+                let arrValues = props[arrName];
+                if (arrValues !== undefined) {
+                    for (let arrValue of arrValues) {
+                        let row = {};
+                        this.transParams(row, arrValue, arrFields);
+                        arrParams.push(row);
+                    }
+                }
+                params[arrName] = arrParams;
+            }
+        }
+        return params;
+    }
+    private transParams(values:any, params:any, fields:Field[]) {
+        if (params === undefined) return;
+        for (let field of fields) {
+            let {name, tuid, type} = field;
+            let val = params[name];
+            if (tuid !== undefined) {
+                if (typeof val === 'object') {
+                    if (val !== null) val = val.id;
+                }
+            }
+            else {
+                switch (type) {
+                    case 'date':
+                        val = this.entity.buildDateParam(val); 
+                        //val = (val as string).replace('T', ' ');
+                        //val = (val as string).replace('Z', '');
+                        break;
+                    case 'datetime':
+                        val = this.entity.buildDateTimeParam(val);
+                        //val = new Date(val).toISOString();
+                        //val = (val as string).replace('T', ' ');
+                        //val = (val as string).replace('Z', '');
+                        break;
+                }
+            }
+            values[name] = val;
+        }
+    }
+}
+
+class SearchCaller extends TuidCaller<{arr:string, owner:number, key:string, pageStart:string|number, pageSize:number}> {
+    get path():string {return `tuids/${this.entity.name}`}
+}
+
+class AllCaller extends TuidCaller<{}> {
+    method = 'GET';
+    get path():string {return `tuid-all/${this.entity.name}`}
+}
+
+class LoadArrCaller extends TuidCaller<{arr:string, owner:number, id:number}> {
+    method = 'GET';
+    get path():string {
+        let {arr, owner, id} = this.params;
+        return `tuid-arr/${this.entity.name}/${owner}/${arr}/${id}`;
+    }
+}
+
+class SaveArrCaller extends TuidCaller<{arr:string, owner:number, id:number, props:any}> {
+    get path():string {
+        let {arr, owner} = this.params;
+        return `tuid-arr/${this.entity.name}/${owner}/${arr}/`;
+    }
+    buildParams():any {
+        let {id, props} = this.params;
+        let params = _.clone(props);
+        params['$id'] = id;
+        return params;
+    }
+}
+
+class ArrPosCaller extends TuidCaller<{arr:string, owner:number, id:number, order:number}> {
+    get path():string {
+        let {arr, owner} = this.params;
+        return `tuid-arr-pos/${this.entity.name}/${owner}/${arr}/`;
+    }
+    buildParams():any {
+        let {id, order} = this.params;
+        return { bid: id, $order: order}
     }
 }

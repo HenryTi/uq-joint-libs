@@ -157,6 +157,42 @@ class Entity {
             result[name] = val;
         }
     }
+    buildDateTimeParam(val) {
+        let dt;
+        switch (typeof val) {
+            default:
+                debugger;
+                throw new Error('escape datetime field in pack data error: value=' + val);
+            case 'undefined': return undefined;
+            case 'object':
+                dt = val;
+                break;
+            case 'string':
+            case 'number':
+                dt = new Date(val);
+                break;
+        }
+        return Math.floor(dt.getTime() / 1000);
+    }
+    buildDateParam(val) {
+        let dt;
+        switch (typeof val) {
+            default:
+                debugger;
+                throw new Error('escape datetime field in pack data error: value=' + val);
+            case 'undefined': return undefined;
+            case 'string': return val;
+            case 'object':
+                dt = val;
+                break;
+            case 'number':
+                dt = new Date(val);
+                break;
+        }
+        let ret = dt.toISOString();
+        let p = ret.indexOf('T');
+        return p > 0 ? ret.substr(0, p) : ret;
+    }
     pack(data) {
         let ret = [];
         let fields = this.fields;
