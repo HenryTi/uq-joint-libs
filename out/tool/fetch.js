@@ -8,7 +8,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = __importStar(require("node-fetch"));
-//import { centerApi } from './centerApi';
 class Fetch {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;

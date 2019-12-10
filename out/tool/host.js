@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const config_1 = __importDefault(require("config"));
+const centerApi_1 = require("./centerApi");
 // export const isDevelopment = process.env.NODE_ENV === 'development';
 exports.isDevelopment = process.env.NODE_ENV !== 'production';
 function tryConfig(name) {
@@ -76,6 +77,7 @@ class Host {
         this.centerUrl = centerUrlFromHost(host);
         this.ws = centerWsFromHost(host);
         this.resHost = this.getResHost();
+        centerApi_1.centerApi.initBaseUrl(this.centerUrl);
     }
     debugHostUrl(host) { return `http://${host}/hello`; }
     async tryLocal() {

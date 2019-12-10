@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import config from 'config';
+import { centerApi } from './centerApi';
 
 // export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -88,6 +89,7 @@ class Host {
         this.centerUrl = centerUrlFromHost(host);
         this.ws = centerWsFromHost(host);
         this.resHost = this.getResHost();
+        centerApi.initBaseUrl(this.centerUrl);
     }
 
     private debugHostUrl(host: string) { return `http://${host}/hello` }

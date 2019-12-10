@@ -10,7 +10,7 @@ import { databaseName } from "./db/mysql/database";
 import { createMapTable } from "./tool/createMapTable";
 import { faceSchemas } from "./tool/faceSchemas";
 import { Uqs } from "./uq/uqs";
-import { centerApi } from "./tool/centerApi";
+//import { centerApi } from "./tool/centerApi";
 import { host } from "./tool/host";
 import { Uq } from "./uq/uq";
 
@@ -57,7 +57,7 @@ export class Joint {
 
     async init() {
         await host.start();
-        centerApi.initBaseUrl(host.centerUrl);
+        //centerApi.initBaseUrl(host.centerUrl);
         await this.uqs.init();
     }
 

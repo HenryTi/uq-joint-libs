@@ -1,5 +1,4 @@
 import fetch, {Headers} from 'node-fetch';
-//import { centerApi } from './centerApi';
 
 export abstract class Fetch {
     private baseUrl:string;

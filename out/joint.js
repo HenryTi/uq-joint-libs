@@ -9,7 +9,7 @@ const database_1 = require("./db/mysql/database");
 const createMapTable_1 = require("./tool/createMapTable");
 const faceSchemas_1 = require("./tool/faceSchemas");
 const uqs_1 = require("./uq/uqs");
-const centerApi_1 = require("./tool/centerApi");
+//import { centerApi } from "./tool/centerApi";
 const host_1 = require("./tool/host");
 const logger = log4js_1.getLogger('joint');
 class Joint {
@@ -62,7 +62,7 @@ class Joint {
     }
     async init() {
         await host_1.host.start();
-        centerApi_1.centerApi.initBaseUrl(host_1.host.centerUrl);
+        //centerApi.initBaseUrl(host.centerUrl);
         await this.uqs.init();
     }
     async start() {

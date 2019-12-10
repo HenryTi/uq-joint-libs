@@ -1,5 +1,10 @@
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("./uq"));
+__export(require("./tool"));
 var joint_1 = require("./joint");
 exports.Joint = joint_1.Joint;
 var centerApi_1 = require("./tool/centerApi");
