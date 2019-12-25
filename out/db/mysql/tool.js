@@ -15,9 +15,9 @@ function buildCall(proc, values) {
     }
     return ret + ');';
 }
-function execSql(sql) {
+function execSql(sql, values = []) {
     return new Promise((resolve, reject) => {
-        pool.query(sql, (err, result) => {
+        pool.query(sql, values, (err, result) => {
             if (err !== null) {
                 reject(err);
                 return;
@@ -28,7 +28,7 @@ function execSql(sql) {
 }
 exports.execSql = execSql;
 async function tableFromSql(sql, values) {
-    let res = await execSql(sql);
+    let res = await execSql(sql, values);
     if (Array.isArray(res) === false)
         return [];
     if (res.length === 0)
@@ -40,7 +40,7 @@ async function tableFromSql(sql, values) {
 }
 exports.tableFromSql = tableFromSql;
 async function tablesFromSql(sql, values) {
-    return await execSql(sql);
+    return await execSql(sql, values);
 }
 exports.tablesFromSql = tablesFromSql;
 async function execProc(proc, values) {

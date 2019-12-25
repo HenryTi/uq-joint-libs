@@ -22,7 +22,7 @@ export interface Procedure {
     returns?: string;
     code: string;
 }
-export declare function execSql(sql: string): Promise<any>;
+export declare function execSql(sql: string, values?: any[]): Promise<any>;
 export declare function tableFromSql(sql: string, values?: any[]): Promise<any[]>;
 export declare function tablesFromSql(sql: string, values?: any[]): Promise<any[]>;
 export declare function execProc(proc: string, values?: any[]): Promise<any>;

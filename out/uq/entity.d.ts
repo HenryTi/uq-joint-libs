@@ -9,8 +9,8 @@ export declare abstract class Entity {
     sys?: boolean;
     readonly name: string;
     readonly typeId: number;
-    abstract readonly typeName: string;
-    readonly sName: string;
+    abstract get typeName(): string;
+    get sName(): string;
     fields: Field[];
     arrFields: ArrFields[];
     returns: ArrFields[];

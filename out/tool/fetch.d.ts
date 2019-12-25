@@ -1,7 +1,7 @@
 import { Headers } from 'node-fetch';
 export declare abstract class Fetch {
     private baseUrl;
-    protected readonly apiToken: string;
+    protected get apiToken(): string;
     constructor(baseUrl?: string);
     initBaseUrl(baseUrl: string): void;
     protected get(url: string, params?: any): Promise<any>;

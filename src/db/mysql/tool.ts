@@ -43,9 +43,9 @@ export interface Procedure {
     code: string;
 }
 
-export function execSql(sql:string): Promise<any> {
+export function execSql(sql:string, values:any[] = []): Promise<any> {
     return new Promise<any>((resolve, reject) => {
-        pool.query(sql, (err, result) => {
+        pool.query(sql, values, (err, result) => {
             if (err !== null) {
                 reject(err);
                 return;
@@ -56,7 +56,7 @@ export function execSql(sql:string): Promise<any> {
 }
 
 export async function tableFromSql(sql:string, values?:any[]): Promise<any[]> {
-    let res = await execSql(sql)
+    let res = await execSql(sql, values);
     if (Array.isArray(res) === false) return [];
     if (res.length === 0) return [];
     let row0 = res[0];
@@ -65,7 +65,7 @@ export async function tableFromSql(sql:string, values?:any[]): Promise<any[]> {
 }
 
 export async function tablesFromSql(sql:string, values?:any[]): Promise<any[]> {
-    return await execSql(sql);
+    return await execSql(sql, values);
 }
 
 export async function execProc(proc:string, values?:any[]): Promise<any> {

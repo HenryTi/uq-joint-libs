@@ -13,7 +13,7 @@ export declare abstract class Tuid extends Entity {
         owner: string;
         uq: string;
     };
-    readonly typeName: string;
+    get typeName(): string;
     getIdFromObj(obj: any): any;
     setSchema(schema: any): void;
     getTuidFrom(): Promise<Tuid>;
@@ -28,7 +28,7 @@ export declare abstract class Tuid extends Entity {
     posArr(arr: string, owner: number, id: number, order: number): Promise<any>;
 }
 export declare class TuidMain extends Tuid {
-    readonly Main: this;
+    get Main(): this;
     divs: {
         [name: string]: TuidDiv;
     };
@@ -36,7 +36,7 @@ export declare class TuidMain extends Tuid {
     protected internalLoadTuidValue(uq: Uq, id: number, ownerId: number, allProps: boolean): Promise<any>;
 }
 export declare class TuidDiv extends Tuid {
-    readonly Main: TuidMain;
+    get Main(): TuidMain;
     getTuidFrom(): Promise<Tuid>;
     protected internalLoadTuidValue(uq: Uq, id: number, ownerId: number, allProps: boolean): Promise<any>;
 }

@@ -75,6 +75,7 @@ class Host {
         }
         let host = this.getCenterHost();
         this.centerUrl = centerUrlFromHost(host);
+        console.error('centerhost is not defined in config');
         this.ws = centerWsFromHost(host);
         this.resHost = this.getResHost();
         centerApi_1.centerApi.initBaseUrl(this.centerUrl);

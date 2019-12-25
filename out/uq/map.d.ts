@@ -12,7 +12,7 @@ interface MapQueries {
     query: Query;
 }
 export declare class Map extends Entity {
-    readonly typeName: string;
+    get typeName(): string;
     keys: Field[];
     actions: MapActions;
     queries: MapQueries;

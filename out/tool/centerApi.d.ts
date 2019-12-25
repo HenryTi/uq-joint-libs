@@ -13,8 +13,8 @@ interface User extends Guest {
 declare class CenterApi extends Fetch {
     private _user;
     private _loginResult;
-    readonly loginResult: any;
-    protected readonly apiToken: string;
+    get loginResult(): any;
+    protected get apiToken(): string;
     login(params: {
         user: string;
         pwd: string;

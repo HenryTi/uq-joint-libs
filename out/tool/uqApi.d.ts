@@ -9,11 +9,11 @@ export interface BusMessage {
 export declare abstract class Caller<T> {
     protected readonly _params: T;
     constructor(params: T, waiting: boolean);
-    protected readonly params: any;
+    protected get params(): any;
     buildParams(): any;
     method: string;
-    abstract readonly path: string;
-    readonly headers: {
+    abstract get path(): string;
+    get headers(): {
         [header: string]: string;
     };
     waiting: boolean;
@@ -24,7 +24,7 @@ export declare abstract class Caller<T> {
 export declare class UqApi extends Fetch {
     private _apiToken;
     protected unit: number;
-    protected readonly apiToken: string;
+    protected get apiToken(): string;
     constructor(baseUrl: string, unit: number, apiToken?: string);
     xcall(caller: Caller<any>): Promise<any>;
     private buildOptions;
