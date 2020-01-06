@@ -46,29 +46,16 @@ export class Map extends Entity {
     }
 
     async add(param:any) {
-        /*
-        await this.loadSchema();
-        return await this.actions.add.submit(param);
-        */
-        debugger;
         let ret = await new AddCaller(this, param).request();
         return ret;
     }
 
     async del(param:any) {
-        /*
-        await this.loadSchema();
-        return await this.actions.del.submit(param);
-        */
         let ret = await new DelCaller(this, param).request();
         return ret;
     }
 
     async all() {
-        /*
-        await this.loadSchema();
-        return await this.queries.all.query({});
-        */
         let ret = await new AllCaller(this, undefined).request();
         return ret;
     }
@@ -116,8 +103,6 @@ abstract class MapCaller extends EntityCaller<any> {
     protected async innerCall(): Promise<any> {
         let caller = this.getCaller(this.params);
         let p = caller.buildParams();
-        console.log('MapCaller', p);
-        debugger;
         let res = await this.entity.uq.uqApi.xcall(caller);
         let ret = caller.xresult(res.res);
         return {res: ret};

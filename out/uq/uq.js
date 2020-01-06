@@ -104,7 +104,6 @@ class Uq {
             if (_tuid === undefined)
                 continue;
             let { name } = f;
-            //if (name === 'address') debugger;
             let prp = props[name];
             if (prp === undefined)
                 continue;

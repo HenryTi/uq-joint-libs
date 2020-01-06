@@ -344,9 +344,9 @@ class Joint {
             let uq = await this.uqs.getUq(uqFullName);
             let { $ } = data;
             if ($ === '-')
-                await uq.delMap(entity, body);
+                await uq.delMap(entity, { data: body });
             else
-                await uq.setMap(entity, body);
+                await uq.setMap(entity, { data: body });
         }
         catch (error) {
             if (error.code === "ETIMEDOUT") {

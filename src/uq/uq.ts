@@ -112,7 +112,6 @@ export class Uq {
             let { _tuid, _ownerField } = f;
             if (_tuid === undefined) continue;
             let { name } = f;
-            //if (name === 'address') debugger;
             let prp = props[name];
             if (prp === undefined) continue;
             let v = ret[name];
