@@ -114,6 +114,9 @@ abstract class MapCaller extends EntityCaller<any> {
 
     protected async innerCall(): Promise<any> {
         let caller = this.getCaller(this.params);
+        let p = caller.buildParams();
+        console.log('MapCaller', p);
+        debugger;
         let res = await this.entity.uq.uqApi.xcall(caller);
         let ret = caller.xresult(res.res);
         return {res: ret};
