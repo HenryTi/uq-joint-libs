@@ -50,6 +50,7 @@ export class Map extends Entity {
         await this.loadSchema();
         return await this.actions.add.submit(param);
         */
+        debugger;
         let ret = await new AddCaller(this, param).request();
         return ret;
     }
