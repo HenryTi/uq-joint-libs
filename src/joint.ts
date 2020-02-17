@@ -414,10 +414,9 @@ export class Joint {
                 if (retp.length > 0) {
                     queue = retp[0].queue;
                 } else {
-                    // queue = 430000000000000;
                     queue = 0;
                 }
-                let newQueue, json;
+                let newQueue:any, json:any;
                 if (busFrom === 'center') {
                     let message = await this.userOut(face, queue);
                     if (message === null) {
@@ -433,6 +432,10 @@ export class Joint {
                     if (message === undefined) break;
                     let { id, from, body } = message;
                     newQueue = id;
+					if (!from) {
+						await execProc('write_queue_out_p', [moniker, newQueue]);
+						break;
+					}
                     json = await faceSchemas.unpackBusData(face, body);
                     if (uqIdProps !== undefined && from !== undefined) {
                         let uq = await this.uqs.getUq(from);
@@ -460,18 +463,12 @@ export class Joint {
                 console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
                 let queue: number, uniqueId: number;
                 let retp = await tableFromProc('read_queue_in_p', [moniker]);
-                //if (retp.length > 0) {
-                    let r = retp[0];
-                    queue = r.queue;
-                    uniqueId = r.uniqueId;
-                //} else {
-                //    queue = 0;
-                //}
+                let r = retp[0];
+                queue = r.queue;
+                uniqueId = r.uniqueId;
                 let message = await pull(this, uqBus, queue);
                 if (message === undefined) break;
                 let { lastPointer: newQueue, data } = message;
-                //let newQueue = await this.busIn(queue);
-                //if (newQueue === undefined) break;
                 let mapToUq = new MapToUq(this);
                 let inBody = await mapToUq.map(data[0], mapper);
                 // henry??? 暂时不处理bus version
@@ -486,73 +483,4 @@ export class Joint {
     protected async userOut(face: string, queue: number) {        
     }
 
-/*
-    protected async userOut(face: string, queue: number) {
-        let ret = await centerApi.queueOut(queue, 1);
-        if (ret !== undefined && ret.length === 1) {
-            let user = ret[0];
-            if (user === null) return user;
-            return this.decryptUser(user);
-        }
-    }
-
-    public async userOutOne(id: number) {
-        let user = await centerApi.queueOutOne(id);
-        if (user) {
-            user = this.decryptUser(user);
-            let mapFromUq = new MapFromUq(this);
-            let outBody = await mapFromUq.map(user, faceUser.mapper);
-            return outBody;
-        }
-    }
-
-    protected decryptUser(user: { pwd: string }) {
-        let pwd = user.pwd;
-        if (!pwd)
-            user.pwd = '123456';
-        else
-            user.pwd = decrypt(pwd);
-        if (!user.pwd) user.pwd = '123456';
-        return user;
-    }
-
-    public async userIn(uqIn: UqInTuid, data: any): Promise<number> {
-        let { key, mapper, uq: uqFullName, entity: tuid } = uqIn;
-        if (key === undefined) throw 'key is not defined';
-        if (uqFullName === undefined) throw 'tuid ' + tuid + ' not defined';
-        let keyVal = data[key];
-        let mapToUq = new MapUserToUq(this);
-        try {
-            let body = await mapToUq.map(data, mapper);
-            if (body.id <= 0) {
-                delete body.id;
-            }
-            let ret = await centerApi.queueIn(body);
-            if (!body.id && (ret === undefined || typeof ret !== 'number')) {
-                console.error(body);
-                let { id: code, message } = ret as any;
-                switch (code) {
-                    case -2:
-                        data.Email += '\t';
-                        ret = await this.userIn(uqIn, data);
-                        break;
-                    case -3:
-                        data.Mobile += '\t';
-                        ret = await this.userIn(uqIn, data);
-                        break;
-                    default:
-                        console.error(ret);
-                        ret = -5;
-                        break;
-                }
-            }
-            if (ret > 0) {
-                await map(tuid, ret, keyVal);
-            }
-            return body.id || ret;
-        } catch (error) {
-            throw error;
-        }
-    }
-*/
 }

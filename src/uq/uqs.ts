@@ -3,7 +3,6 @@ import { UqUnitx, Uq } from "./uq";
 const $unitx = '$$$/$unitx';
 
 export class Uqs {
-    //private joint: Joint;
     private uqs: { [name: string]: Uq } = {};
     private unitx: UqUnitx;
     private userName: string;
@@ -16,11 +15,6 @@ export class Uqs {
     }
 
     readonly unit:number;
-    /*
-    async getOpenApi(uq: string): Promise<UqApi> {
-        return await this.joint.getOpenApi(uq);
-    }
-    */
 
     async getUq(uqFullName: string) {
         let uq = this.uqs[uqFullName];

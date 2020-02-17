@@ -18,9 +18,6 @@ export declare abstract class Caller<T> {
     };
     waiting: boolean;
 }
-/**
- * 这个OpenApi好像是没有用
- */
 export declare class UqApi extends Fetch {
     private _apiToken;
     protected unit: number;

@@ -418,7 +418,6 @@ class Joint {
                     queue = retp[0].queue;
                 }
                 else {
-                    // queue = 430000000000000;
                     queue = 0;
                 }
                 let newQueue, json;
@@ -440,6 +439,10 @@ class Joint {
                         break;
                     let { id, from, body } = message;
                     newQueue = id;
+                    if (!from) {
+                        await tool_1.execProc('write_queue_out_p', [moniker, newQueue]);
+                        break;
+                    }
                     json = await faceSchemas_1.faceSchemas.unpackBusData(face, body);
                     if (uqIdProps !== undefined && from !== undefined) {
                         let uq = await this.uqs.getUq(from);
@@ -468,19 +471,13 @@ class Joint {
                 console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
                 let queue, uniqueId;
                 let retp = await tool_1.tableFromProc('read_queue_in_p', [moniker]);
-                //if (retp.length > 0) {
                 let r = retp[0];
                 queue = r.queue;
                 uniqueId = r.uniqueId;
-                //} else {
-                //    queue = 0;
-                //}
                 let message = await pull(this, uqBus, queue);
                 if (message === undefined)
                     break;
                 let { lastPointer: newQueue, data } = message;
-                //let newQueue = await this.busIn(queue);
-                //if (newQueue === undefined) break;
                 let mapToUq = new mapData_1.MapToUq(this);
                 let inBody = await mapToUq.map(data[0], mapper);
                 // henry??? 暂时不处理bus version

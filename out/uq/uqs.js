@@ -4,17 +4,11 @@ const uq_1 = require("./uq");
 const $unitx = '$$$/$unitx';
 class Uqs {
     constructor(unit, userName, password) {
-        //private joint: Joint;
         this.uqs = {};
         this.unit = unit;
         this.userName = userName;
         this.password = password;
     }
-    /*
-    async getOpenApi(uq: string): Promise<UqApi> {
-        return await this.joint.getOpenApi(uq);
-    }
-    */
     async getUq(uqFullName) {
         let uq = this.uqs[uqFullName];
         if (uq !== undefined)
