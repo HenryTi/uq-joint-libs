@@ -220,19 +220,23 @@ class Joint {
         }
     }
     async uqInTuid(uqIn, data) {
-        console.log('uqInTuid');
+        console.log('code in uiInTuid: let { key, mapper, uq: uqFullName, entity: tuid } = uqIn;');
         let { key, mapper, uq: uqFullName, entity: tuid } = uqIn;
         if (key === undefined)
             throw 'key is not defined';
         if (uqFullName === undefined)
             throw 'tuid ' + tuid + ' not defined';
+        console.log("code: let keyVal = data[key];");
         let keyVal = data[key];
         let body;
         try {
+            console.log("code: let mapToUq = new MapToUq(this);");
             let mapToUq = new mapData_1.MapToUq(this);
+            console.log("code: body = await mapToUq.map(data, mapper);");
             body = await mapToUq.map(data, mapper);
+            console.log("code: let uq = await this.uqs.getUq(uqFullName);");
             let uq = await this.uqs.getUq(uqFullName);
-            console.log('let ret = await uq.saveTuid(tuid, body)');
+            console.log('code: let ret = await uq.saveTuid(tuid, body)');
             let ret = await uq.saveTuid(tuid, body);
             let { id, inId } = ret;
             if (id) {
