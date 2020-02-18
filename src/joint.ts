@@ -181,7 +181,12 @@ export class Joint {
                     // message = JSON.parse(body);
                 }
 
-                let { lastPointer, data } = ret;
+				let { lastPointer, data } = ret;
+				if (!lastPointer) {
+					let e = "读数据的时候，需要返回ID字段，作为进入数据的序号。"
+					console.error(e);
+					throw new Error(e);
+				}
                 // data.sort((a, b) => { return a.ID - b.ID });
                 let dataCopy = [];
                 for (let i = data.length - 1; i >= 0; i--) {
@@ -222,34 +227,22 @@ export class Joint {
     }
 
     async uqIn(uqIn: UqIn, data: any) {
-		try {
-			switch (uqIn.type) {
-				case 'tuid': await this.uqInTuid(uqIn as UqInTuid, data); break;
-				case 'tuid-arr': await this.uqInTuidArr(uqIn as UqInTuidArr, data); break;
-				case 'map': await this.uqInMap(uqIn as UqInMap, data); break;
-			}
-		}
-		catch (err) {
-			console.error(err);
-		}
+        switch (uqIn.type) {
+            case 'tuid': await this.uqInTuid(uqIn as UqInTuid, data); break;
+            case 'tuid-arr': await this.uqInTuidArr(uqIn as UqInTuidArr, data); break;
+            case 'map': await this.uqInMap(uqIn as UqInMap, data); break;
+        }
     }
 
     protected async uqInTuid(uqIn: UqInTuid, data: any): Promise<number> {
-		console.log('code in uiInTuid: let { key, mapper, uq: uqFullName, entity: tuid } = uqIn;');
         let { key, mapper, uq: uqFullName, entity: tuid } = uqIn;
         if (key === undefined) throw 'key is not defined';
         if (uqFullName === undefined) throw 'tuid ' + tuid + ' not defined';
-		console.log("code: let keyVal = data[key];");
-		let keyVal = data[key];
-		let body:any;
+        let keyVal = data[key];
+        let mapToUq = new MapToUq(this);
+        let body = await mapToUq.map(data, mapper);
+        let uq = await this.uqs.getUq(uqFullName);
         try {
-			console.log("code: let mapToUq = new MapToUq(this);");
-			let mapToUq = new MapToUq(this);
-			console.log("code: body = await mapToUq.map(data, mapper);");
-			body = await mapToUq.map(data, mapper);
-			console.log("code: let uq = await this.uqs.getUq(uqFullName);");
-			let uq = await this.uqs.getUq(uqFullName);
-			console.log('code: let ret = await uq.saveTuid(tuid, body)');
             let ret = await uq.saveTuid(tuid, body);
             let { id, inId } = ret;
             if (id) {
@@ -261,7 +254,6 @@ export class Joint {
                 logger.error(body);
             }
         } catch (error) {
-			console.error(error);
             if (error.code === "ETIMEDOUT") {
                 logger.error(error);
                 await this.uqInTuid(uqIn, data);
