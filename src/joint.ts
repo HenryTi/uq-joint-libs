@@ -435,21 +435,24 @@ export class Joint {
                 } else {
                     let message = await this.uqs.readBus(face, queue);
                     if (message === undefined) break;
-                    let { id, from, body } = message;
+					let { id, from, body } = message;					
 					newQueue = id;
+					// 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
 					// 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
-					if (from !== undefined) {
-						json = await faceSchemas.unpackBusData(face, body);
-						if (uqIdProps !== undefined) {
-							let uq = await this.uqs.getUq(from);
-							if (uq !== undefined) {
-								try {
-									let newJson = await uq.buildData(json, uqIdProps);
-									json = newJson;
-								} catch (error) {
-									logger.error(error);
-									break;
-								}
+					if (from === undefined) {
+						await execProc('write_queue_out_p', [moniker, newQueue]);
+						break;
+					}
+					json = await faceSchemas.unpackBusData(face, body);
+					if (uqIdProps !== undefined) {
+						let uq = await this.uqs.getUq(from);
+						if (uq !== undefined) {
+							try {
+								let newJson = await uq.buildData(json, uqIdProps);
+								json = newJson;
+							} catch (error) {
+								logger.error(error);
+								break;
 							}
 						}
 					}
