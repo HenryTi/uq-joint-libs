@@ -20,7 +20,8 @@ export class Joint {
     protected uqs: Uqs;
     protected settings: Settings;
     private tickCount: number = -1;
-    private scanInterval: number;
+	private scanInterval: number;
+	private queueOutPCache: {[moniker:string]:number} = {};
 
     constructor(settings: Settings) {
         this.settings = settings;
@@ -361,7 +362,14 @@ export class Joint {
                 throw error;
             }
         }
-    }
+	}
+	
+	private async writeQueueOutP(moniker:string, p:number) {
+		let lastP = this.queueOutPCache[moniker];
+		if (lastP === p) return;
+		await execProc('write_queue_out_p', [moniker, p]);
+		this.queueOutPCache[moniker] = p;
+	}
 
     /**
      *
@@ -381,8 +389,8 @@ export class Joint {
                 let ret: { queue: number, data: any };
                 ret = await this.uqOut(uqOut, queue);
                 if (ret === undefined) break;
-                let { queue: newQueue, data } = ret;
-                await execProc('write_queue_out_p', [queueName, newQueue]);
+				let { queue: newQueue, data } = ret;
+				await this.writeQueueOutP(queueName, newQueue);
             }
         }
     }
@@ -425,8 +433,8 @@ export class Joint {
                 if (busFrom === 'center') {
                     let message = await this.userOut(face, queue);
                     if (message === null) {
-                        newQueue = queue + 1;
-                        await execProc('write_queue_out_p', [moniker, newQueue]);
+						newQueue = queue + 1;
+						await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
                     if (message === undefined || message['$queue'] === undefined) break;
@@ -440,7 +448,7 @@ export class Joint {
 					// 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
 					// 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
 					if (from === undefined) {
-						await execProc('write_queue_out_p', [moniker, newQueue]);
+						await this.writeQueueOutP(moniker, newQueue);
 						break;
 					}
 					json = await faceSchemas.unpackBusData(face, body);
@@ -463,7 +471,7 @@ export class Joint {
 					let outBody = await mapFromUq.map(json, mapper);
 					if (await push(this, uqBus, queue, outBody) === false) break;
 				}
-                await execProc('write_queue_out_p', [moniker, newQueue]);
+				await this.writeQueueOutP(moniker, newQueue);
             }
 
             // bus in(从外部系统读入数据，写入bus)

@@ -7,6 +7,7 @@ export declare class Joint {
     protected settings: Settings;
     private tickCount;
     private scanInterval;
+    private queueOutPCache;
     constructor(settings: Settings);
     readonly uqInDict: {
         [tuid: string]: UqIn;
@@ -32,6 +33,7 @@ export declare class Joint {
      */
     private mapOwner;
     protected uqInMap(uqIn: UqInMap, data: any): Promise<void>;
+    private writeQueueOutP;
     /**
      *
      */

@@ -15,6 +15,7 @@ const logger = log4js_1.getLogger('joint');
 class Joint {
     constructor(settings) {
         this.tickCount = -1;
+        this.queueOutPCache = {};
         this.uqInDict = {};
         this.tick = async () => {
             try {
@@ -363,6 +364,13 @@ class Joint {
             }
         }
     }
+    async writeQueueOutP(moniker, p) {
+        let lastP = this.queueOutPCache[moniker];
+        if (lastP === p)
+            return;
+        await tool_1.execProc('write_queue_out_p', [moniker, p]);
+        this.queueOutPCache[moniker] = p;
+    }
     /**
      *
      */
@@ -386,7 +394,7 @@ class Joint {
                 if (ret === undefined)
                     break;
                 let { queue: newQueue, data } = ret;
-                await tool_1.execProc('write_queue_out_p', [queueName, newQueue]);
+                await this.writeQueueOutP(queueName, newQueue);
             }
         }
     }
@@ -430,7 +438,7 @@ class Joint {
                     let message = await this.userOut(face, queue);
                     if (message === null) {
                         newQueue = queue + 1;
-                        await tool_1.execProc('write_queue_out_p', [moniker, newQueue]);
+                        await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
                     if (message === undefined || message['$queue'] === undefined)
@@ -447,7 +455,7 @@ class Joint {
                     // 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
                     // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
                     if (from === undefined) {
-                        await tool_1.execProc('write_queue_out_p', [moniker, newQueue]);
+                        await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
                     json = await faceSchemas_1.faceSchemas.unpackBusData(face, body);
@@ -471,7 +479,7 @@ class Joint {
                     if (await push(this, uqBus, queue, outBody) === false)
                         break;
                 }
-                await tool_1.execProc('write_queue_out_p', [moniker, newQueue]);
+                await this.writeQueueOutP(moniker, newQueue);
             }
             // bus in(从外部系统读入数据，写入bus)
             for (;;) {
