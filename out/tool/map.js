@@ -12,9 +12,9 @@ const createMapTable_1 = require("./createMapTable");
 async function map(moniker, id, no) {
     moniker = moniker.toLowerCase();
     let sql = `
-        insert into \`${database_1.databaseName}\`.\`map_${moniker}\` (id, no) values (${id}, '${no}')
-        on duplicate key update id=${id};
+        insert into \`${database_1.databaseName}\`.\`map_${moniker}\` (id, no) values (${id}, '${no}');
     `;
+    // on duplicate key update id=${id};
     try {
         await tool_1.execSql(sql);
     }
