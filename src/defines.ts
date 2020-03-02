@@ -4,7 +4,7 @@ import { UqProp } from "./uq/uq";
 
 export interface DataPullResult { lastPointer: number | string, data: any[] };
 export type DataPull<T> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
-export type PullWrite = (joint: Joint, data: any) => Promise<boolean>;
+export type PullWrite<T> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
 export type DataPush<T> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
 
 export interface UqIn {
@@ -23,11 +23,11 @@ export interface UqIn {
     /**
      * 将增量数据发送到目的服务器的函数
      */
-    pullWrite?: PullWrite;
+    pullWrite?: PullWrite<UqIn>;
     /**
      * 将初始数据发送到目的服务器的函数
      */
-    firstPullWrite?: PullWrite;
+    firstPullWrite?: PullWrite<UqIn>;
     push?: DataPush<UqIn>;
 }
 

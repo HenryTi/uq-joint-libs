@@ -6,7 +6,7 @@ export interface DataPullResult {
     data: any[];
 }
 export declare type DataPull<T> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
-export declare type PullWrite = (joint: Joint, data: any) => Promise<boolean>;
+export declare type PullWrite<T> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
 export declare type DataPush<T> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
 export interface UqIn {
     uq: string;
@@ -23,11 +23,11 @@ export interface UqIn {
     /**
      * 将增量数据发送到目的服务器的函数
      */
-    pullWrite?: PullWrite;
+    pullWrite?: PullWrite<UqIn>;
     /**
      * 将初始数据发送到目的服务器的函数
      */
-    firstPullWrite?: PullWrite;
+    firstPullWrite?: PullWrite<UqIn>;
     push?: DataPush<UqIn>;
 }
 export interface UqInTuid extends UqIn {

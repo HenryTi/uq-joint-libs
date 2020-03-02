@@ -200,20 +200,10 @@ export class Joint {
                     }
 
                     if (pullWrite !== undefined)
-                        promises.push(pullWrite(this, message));
+                        promises.push(pullWrite(this, uqIn, message));
                     else
                         promises.push(this.uqIn(uqIn, message));
                 }
-                /*
-                data.forEach(message => {
-                    if (pullWrite !== undefined) {
-                        promises.push(pullWrite(this, message));
-                    }
-                    else {
-                        promises.push(this.uqIn(uqIn, message));
-                    }
-                });
-                */
 
                 try {
                     await Promise.all(promises);
