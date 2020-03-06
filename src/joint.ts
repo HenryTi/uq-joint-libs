@@ -4,7 +4,7 @@ import { getLogger } from 'log4js';
 import { Settings, UqIn, UqOut, DataPush, UqInTuid, UqInMap, UqInTuidArr, DataPullResult } from "./defines";
 import { tableFromProc, execProc, execSql } from "./db/mysql/tool";
 import { MapFromUq as MapFromUq, MapToUq as MapToUq, MapUserToUq } from "./tool/mapData";
-import { map } from "./tool/map"; 
+import { map } from "./tool/map";
 import { createRouter } from './router';
 import { databaseName } from "./db/mysql/database";
 import { createMapTable } from "./tool/createMapTable";
@@ -20,8 +20,8 @@ export class Joint {
     protected uqs: Uqs;
     protected settings: Settings;
     private tickCount: number = -1;
-	private scanInterval: number;
-	private queueOutPCache: {[moniker:string]:number} = {};
+    private scanInterval: number;
+    private queueOutPCache: { [moniker: string]: number } = {};
 
     constructor(settings: Settings) {
         this.settings = settings;
@@ -51,7 +51,7 @@ export class Joint {
     }
     */
 
-    async getUq(uqFullName:string):Promise<Uq> {
+    async getUq(uqFullName: string): Promise<Uq> {
         let uq = await this.uqs.getUq(uqFullName);
         return uq;
     }
@@ -182,12 +182,12 @@ export class Joint {
                     // message = JSON.parse(body);
                 }
 
-				let { lastPointer, data } = ret;
-				if (!lastPointer) {
-					let e = "读数据的时候，需要返回ID字段，作为进入数据的序号。"
-					console.error(e);
-					throw new Error(e);
-				}
+                let { lastPointer, data } = ret;
+                if (!lastPointer) {
+                    let e = "读数据的时候，需要返回ID字段，作为进入数据的序号。"
+                    console.error(e);
+                    throw new Error(e);
+                }
                 // data.sort((a, b) => { return a.ID - b.ID });
                 let dataCopy = [];
                 for (let i = data.length - 1; i >= 0; i--) {
@@ -235,14 +235,16 @@ export class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveTuid(tuid, body);
-            let { id, inId } = ret;
-            if (id) {
-                if (id < 0) id = -id;
-                await map(tuid, id, keyVal);
-                return id;
-            } else {
-                logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id) {
+                    if (id < 0) id = -id;
+                    await map(tuid, id, keyVal);
+                    return id;
+                } else {
+                    logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         } catch (error) {
             if (error.code === "ETIMEDOUT") {
@@ -275,15 +277,17 @@ export class Joint {
             let body = await mapToUq.map(data, mapper);
             let uq = await this.uqs.getUq(uqFullName);
             let ret = await uq.saveTuidArr(tuidOwner, tuidArr, ownerId, body);
-            let { id, inId } = ret;
-            if (id === undefined) id = inId;
-            else if (id < 0) id = -id;
-            if (id) {
-                await map(entity, id, keyVal);
-                return id;
-            } else {
-                logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id === undefined) id = inId;
+                else if (id < 0) id = -id;
+                if (id) {
+                    await map(entity, id, keyVal);
+                    return id;
+                } else {
+                    logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         } catch (error) {
             if (error.code === "ETIMEDOUT") {
@@ -341,9 +345,9 @@ export class Joint {
             let uq = await this.uqs.getUq(uqFullName);
             let { $ } = data;
             if ($ === '-')
-                await uq.delMap(entity, {data:body});
+                await uq.delMap(entity, { data: body });
             else
-                await uq.setMap(entity, {data:body});
+                await uq.setMap(entity, { data: body });
         } catch (error) {
             if (error.code === "ETIMEDOUT") {
                 logger.error(error);
@@ -352,14 +356,14 @@ export class Joint {
                 throw error;
             }
         }
-	}
-	
-	private async writeQueueOutP(moniker:string, p:number) {
-		let lastP = this.queueOutPCache[moniker];
-		if (lastP === p) return;
-		await execProc('write_queue_out_p', [moniker, p]);
-		this.queueOutPCache[moniker] = p;
-	}
+    }
+
+    private async writeQueueOutP(moniker: string, p: number) {
+        let lastP = this.queueOutPCache[moniker];
+        if (lastP === p) return;
+        await execProc('write_queue_out_p', [moniker, p]);
+        this.queueOutPCache[moniker] = p;
+    }
 
     /**
      *
@@ -379,8 +383,8 @@ export class Joint {
                 let ret: { queue: number, data: any };
                 ret = await this.uqOut(uqOut, queue);
                 if (ret === undefined) break;
-				let { queue: newQueue, data } = ret;
-				await this.writeQueueOutP(queueName, newQueue);
+                let { queue: newQueue, data } = ret;
+                await this.writeQueueOutP(queueName, newQueue);
             }
         }
     }
@@ -419,12 +423,12 @@ export class Joint {
                 } else {
                     queue = 0;
                 }
-                let newQueue:any, json:any = undefined;
+                let newQueue: any, json: any = undefined;
                 if (busFrom === 'center') {
                     let message = await this.userOut(face, queue);
                     if (message === null) {
-						newQueue = queue + 1;
-						await this.writeQueueOutP(moniker, newQueue);
+                        newQueue = queue + 1;
+                        await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
                     if (message === undefined || message['$queue'] === undefined) break;
@@ -433,35 +437,35 @@ export class Joint {
                 } else {
                     let message = await this.uqs.readBus(face, queue);
                     if (message === undefined) break;
-					let { id, from, body } = message;					
-					newQueue = id;
-					// 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
-					// 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
-					if (from === undefined) {
-						await this.writeQueueOutP(moniker, newQueue);
-						break;
-					}
-					json = await faceSchemas.unpackBusData(face, body);
-					if (uqIdProps !== undefined) {
-						let uq = await this.uqs.getUq(from);
-						if (uq !== undefined) {
-							try {
-								let newJson = await uq.buildData(json, uqIdProps);
-								json = newJson;
-							} catch (error) {
-								logger.error(error);
-								break;
-							}
-						}
-					}
+                    let { id, from, body } = message;
+                    newQueue = id;
+                    // 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
+                    // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
+                    if (from === undefined) {
+                        await this.writeQueueOutP(moniker, newQueue);
+                        break;
+                    }
+                    json = await faceSchemas.unpackBusData(face, body);
+                    if (uqIdProps !== undefined) {
+                        let uq = await this.uqs.getUq(from);
+                        if (uq !== undefined) {
+                            try {
+                                let newJson = await uq.buildData(json, uqIdProps);
+                                json = newJson;
+                            } catch (error) {
+                                logger.error(error);
+                                break;
+                            }
+                        }
+                    }
                 }
 
-				if (json !== undefined) {
-					let mapFromUq = new MapFromUq(this);
-					let outBody = await mapFromUq.map(json, mapper);
-					if (await push(this, uqBus, queue, outBody) === false) break;
-				}
-				await this.writeQueueOutP(moniker, newQueue);
+                if (json !== undefined) {
+                    let mapFromUq = new MapFromUq(this);
+                    let outBody = await mapFromUq.map(json, mapper);
+                    if (await push(this, uqBus, queue, outBody) === false) break;
+                }
+                await this.writeQueueOutP(moniker, newQueue);
             }
 
             // bus in(从外部系统读入数据，写入bus)
@@ -487,7 +491,7 @@ export class Joint {
         }
     }
 
-    protected async userOut(face: string, queue: number) {        
+    protected async userOut(face: string, queue: number) {
     }
 
 }

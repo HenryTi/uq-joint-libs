@@ -222,16 +222,18 @@ class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveTuid(tuid, body);
-            let { id, inId } = ret;
-            if (id) {
-                if (id < 0)
-                    id = -id;
-                await map_1.map(tuid, id, keyVal);
-                return id;
-            }
-            else {
-                logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id) {
+                    if (id < 0)
+                        id = -id;
+                    await map_1.map(tuid, id, keyVal);
+                    return id;
+                }
+                else {
+                    logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         }
         catch (error) {
@@ -271,18 +273,20 @@ class Joint {
             let body = await mapToUq.map(data, mapper);
             let uq = await this.uqs.getUq(uqFullName);
             let ret = await uq.saveTuidArr(tuidOwner, tuidArr, ownerId, body);
-            let { id, inId } = ret;
-            if (id === undefined)
-                id = inId;
-            else if (id < 0)
-                id = -id;
-            if (id) {
-                await map_1.map(entity, id, keyVal);
-                return id;
-            }
-            else {
-                logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id === undefined)
+                    id = inId;
+                else if (id < 0)
+                    id = -id;
+                if (id) {
+                    await map_1.map(entity, id, keyVal);
+                    return id;
+                }
+                else {
+                    logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         }
         catch (error) {
