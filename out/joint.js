@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const log4js_1 = require("log4js");
+const defines_1 = require("./defines");
 const tool_1 = require("./db/mysql/tool");
 const mapData_1 = require("./tool/mapData");
 const map_1 = require("./tool/map");
@@ -227,7 +228,7 @@ class Joint {
                 if (id) {
                     if (id < 0)
                         id = -id;
-                    await map_1.map(tuid, id, keyVal);
+                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
                     return id;
                 }
                 else {
@@ -280,7 +281,7 @@ class Joint {
                 else if (id < 0)
                     id = -id;
                 if (id) {
-                    await map_1.map(entity, id, keyVal);
+                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
                     return id;
                 }
                 else {
@@ -303,25 +304,24 @@ class Joint {
     /**
      * 在tuidDiv中，根据其owner的no获取id，若owner尚未生成id，则生成之
      * @param uqIn
-     * @param ownerEntity
      * @param ownerVal
      */
     async mapOwner(uqIn, ownerEntity, ownerVal) {
-        let { uq: uqFullName } = uqIn;
-        let sql = `select id from \`${database_1.databaseName}\`.\`map_${ownerEntity.toLowerCase()}\` where no='${ownerVal}'`;
+        let ownerSchema = defines_1.getOwnerMapName(uqIn);
+        let sql = `select id from \`${database_1.databaseName}\`.\`map_${ownerSchema}\` where no='${ownerVal}'`;
         let ret;
         try {
             ret = await tool_1.execSql(sql);
         }
         catch (err) {
-            await createMapTable_1.createMapTable(ownerEntity);
+            await createMapTable_1.createMapTable(ownerSchema);
             ret = await tool_1.execSql(sql);
         }
         if (ret.length === 0) {
             try {
-                let uq = await this.uqs.getUq(uqFullName);
+                let uq = await this.uqs.getUq(uqIn.uq);
                 let vId = await uq.getTuidVId(ownerEntity);
-                await map_1.map(ownerEntity, vId, ownerVal);
+                await map_1.map(ownerSchema, vId, ownerVal);
                 return vId;
             }
             catch (error) {

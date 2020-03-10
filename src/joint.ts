@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getLogger } from 'log4js';
 
-import { Settings, UqIn, UqOut, DataPush, UqInTuid, UqInMap, UqInTuidArr, DataPullResult } from "./defines";
+import { Settings, UqIn, UqOut, DataPush, UqInTuid, UqInMap, UqInTuidArr, DataPullResult, getMapName, getOwnerMapName } from "./defines";
 import { tableFromProc, execProc, execSql } from "./db/mysql/tool";
 import { MapFromUq as MapFromUq, MapToUq as MapToUq, MapUserToUq } from "./tool/mapData";
 import { map } from "./tool/map";
@@ -239,7 +239,7 @@ export class Joint {
                 let { id, inId } = ret;
                 if (id) {
                     if (id < 0) id = -id;
-                    await map(tuid, id, keyVal);
+                    await map(getMapName(uqIn), id, keyVal);
                     return id;
                 } else {
                     logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
@@ -263,10 +263,12 @@ export class Joint {
         if (key === undefined) throw 'key is not defined';
         if (uqFullName === undefined) throw 'uq ' + uqFullName + ' not defined';
         if (entity === undefined) throw 'tuid ' + entity + ' not defined';
+
         let parts = entity.split('_');
         let tuidOwner = parts[0];
         if (parts.length === 1) throw 'tuid ' + entity + ' must has .arr';
         let tuidArr = parts[1];
+
         let keyVal = data[key];
         if (owner === undefined) throw 'owner is not defined';
         let ownerVal = data[owner];
@@ -282,7 +284,7 @@ export class Joint {
                 if (id === undefined) id = inId;
                 else if (id < 0) id = -id;
                 if (id) {
-                    await map(entity, id, keyVal);
+                    await map(getMapName(uqIn), id, keyVal);
                     return id;
                 } else {
                     logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
@@ -303,25 +305,25 @@ export class Joint {
     /**
      * 在tuidDiv中，根据其owner的no获取id，若owner尚未生成id，则生成之
      * @param uqIn
-     * @param ownerEntity
      * @param ownerVal
      */
     private async mapOwner(uqIn: UqInTuidArr, ownerEntity: string, ownerVal: any) {
-        let { uq: uqFullName } = uqIn;
-        let sql = `select id from \`${databaseName}\`.\`map_${ownerEntity.toLowerCase()}\` where no='${ownerVal}'`;
+
+        let ownerSchema = getOwnerMapName(uqIn);
+        let sql = `select id from \`${databaseName}\`.\`map_${ownerSchema}\` where no='${ownerVal}'`;
         let ret: any[];
         try {
             ret = await execSql(sql);
         }
         catch (err) {
-            await createMapTable(ownerEntity);
+            await createMapTable(ownerSchema);
             ret = await execSql(sql);
         }
         if (ret.length === 0) {
             try {
-                let uq = await this.uqs.getUq(uqFullName);
+                let uq = await this.uqs.getUq(uqIn.uq);
                 let vId = await uq.getTuidVId(ownerEntity);
-                await map(ownerEntity, vId, ownerVal);
+                await map(ownerSchema, vId, ownerVal);
                 return vId;
             } catch (error) {
                 if (error.code === "ETIMEDOUT") {
@@ -330,7 +332,6 @@ export class Joint {
                 } else {
                     throw error;
                 }
-
             }
         }
         return ret[0]['id'];

@@ -1,6 +1,6 @@
 {
   "name": "uq-joint",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "description": "joint for uq and other db",
   "repository": "henryti/uq-joint",
   "private": false,

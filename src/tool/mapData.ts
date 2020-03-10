@@ -4,7 +4,7 @@ import { createMapTable } from "./createMapTable";
 //import { getOpenApi } from "./openApi";
 import { databaseName } from "../db/mysql/database";
 import { map } from "./map";
-import { UqIn } from "../defines";
+import { UqIn, getMapName } from "../defines";
 import { Joint } from "../joint";
 
 abstract class MapData {
@@ -156,21 +156,22 @@ export class MapToUq extends MapData {
             case 'tuid-arr':
                 break;
         }
-        let { entity, uq } = uqIn as UqIn;
-        let sql = `select id from \`${databaseName}\`.\`map_${entity.toLowerCase()}\` where no='${value}'`;
+        let entitySchema = getMapName(uqIn);
+        let sql = `select id from \`${databaseName}\`.\`map_${entitySchema}\` where no='${value}'`;
         let ret: any[];
         try {
             ret = await execSql(sql);
         }
         catch (err) {
-            await createMapTable(entity);
+            await createMapTable(entitySchema);
             ret = await execSql(sql);
         }
         if (ret.length === 0) {
+            let { entity, uq } = uqIn as UqIn;
             let vId = await this.getTuidVid(uq, entity);
             if (vId !== undefined) {
                 if (typeof vId === 'number' && vId > 0) {
-                    await map(entity, vId, value);
+                    await map(entitySchema, vId, value);
                 }
                 return vId;
             } else {
@@ -217,13 +218,13 @@ export class MapFromUq extends MapData {
         if (typeof uqIn !== 'object')
             throw `tuid ${tuid} is not defined in settings.in`;
 
-        let { entity, uq } = uqIn as UqIn;
-        let sql = `select no from \`${databaseName}\`.\`map_${entity.toLowerCase()}\` where id='${value}'`;
+        let entitySchema = getMapName(uqIn);
+        let sql = `select no from \`${databaseName}\`.\`map_${entitySchema}\` where id='${value}'`;
         let ret: any[];
         try {
             ret = await execSql(sql);
         } catch (error) {
-            await createMapTable(entity);
+            await createMapTable(entitySchema);
             ret = await execSql(sql);
         }
         if (ret.length === 0) return 'n/a';
