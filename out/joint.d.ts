@@ -45,5 +45,5 @@ export declare class Joint {
      * 通过bus做双向数据同步（bus out和bus in)
      */
     protected scanBus(): Promise<void>;
-    protected userOut(face: string, queue: number): Promise<void>;
+    protected userOut(face: string, queue: number): Promise<any>;
 }

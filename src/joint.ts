@@ -13,6 +13,7 @@ import { Uqs } from "./uq/uqs";
 //import { centerApi } from "./tool/centerApi";
 import { host } from "./tool/host";
 import { Uq } from "./uq/uq";
+import { centerApi } from "./tool/centerApi";
 
 const logger = getLogger('joint');
 
@@ -427,11 +428,13 @@ export class Joint {
                 let newQueue: any, json: any = undefined;
                 if (busFrom === 'center') {
                     let message = await this.userOut(face, queue);
+                    /*
                     if (message === null) {
                         newQueue = queue + 1;
                         await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
+                    */
                     if (message === undefined || message['$queue'] === undefined) break;
                     newQueue = message['$queue'];
                     json = message;
@@ -440,7 +443,7 @@ export class Joint {
                     if (message === undefined) break;
                     let { id, from, body } = message;
                     newQueue = id;
-                    // 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
+                    // 当from是undefined的时候，直接返回的整个队列最大值。没有消息，所以应该退出
                     // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
                     if (from === undefined) {
                         await this.writeQueueOutP(moniker, newQueue);
@@ -493,6 +496,10 @@ export class Joint {
     }
 
     protected async userOut(face: string, queue: number) {
+        let result = await centerApi.queueOut(queue, 1);
+        if (result && result.length === 1 && result[0])
+            return result[0];
+        return undefined;
     }
 
 }

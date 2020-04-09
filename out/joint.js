@@ -12,6 +12,7 @@ const faceSchemas_1 = require("./tool/faceSchemas");
 const uqs_1 = require("./uq/uqs");
 //import { centerApi } from "./tool/centerApi";
 const host_1 = require("./tool/host");
+const centerApi_1 = require("./tool/centerApi");
 const logger = log4js_1.getLogger('joint');
 class Joint {
     constructor(settings) {
@@ -430,11 +431,13 @@ class Joint {
                 let newQueue, json = undefined;
                 if (busFrom === 'center') {
                     let message = await this.userOut(face, queue);
+                    /*
                     if (message === null) {
                         newQueue = queue + 1;
                         await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
+                    */
                     if (message === undefined || message['$queue'] === undefined)
                         break;
                     newQueue = message['$queue'];
@@ -446,7 +449,7 @@ class Joint {
                         break;
                     let { id, from, body } = message;
                     newQueue = id;
-                    // 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
+                    // 当from是undefined的时候，直接返回的整个队列最大值。没有消息，所以应该退出
                     // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
                     if (from === undefined) {
                         await this.writeQueueOutP(moniker, newQueue);
@@ -500,6 +503,10 @@ class Joint {
         }
     }
     async userOut(face, queue) {
+        let result = await centerApi_1.centerApi.queueOut(queue, 1);
+        if (result && result.length === 1 && result[0])
+            return result[0];
+        return undefined;
     }
 }
 exports.Joint = Joint;
