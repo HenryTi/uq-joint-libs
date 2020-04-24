@@ -110,7 +110,7 @@ export function getMapName(uqIn: UqIn): string {
     if (pos > 0)
         return (uq.substring(pos + 1) + "_" + entity).toLowerCase();
     else {
-        console.error('uq格式不争取，其中应该带有/符号');
+        console.error('uq格式不正确，其中应该带有/符号');
         throw EvalError;
     }
 }
@@ -126,7 +126,7 @@ export function getOwnerMapName(uqIn: UqInTuidArr): string {
     if (pos > 0)
         return (uq.substring(pos + 1) + "_" + tuidOwner).toLowerCase();
     else {
-        console.error('uq格式不争取，其中应该带有/符号');
+        console.error('uq格式不正确，其中应该带有/符号');
         throw EvalError;
     }
 } 
