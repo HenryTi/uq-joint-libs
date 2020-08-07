@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createMapTable = void 0;
 const database_1 = require("../db/mysql/database");
 const tool_1 = require("../db/mysql/tool");
 async function createMapTable(moniker) {

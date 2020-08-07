@@ -1,13 +1,20 @@
 "use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./uq"));
-__export(require("./uqs"));
-__export(require("./action"));
-__export(require("./map"));
-__export(require("./query"));
-__export(require("./sheet"));
-__export(require("./tuid"));
+__exportStar(require("./uq"), exports);
+__exportStar(require("./uqs"), exports);
+__exportStar(require("./action"), exports);
+__exportStar(require("./map"), exports);
+__exportStar(require("./query"), exports);
+__exportStar(require("./sheet"), exports);
+__exportStar(require("./tuid"), exports);
 //# sourceMappingURL=index.js.map

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.busPage = void 0;
 const getIp_1 = require("./getIp");
 async function busPage(req, res) {
     res.writeHead(200, {

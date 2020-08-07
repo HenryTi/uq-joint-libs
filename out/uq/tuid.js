@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TuidDiv = exports.TuidMain = exports.Tuid = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const entity_1 = require("./entity");
 const caller_1 = require("./caller");

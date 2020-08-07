@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.init = void 0;
 const database_1 = require("./database");
 const tables_1 = require("./tables");
 const procs_1 = require("./procs");

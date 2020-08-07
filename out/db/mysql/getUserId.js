@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUserId = void 0;
 const database_1 = require("./database");
 const tool_1 = require("./tool");
 async function getUserId(webUserID) {
