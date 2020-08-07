@@ -2,11 +2,11 @@ import _ from 'lodash';
 import { centerApi } from "./centerApi";
 
 interface Field {
-    name:string;
-    type:string;
+    name: string;
+    type: string;
 }
 interface Arr {
-    name:string;
+    name: string;
     fields: Field[];
 }
 interface BusSchema {
@@ -17,24 +17,24 @@ const tab = '\t';
 const ln = '\n';
 
 class FaceSchemas {
-    private busSchemas:{[bus:string]:any} = {};
-    private faceSchemas: {[face:string]:any} = {};
+    private busSchemas: { [bus: string]: any } = {};
+    private faceSchemas: { [face: string]: any } = {};
 
-    async packBusData(faceName:string, data:any):Promise<string> {
+    async packBusData(faceName: string, data: any): Promise<string> {
         if (data === undefined) return;
         let faceSchema = await this.getFaceSchema(faceName);
         if (faceSchema === undefined) return;
         return this.pack(faceSchema, data);
     }
 
-    async unpackBusData(faceName:string, data:string):Promise<any> {
+    async unpackBusData(faceName: string, data: string): Promise<any> {
         if (data === undefined) return;
         let faceSchema = await this.getFaceSchema(faceName);
         if (faceSchema === undefined) return;
         return this.unpack(faceSchema, data);
     }
 
-    private async getFaceSchema(faceName:string):Promise<any> {
+    private async getFaceSchema(faceName: string): Promise<any> {
         let faceSchema = this.faceSchemas[faceName];
         if (faceSchema !== undefined) return faceSchema;
         let parts = faceName.split('/');
@@ -48,20 +48,20 @@ class FaceSchemas {
         return fs;
     }
 
-    private faceSchemaFromBus(busSchema:any, faceName:string) {
+    private faceSchemaFromBus(busSchema: any, faceName: string) {
         if (busSchema === undefined) return;
         let faceSchema = busSchema[faceName];
         if (faceSchema === undefined) return;
         return faceSchema;
     }
 
-    private buildFaceSchema(faceSchema:any, busSchema:any):BusSchema {
-        let fields:any[] = [];
-        let arrs:any[] = [];
+    private buildFaceSchema(faceSchema: any, busSchema: any): BusSchema {
+        let fields: any[] = [];
+        let arrs: any[] = [];
         for (let item of faceSchema) {
             if (item.type === 'array') {
-                let {name, fields} = item;
-                let arr:any = {
+                let { name, fields } = item;
+                let arr: any = {
                     name: name,
                     fields: busSchema[fields],
                 };
@@ -71,10 +71,10 @@ class FaceSchemas {
                 fields.push(item);
             }
         }
-        return {fields: fields, arrs: arrs};
+        return { fields: fields, arrs: arrs };
     }
 
-    private async getBusSchema(owner:string, busName:string):Promise<any> {
+    private async getBusSchema(owner: string, busName: string): Promise<any> {
         let fullBusName = owner + '/' + busName;
         let busSchema = this.busSchemas[fullBusName];
         if (busSchema !== undefined) return busSchema;
@@ -82,32 +82,29 @@ class FaceSchemas {
         return this.busSchemas[fullBusName] = JSON.parse(text);
     }
 
-    private pack(schema:BusSchema, data:any):string {
-        let result:string[] = [];
+    private pack(schema: BusSchema, data: any): string {
+        let result: string[] = [];
         if (data !== undefined) {
             if (Array.isArray(data) === false) data = [data];
             let len = data.length;
-            for (let i=0;i<len;i++) this.packBusMain(result, schema, data[0]);
+            for (let i = 0; i < len; i++) this.packBusMain(result, schema, data[0]);
         }
         return result.join('');
     }
-    
-    private packBusMain(result:string[], schema:BusSchema, main:any) {
-        let {fields, arrs} = schema;
+
+    private packBusMain(result: string[], schema: BusSchema, main: any) {
+        let { fields, arrs } = schema;
         this.packRow(result, fields, main);
         if (arrs !== undefined && arrs.length > 0) {
             for (let arr of arrs) {
-                let {name, fields} = arr;
+                let { name, fields } = arr;
                 this.packArr(result, fields, main[name]);
             }
-            result.push(ln);
         }
-        else {
-            result.push(ln, ln, ln);
-        }
+        result.push(ln);
     }
-    
-    private escape(d:any):any {
+
+    private escape(d: any): any {
         //if (d === null) return '\b';
         if (d === null) return '';
         switch (typeof d) {
@@ -117,30 +114,30 @@ class FaceSchemas {
             case 'string':
                 let len = d.length;
                 let r = '', p = 0;
-                for (let i=0;i<len;i++) {
+                for (let i = 0; i < len; i++) {
                     let c = d.charCodeAt(i);
-                    switch(c) {
-                        case 9: r += d.substring(p, i) + '\\t'; p = i+1; break;
-                        case 10: r += d.substring(p, i) + '\\n'; p = i+1; break;
+                    switch (c) {
+                        case 9: r += d.substring(p, i) + '\\t'; p = i + 1; break;
+                        case 10: r += d.substring(p, i) + '\\n'; p = i + 1; break;
                     }
                 }
                 return r + d.substring(p);
             case 'undefined': return '';
         }
     }
-    
-    private packRow(result:string[], fields:Field[], data:any) {
+
+    private packRow(result: string[], fields: Field[], data: any) {
         let ret = '';
         let len = fields.length;
         ret += this.escape(data[fields[0].name]);
-        for (let i=1;i<len;i++) {
+        for (let i = 1; i < len; i++) {
             let f = fields[i];
             ret += tab + this.escape(data[f.name]);
         }
         result.push(ret + ln);
     }
-    
-    private packArr(result:string[], fields:Field[], data:any[]) {
+
+    private packArr(result: string[], fields: Field[], data: any[]) {
         if (data !== undefined) {
             for (let row of data) {
                 this.packRow(result, fields, row);
@@ -149,8 +146,8 @@ class FaceSchemas {
         result.push(ln);
     }
 
-    private unpack(schema:any, data:string):any {
-        let ret:any = {};
+    private unpack(schema: any, data: string): any {
+        let ret: any = {};
         if (schema === undefined || data === undefined) return;
         let fields = schema.fields;
         let p = 0;
@@ -163,18 +160,25 @@ class FaceSchemas {
         }
         return ret;
     }
-    
-    private unpackRow(ret:any, fields:Field[], data:string, p:number):number {
+
+    /**
+     * 
+     * @param ret 
+     * @param fields 
+     * @param data 
+     * @param p 
+     */
+    private unpackRow(ret: any, fields: Field[], data: string, p: number): number {
         let c = p, i = 0, len = data.length, fLen = fields.length;
-        for (;p<len;p++) {
+        for (; p < len; p++) {
             let ch = data.charCodeAt(p);
             if (ch === 9) {
                 let f = fields[i];
                 let v = data.substring(c, p);
                 ret[f.name] = to(v, f.type);
-                c = p+1;
+                c = p + 1;
                 ++i;
-                if (i>=fLen) break;
+                if (i >= fLen) break;
             }
             else if (ch === 10) {
                 let f = fields[i];
@@ -186,7 +190,7 @@ class FaceSchemas {
             }
         }
         return p;
-        function to(v:string, type:string):any {
+        function to(v: string, type: string): any {
             switch (type) {
                 default: return v;
                 case 'id':
@@ -199,17 +203,24 @@ class FaceSchemas {
             }
         }
     }
-    
-    private unpackArr(ret:any, arr:Arr, data:string, p:number):number {
-        let vals:any[] = [], len = data.length;
-        let {name, fields} = arr;
-        while (p<len) {
+
+    /**
+     * 
+     * @param ret 解析的结果存入ret中 
+     * @param arr arr的schema 
+     * @param data 要解析的数据 
+     * @param p 要解析的arr在data中的起始位置  
+     */
+    private unpackArr(ret: any, arr: Arr, data: string, p: number): number {
+        let vals: any[] = [], len = data.length;
+        let { name, fields } = arr;
+        while (p < len) {
             let ch = data.charCodeAt(p);
             if (ch === 10) {
                 ++p;
                 break;
             }
-            let val:any = {};
+            let val: any = {};
             vals.push(val);
             p = this.unpackRow(val, fields, data, p);
         }
