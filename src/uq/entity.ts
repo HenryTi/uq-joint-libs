@@ -1,6 +1,7 @@
 import { Uq } from './uq';
 import { Field, ArrFields, FieldMap } from './field';
 import { TuidMain, Tuid } from './tuid';
+import { getObjPropIgnoreCase } from '../tool/objPropIgnoreCase';
 
 const tab = '\t';
 const ln = '\n';
@@ -192,7 +193,8 @@ export abstract class Entity {
         let arrs = this.arrFields; //schema['arrs'];
         if (arrs !== undefined) {
             for (let arr of arrs) {
-                this.packArr(ret, arr.fields, data[arr.name]);
+				let arrObj = getObjPropIgnoreCase(data, arr.name);
+                this.packArr(ret, arr.fields, arrObj);
             }
         }
         return ret.join('');
@@ -234,11 +236,19 @@ export abstract class Entity {
     }
     
     private packArr(result:string[], fields:Field[], data:any[]) {
-        if (data !== undefined) {
-            for (let row of data) {
-                this.packRow(result, fields, row);
-            }
-        }
+		if (data !== undefined) {
+			if (data.length === 0) {
+				result.push(ln);
+			}
+			else {
+				for (let row of data) {
+					this.packRow(result, fields, row);
+				}
+			}
+		}
+		else {
+			result.push(ln);
+		}
         result.push(ln);
     }
     
