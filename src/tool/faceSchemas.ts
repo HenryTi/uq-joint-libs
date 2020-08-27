@@ -98,8 +98,8 @@ class FaceSchemas {
         this.packRow(result, fields, main);
         if (arrs !== undefined && arrs.length > 0) {
             for (let arr of arrs) {
-				let {name, fields} = arr;
-				let arrObj = getObjPropIgnoreCase(main, name);
+                let { name, fields } = arr;
+                let arrObj = getObjPropIgnoreCase(main, name);
                 this.packArr(result, fields, arrObj);
             }
         }
@@ -141,16 +141,16 @@ class FaceSchemas {
 
     private packArr(result: string[], fields: Field[], data: any[]) {
         if (data !== undefined) {
-			if (data.length === 0) {
-				result.push(ln);
-			}
+            if (data.length === 0) {
+                result.push(ln);
+            }
             for (let row of data) {
                 this.packRow(result, fields, row);
             }
-		}
-		else {
-			result.push(ln);
-		}
+        }
+        else {
+            result.push(ln);
+        }
         result.push(ln);
     }
 
