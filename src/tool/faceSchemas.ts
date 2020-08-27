@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { centerApi } from "./centerApi";
+import { getObjPropIgnoreCase } from './objPropIgnoreCase';
 
 interface Field {
     name: string;
@@ -97,8 +98,9 @@ class FaceSchemas {
         this.packRow(result, fields, main);
         if (arrs !== undefined && arrs.length > 0) {
             for (let arr of arrs) {
-                let { name, fields } = arr;
-                this.packArr(result, fields, main[name]);
+				let {name, fields} = arr;
+				let arrObj = getObjPropIgnoreCase(main, name);
+                this.packArr(result, fields, arrObj);
             }
         }
         result.push(ln);
@@ -139,10 +141,16 @@ class FaceSchemas {
 
     private packArr(result: string[], fields: Field[], data: any[]) {
         if (data !== undefined) {
+			if (data.length === 0) {
+				result.push(ln);
+			}
             for (let row of data) {
                 this.packRow(result, fields, row);
             }
-        }
+		}
+		else {
+			result.push(ln);
+		}
         result.push(ln);
     }
 
