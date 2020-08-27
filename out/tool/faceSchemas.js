@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.faceSchemas = void 0;
 const centerApi_1 = require("./centerApi");
+const objPropIgnoreCase_1 = require("./objPropIgnoreCase");
 const tab = '\t';
 const ln = '\n';
 class FaceSchemas {
@@ -93,7 +94,8 @@ class FaceSchemas {
         if (arrs !== undefined && arrs.length > 0) {
             for (let arr of arrs) {
                 let { name, fields } = arr;
-                this.packArr(result, fields, main[name]);
+                let arrObj = objPropIgnoreCase_1.getObjPropIgnoreCase(main, name);
+                this.packArr(result, fields, arrObj);
             }
         }
         result.push(ln);
@@ -139,9 +141,15 @@ class FaceSchemas {
     }
     packArr(result, fields, data) {
         if (data !== undefined) {
+            if (data.length === 0) {
+                result.push(ln);
+            }
             for (let row of data) {
                 this.packRow(result, fields, row);
             }
+        }
+        else {
+            result.push(ln);
         }
         result.push(ln);
     }
