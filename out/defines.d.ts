@@ -101,3 +101,5 @@ export interface Settings {
     };
     pullReadFromSql?: (sql: string, queue: number | string) => Promise<DataPullResult>;
 }
+export declare function getMapName(uqIn: UqIn): string;
+export declare function getOwnerMapName(uqIn: UqInTuidArr): string;

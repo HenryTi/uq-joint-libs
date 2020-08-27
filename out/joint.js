@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const log4js_1 = require("log4js");
+const defines_1 = require("./defines");
 const tool_1 = require("./db/mysql/tool");
 const mapData_1 = require("./tool/mapData");
 const map_1 = require("./tool/map");
@@ -11,6 +12,7 @@ const faceSchemas_1 = require("./tool/faceSchemas");
 const uqs_1 = require("./uq/uqs");
 //import { centerApi } from "./tool/centerApi";
 const host_1 = require("./tool/host");
+const centerApi_1 = require("./tool/centerApi");
 const logger = log4js_1.getLogger('joint');
 class Joint {
     constructor(settings) {
@@ -222,16 +224,18 @@ class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveTuid(tuid, body);
-            let { id, inId } = ret;
-            if (id) {
-                if (id < 0)
-                    id = -id;
-                await map_1.map(tuid, id, keyVal);
-                return id;
-            }
-            else {
-                logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id) {
+                    if (id < 0)
+                        id = -id;
+                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
+                    return id;
+                }
+                else {
+                    logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         }
         catch (error) {
@@ -271,18 +275,20 @@ class Joint {
             let body = await mapToUq.map(data, mapper);
             let uq = await this.uqs.getUq(uqFullName);
             let ret = await uq.saveTuidArr(tuidOwner, tuidArr, ownerId, body);
-            let { id, inId } = ret;
-            if (id === undefined)
-                id = inId;
-            else if (id < 0)
-                id = -id;
-            if (id) {
-                await map_1.map(entity, id, keyVal);
-                return id;
-            }
-            else {
-                logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id === undefined)
+                    id = inId;
+                else if (id < 0)
+                    id = -id;
+                if (id) {
+                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
+                    return id;
+                }
+                else {
+                    logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         }
         catch (error) {
@@ -299,25 +305,24 @@ class Joint {
     /**
      * 在tuidDiv中，根据其owner的no获取id，若owner尚未生成id，则生成之
      * @param uqIn
-     * @param ownerEntity
      * @param ownerVal
      */
     async mapOwner(uqIn, ownerEntity, ownerVal) {
-        let { uq: uqFullName } = uqIn;
-        let sql = `select id from \`${database_1.databaseName}\`.\`map_${ownerEntity.toLowerCase()}\` where no='${ownerVal}'`;
+        let ownerSchema = defines_1.getOwnerMapName(uqIn);
+        let sql = `select id from \`${database_1.databaseName}\`.\`map_${ownerSchema}\` where no='${ownerVal}'`;
         let ret;
         try {
             ret = await tool_1.execSql(sql);
         }
         catch (err) {
-            await createMapTable_1.createMapTable(ownerEntity);
+            await createMapTable_1.createMapTable(ownerSchema);
             ret = await tool_1.execSql(sql);
         }
         if (ret.length === 0) {
             try {
-                let uq = await this.uqs.getUq(uqFullName);
+                let uq = await this.uqs.getUq(uqIn.uq);
                 let vId = await uq.getTuidVId(ownerEntity);
-                await map_1.map(ownerEntity, vId, ownerVal);
+                await map_1.map(ownerSchema, vId, ownerVal);
                 return vId;
             }
             catch (error) {
@@ -426,11 +431,13 @@ class Joint {
                 let newQueue, json = undefined;
                 if (busFrom === 'center') {
                     let message = await this.userOut(face, queue);
+                    /*
                     if (message === null) {
                         newQueue = queue + 1;
                         await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
+                    */
                     if (message === undefined || message['$queue'] === undefined)
                         break;
                     newQueue = message['$queue'];
@@ -442,7 +449,7 @@ class Joint {
                         break;
                     let { id, from, body } = message;
                     newQueue = id;
-                    // 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
+                    // 当from是undefined的时候，直接返回的整个队列最大值。没有消息，所以应该退出
                     // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
                     if (from === undefined) {
                         await this.writeQueueOutP(moniker, newQueue);
@@ -496,6 +503,10 @@ class Joint {
         }
     }
     async userOut(face, queue) {
+        let result = await centerApi_1.centerApi.queueOut(queue, 1);
+        if (result && result.length === 1 && result[0])
+            return result[0];
+        return undefined;
     }
 }
 exports.Joint = Joint;

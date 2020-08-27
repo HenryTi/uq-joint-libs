@@ -30,14 +30,14 @@ declare class CenterApi extends Fetch {
     pushTo(msg: any): Promise<void>;
     unitxBuses(unit: number, busOwner: string, bus: string, face: string): Promise<any[]>;
     /**
-     * 顺序取到所有最近的user信息，包括密码
-     * @param start：这个是userid的起始数；
+     * 从中心服务器提供的bus中顺序取到所有最近的user信息，包括密码
+     * @param start：这个是bus消息的顺序号；
      * @param page: 这个是每次返回的数组的长度；
      * 返回值是一个数组，数组中对象的schema如下面的注释所示
      */
     queueOut(start: number, page: number): Promise<any[]>;
     /**
-     * 根据id从中心服务器获取单个User的注册信息
+     * 根据id从中心服务器获取单个User的注册信息, 完整的url是:https://tv.jkchemical.com/tv/open/user-from-id?id=xxx
      * @param id 所要获取User的id
      * @returns object: {"$queue":"0","$type":"$user","id":"10008","name":"xiari307","nick":"","icon":"","country":"","mobile":"18373184674","email":"794997443@qq.com","pwd":"32c4bc0dd66a0b9c780c9fa8acb26702"}
      */

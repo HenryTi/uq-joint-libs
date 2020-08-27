@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { getLogger } from 'log4js';
 
-import { Settings, UqIn, UqOut, DataPush, UqInTuid, UqInMap, UqInTuidArr, DataPullResult } from "./defines";
+import { Settings, UqIn, UqOut, DataPush, UqInTuid, UqInMap, UqInTuidArr, DataPullResult, getMapName, getOwnerMapName } from "./defines";
 import { tableFromProc, execProc, execSql } from "./db/mysql/tool";
 import { MapFromUq as MapFromUq, MapToUq as MapToUq, MapUserToUq } from "./tool/mapData";
-import { map } from "./tool/map"; 
+import { map } from "./tool/map";
 import { createRouter } from './router';
 import { databaseName } from "./db/mysql/database";
 import { createMapTable } from "./tool/createMapTable";
@@ -13,6 +13,7 @@ import { Uqs } from "./uq/uqs";
 //import { centerApi } from "./tool/centerApi";
 import { host } from "./tool/host";
 import { Uq } from "./uq/uq";
+import { centerApi } from "./tool/centerApi";
 
 const logger = getLogger('joint');
 
@@ -20,8 +21,8 @@ export class Joint {
     protected uqs: Uqs;
     protected settings: Settings;
     private tickCount: number = -1;
-	private scanInterval: number;
-	private queueOutPCache: {[moniker:string]:number} = {};
+    private scanInterval: number;
+    private queueOutPCache: { [moniker: string]: number } = {};
 
     constructor(settings: Settings) {
         this.settings = settings;
@@ -51,7 +52,7 @@ export class Joint {
     }
     */
 
-    async getUq(uqFullName:string):Promise<Uq> {
+    async getUq(uqFullName: string): Promise<Uq> {
         let uq = await this.uqs.getUq(uqFullName);
         return uq;
     }
@@ -182,12 +183,12 @@ export class Joint {
                     // message = JSON.parse(body);
                 }
 
-				let { lastPointer, data } = ret;
-				if (!lastPointer) {
-					let e = "读数据的时候，需要返回ID字段，作为进入数据的序号。"
-					console.error(e);
-					throw new Error(e);
-				}
+                let { lastPointer, data } = ret;
+                if (!lastPointer) {
+                    let e = "读数据的时候，需要返回ID字段，作为进入数据的序号。"
+                    console.error(e);
+                    throw new Error(e);
+                }
                 // data.sort((a, b) => { return a.ID - b.ID });
                 let dataCopy = [];
                 for (let i = data.length - 1; i >= 0; i--) {
@@ -235,14 +236,16 @@ export class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveTuid(tuid, body);
-            let { id, inId } = ret;
-            if (id) {
-                if (id < 0) id = -id;
-                await map(tuid, id, keyVal);
-                return id;
-            } else {
-                logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id) {
+                    if (id < 0) id = -id;
+                    await map(getMapName(uqIn), id, keyVal);
+                    return id;
+                } else {
+                    logger.error('save ' + uqFullName + ':' + tuid + ' no ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         } catch (error) {
             if (error.code === "ETIMEDOUT") {
@@ -261,10 +264,12 @@ export class Joint {
         if (key === undefined) throw 'key is not defined';
         if (uqFullName === undefined) throw 'uq ' + uqFullName + ' not defined';
         if (entity === undefined) throw 'tuid ' + entity + ' not defined';
+
         let parts = entity.split('_');
         let tuidOwner = parts[0];
         if (parts.length === 1) throw 'tuid ' + entity + ' must has .arr';
         let tuidArr = parts[1];
+
         let keyVal = data[key];
         if (owner === undefined) throw 'owner is not defined';
         let ownerVal = data[owner];
@@ -275,15 +280,17 @@ export class Joint {
             let body = await mapToUq.map(data, mapper);
             let uq = await this.uqs.getUq(uqFullName);
             let ret = await uq.saveTuidArr(tuidOwner, tuidArr, ownerId, body);
-            let { id, inId } = ret;
-            if (id === undefined) id = inId;
-            else if (id < 0) id = -id;
-            if (id) {
-                await map(entity, id, keyVal);
-                return id;
-            } else {
-                logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
-                logger.error(body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id === undefined) id = inId;
+                else if (id < 0) id = -id;
+                if (id) {
+                    await map(getMapName(uqIn), id, keyVal);
+                    return id;
+                } else {
+                    logger.error('save tuid arr ' + uqFullName + ':' + entity + ' no: ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
             }
         } catch (error) {
             if (error.code === "ETIMEDOUT") {
@@ -299,25 +306,25 @@ export class Joint {
     /**
      * 在tuidDiv中，根据其owner的no获取id，若owner尚未生成id，则生成之
      * @param uqIn
-     * @param ownerEntity
      * @param ownerVal
      */
     private async mapOwner(uqIn: UqInTuidArr, ownerEntity: string, ownerVal: any) {
-        let { uq: uqFullName } = uqIn;
-        let sql = `select id from \`${databaseName}\`.\`map_${ownerEntity.toLowerCase()}\` where no='${ownerVal}'`;
+
+        let ownerSchema = getOwnerMapName(uqIn);
+        let sql = `select id from \`${databaseName}\`.\`map_${ownerSchema}\` where no='${ownerVal}'`;
         let ret: any[];
         try {
             ret = await execSql(sql);
         }
         catch (err) {
-            await createMapTable(ownerEntity);
+            await createMapTable(ownerSchema);
             ret = await execSql(sql);
         }
         if (ret.length === 0) {
             try {
-                let uq = await this.uqs.getUq(uqFullName);
+                let uq = await this.uqs.getUq(uqIn.uq);
                 let vId = await uq.getTuidVId(ownerEntity);
-                await map(ownerEntity, vId, ownerVal);
+                await map(ownerSchema, vId, ownerVal);
                 return vId;
             } catch (error) {
                 if (error.code === "ETIMEDOUT") {
@@ -326,7 +333,6 @@ export class Joint {
                 } else {
                     throw error;
                 }
-
             }
         }
         return ret[0]['id'];
@@ -341,9 +347,9 @@ export class Joint {
             let uq = await this.uqs.getUq(uqFullName);
             let { $ } = data;
             if ($ === '-')
-                await uq.delMap(entity, {data:body});
+                await uq.delMap(entity, { data: body });
             else
-                await uq.setMap(entity, {data:body});
+                await uq.setMap(entity, { data: body });
         } catch (error) {
             if (error.code === "ETIMEDOUT") {
                 logger.error(error);
@@ -352,14 +358,14 @@ export class Joint {
                 throw error;
             }
         }
-	}
-	
-	private async writeQueueOutP(moniker:string, p:number) {
-		let lastP = this.queueOutPCache[moniker];
-		if (lastP === p) return;
-		await execProc('write_queue_out_p', [moniker, p]);
-		this.queueOutPCache[moniker] = p;
-	}
+    }
+
+    private async writeQueueOutP(moniker: string, p: number) {
+        let lastP = this.queueOutPCache[moniker];
+        if (lastP === p) return;
+        await execProc('write_queue_out_p', [moniker, p]);
+        this.queueOutPCache[moniker] = p;
+    }
 
     /**
      *
@@ -379,8 +385,8 @@ export class Joint {
                 let ret: { queue: number, data: any };
                 ret = await this.uqOut(uqOut, queue);
                 if (ret === undefined) break;
-				let { queue: newQueue, data } = ret;
-				await this.writeQueueOutP(queueName, newQueue);
+                let { queue: newQueue, data } = ret;
+                await this.writeQueueOutP(queueName, newQueue);
             }
         }
     }
@@ -419,49 +425,60 @@ export class Joint {
                 } else {
                     queue = 0;
                 }
-                let newQueue:any, json:any = undefined;
+                let newQueue: any, json: any = undefined;
                 if (busFrom === 'center') {
                     let message = await this.userOut(face, queue);
+                    /*
                     if (message === null) {
-						newQueue = queue + 1;
-						await this.writeQueueOutP(moniker, newQueue);
+                        newQueue = queue + 1;
+                        await this.writeQueueOutP(moniker, newQueue);
                         break;
                     }
+                    */
                     if (message === undefined || message['$queue'] === undefined) break;
                     newQueue = message['$queue'];
                     json = message;
                 } else {
                     let message = await this.uqs.readBus(face, queue);
+                    // 订单导入有问题的情况下，按照下面的方法手动导入，其中body的数据schema为order/order定义的
+                    /*
+                    message = {
+                        id: 442662000000012,
+                        from: "百灵威系统工程部/order",
+                        body: `3	809	200728000002	69463		47036	90503	90503	1	605957	12.00	-12.00	183.00	5	3415	0.00	0.00	0		1\n69928	187032	1	183	183`
+                    }
+                    */
+                    // body: `1	662	200701000011	30771		46623	38265	71494	1	552440	12.00	-12.00	360.00	5		0.00	0.00	0		1\n717	1764	1	121	121\n717	1761	1	239	239`
                     if (message === undefined) break;
-					let { id, from, body } = message;					
-					newQueue = id;
-					// 当from是undefined的时候，直接发挥的整个队列最大值。没有消息，所以应该退出
-					// 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
-					if (from === undefined) {
-						await this.writeQueueOutP(moniker, newQueue);
-						break;
-					}
-					json = await faceSchemas.unpackBusData(face, body);
-					if (uqIdProps !== undefined) {
-						let uq = await this.uqs.getUq(from);
-						if (uq !== undefined) {
-							try {
-								let newJson = await uq.buildData(json, uqIdProps);
-								json = newJson;
-							} catch (error) {
-								logger.error(error);
-								break;
-							}
-						}
-					}
+                    let { id, from, body } = message;
+                    newQueue = id;
+                    // 当from是undefined的时候，直接返回的整个队列最大值。没有消息，所以应该退出
+                    // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
+                    if (from === undefined) {
+                        await this.writeQueueOutP(moniker, newQueue);
+                        break;
+                    }
+                    json = await faceSchemas.unpackBusData(face, body);
+                    if (uqIdProps !== undefined) {
+                        let uq = await this.uqs.getUq(from);
+                        if (uq !== undefined) {
+                            try {
+                                let newJson = await uq.buildData(json, uqIdProps);
+                                json = newJson;
+                            } catch (error) {
+                                logger.error(error);
+                                break;
+                            }
+                        }
+                    }
                 }
 
-				if (json !== undefined) {
-					let mapFromUq = new MapFromUq(this);
-					let outBody = await mapFromUq.map(json, mapper);
-					if (await push(this, uqBus, queue, outBody) === false) break;
-				}
-				await this.writeQueueOutP(moniker, newQueue);
+                if (json !== undefined) {
+                    let mapFromUq = new MapFromUq(this);
+                    let outBody = await mapFromUq.map(json, mapper);
+                    if (await push(this, uqBus, queue, outBody) === false) break;
+                }
+                await this.writeQueueOutP(moniker, newQueue);
             }
 
             // bus in(从外部系统读入数据，写入bus)
@@ -487,7 +504,11 @@ export class Joint {
         }
     }
 
-    protected async userOut(face: string, queue: number) {        
+    protected async userOut(face: string, queue: number) {
+        let result = await centerApi.queueOut(queue, 1);
+        if (result && result.length === 1 && result[0])
+            return result[0];
+        return undefined;
     }
 
 }

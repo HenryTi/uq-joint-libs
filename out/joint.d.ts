@@ -28,7 +28,6 @@ export declare class Joint {
     /**
      * 在tuidDiv中，根据其owner的no获取id，若owner尚未生成id，则生成之
      * @param uqIn
-     * @param ownerEntity
      * @param ownerVal
      */
     private mapOwner;
@@ -46,5 +45,5 @@ export declare class Joint {
      * 通过bus做双向数据同步（bus out和bus in)
      */
     protected scanBus(): Promise<void>;
-    protected userOut(face: string, queue: number): Promise<void>;
+    protected userOut(face: string, queue: number): Promise<any>;
 }

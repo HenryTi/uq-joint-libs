@@ -15,7 +15,7 @@ interface User extends Guest {
 }
 
 function decodeUserToken(token: string): User {
-    let ret:any = jwtDecode(token);
+    let ret: any = jwtDecode(token);
     let user: User = {
         id: ret.id,
         name: ret.name,
@@ -27,12 +27,12 @@ function decodeUserToken(token: string): User {
 
 class CenterApi extends Fetch {
     private _user: string;
-    private _loginResult:any;
-    get loginResult():any {return this._loginResult}
+    private _loginResult: any;
+    get loginResult(): any { return this._loginResult }
 
-    protected get apiToken(): string {return this._loginResult && this._loginResult.token;}
+    protected get apiToken(): string { return this._loginResult && this._loginResult.token; }
 
-    async login(params: {user: string, pwd: string, guest?: number}):Promise<User> {
+    async login(params: { user: string, pwd: string, guest?: number }): Promise<User> {
         if (this._user === params.user) return this._loginResult;
 
         let ret = await this.get('user/login', params);
@@ -45,7 +45,7 @@ class CenterApi extends Fetch {
                 this._user = params.user;
                 let token = ret.token;
                 let userRet = decodeUserToken(token);
-                let {nick, icon} = ret;
+                let { nick, icon } = ret;
                 if (nick) userRet.nick = nick;
                 if (icon) userRet.icon = icon;
                 return this._loginResult = userRet;
@@ -68,8 +68,8 @@ class CenterApi extends Fetch {
         return await this.get('open/unitx', { unit: unit });
     }
 
-    async uqToken(unit: number, uqOwner: string, uqName:string):Promise<any> {
-        return await this.get('tie/app-uq', {unit:unit, uqOwner:uqOwner, uqName:uqName, testing:false});
+    async uqToken(unit: number, uqOwner: string, uqName: string): Promise<any> {
+        return await this.get('tie/app-uq', { unit: unit, uqOwner: uqOwner, uqName: uqName, testing: false });
     }
 
     async uqUrl(unit: number, uq: number): Promise<any> {
@@ -93,8 +93,8 @@ class CenterApi extends Fetch {
     }
 
     /**
-     * 顺序取到所有最近的user信息，包括密码
-     * @param start：这个是userid的起始数；
+     * 从中心服务器提供的bus中顺序取到所有最近的user信息，包括密码
+     * @param start：这个是bus消息的顺序号；
      * @param page: 这个是每次返回的数组的长度；
      * 返回值是一个数组，数组中对象的schema如下面的注释所示
      */
@@ -103,7 +103,7 @@ class CenterApi extends Fetch {
     }
 
     /**
-     * 根据id从中心服务器获取单个User的注册信息
+     * 根据id从中心服务器获取单个User的注册信息, 完整的url是:https://tv.jkchemical.com/tv/open/user-from-id?id=xxx
      * @param id 所要获取User的id
      * @returns object: {"$queue":"0","$type":"$user","id":"10008","name":"xiari307","nick":"","icon":"","country":"","mobile":"18373184674","email":"794997443@qq.com","pwd":"32c4bc0dd66a0b9c780c9fa8acb26702"}
      */

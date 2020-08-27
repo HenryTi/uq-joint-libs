@@ -9,10 +9,10 @@ import { Action } from "./action";
 import { Query } from "./query";
 import { Map } from "./map";
 
-function createIgnoreCaseProxy<T>():{[name:string]: T} {
+function createIgnoreCaseProxy<T>(): { [name: string]: T } {
     return new Proxy({}, {
-        get: function(target, key, receiver) {
-                if (typeof key === 'string') {
+        get: function (target, key, receiver) {
+            if (typeof key === 'string') {
                 let lk = (key as string).toLowerCase();
                 let ret = target[lk];
                 return ret;
@@ -21,7 +21,7 @@ function createIgnoreCaseProxy<T>():{[name:string]: T} {
                 return target[key];
             }
         },
-        set: function(target, p, value:any, receiver):boolean {
+        set: function (target, p, value: any, receiver): boolean {
             if (typeof p === 'string') {
                 target[p.toLowerCase()] = value;
             }
@@ -40,11 +40,11 @@ export class Uq {
     private readonly tuidArr: TuidMain[] = [];
     private readonly sheets: { [name: string]: Sheet } = createIgnoreCaseProxy<Sheet>();
     private readonly sheetArr: Sheet[] = [];
-    private readonly actions: {[name:string]: Action} = createIgnoreCaseProxy<Action>();
+    private readonly actions: { [name: string]: Action } = createIgnoreCaseProxy<Action>();
     private readonly actionArr: Action[] = [];
-    private readonly queries: {[name:string]: Query} = createIgnoreCaseProxy<Query>();
+    private readonly queries: { [name: string]: Query } = createIgnoreCaseProxy<Query>();
     private readonly queryArr: Query[] = [];
-    private readonly maps: {[name:string]: Map} = createIgnoreCaseProxy<Map>();
+    private readonly maps: { [name: string]: Map } = createIgnoreCaseProxy<Map>();
     private readonly mapArr: Map[] = [];
 
     uqApi: UqApi;
@@ -57,7 +57,7 @@ export class Uq {
         this.uqVersion = 0;
     }
 
-    async init(userName:string, password:string) {
+    async init(userName: string, password: string) {
         await this.initUqApi(userName, password);
         await this.loadEntities();
     }
@@ -160,7 +160,7 @@ export class Uq {
         return this.getTuid(parts[0], parts[1]);
     }
 
-    async schema(entityName:string): Promise<any> {
+    async schema(entityName: string): Promise<any> {
         return await this.uqApi.schema(entityName);
     }
 
@@ -176,11 +176,11 @@ export class Uq {
         return await this.uqApi.getTuidVId(ownerEntity);
     }
 
-    async loadTuidMainValue(tuidName: string, id: number, allProps: boolean):Promise<any> {
+    async loadTuidMainValue(tuidName: string, id: number, allProps: boolean): Promise<any> {
         return await this.uqApi.loadTuidMainValue(tuidName, id, allProps);
     }
 
-    async loadTuidDivValue(tuidName: string, divName: string, id: number, ownerId: number, allProps: boolean):Promise<any> {
+    async loadTuidDivValue(tuidName: string, divName: string, id: number, ownerId: number, allProps: boolean): Promise<any> {
         return await this.uqApi.loadTuidDivValue(tuidName, divName, id, ownerId, allProps);
     }
 
@@ -192,14 +192,14 @@ export class Uq {
         await this.uqApi.delMap(map, body);
     }
 
-    private async initUqApi(userName:string, password:string): Promise<void> {
-        let {unit} = this.uqs;
+    private async initUqApi(userName: string, password: string): Promise<void> {
+        let { unit } = this.uqs;
         let uqUrl = await centerApi.urlFromUq(unit, this.uqFullName);
         let { db, url, urlTest } = uqUrl;
         let realUrl = host.getUrlOrTest(db, url, urlTest);
-        let loginResult = await centerApi.login({user:userName, pwd:password});
+        let loginResult = await centerApi.login({ user: userName, pwd: password });
 
-        let uqToken:any;
+        let uqToken: any;
         if (loginResult !== undefined) {
             let parts = this.uqFullName.split('/');
             uqToken = await centerApi.uqToken(unit, parts[0], parts[1]);
@@ -244,7 +244,7 @@ export class Uq {
                 let tuid = this.newTuid(name, id);
                 tuid.sys = false;
                 break;
-            case 'sheet':this.newSheet(name, id); break;
+            case 'sheet': this.newSheet(name, id); break;
             case 'action': this.newAction(name, id); break;
             case 'query': this.newQuery(name, id); break;
             case 'map': this.newMap(name, id); break;
@@ -259,7 +259,7 @@ export class Uq {
             case 'sheet': this.buildSheet(name, obj); break;
         }
     }
-    private buildSheet(name:string, obj:any) {
+    private buildSheet(name: string, obj: any) {
         let sheet = this.sheets[name];
         if (sheet === undefined) sheet = this.newSheet(name, obj.id);
         sheet.build(obj);
@@ -331,15 +331,15 @@ export class Uq {
         this.sheetArr.push(sheet);
         return sheet;
     }
-    
-    newAction(name:string, id:number):Action {
+
+    newAction(name: string, id: number): Action {
         let action = this.actions[name];
         if (action !== undefined) return action;
         action = this.actions[name] = new Action(this, name, id)
         this.actionArr.push(action);
         return action;
     }
-    newQuery(name:string, id:number):Query {
+    newQuery(name: string, id: number): Query {
         let query = this.queries[name];
         if (query !== undefined) return query;
         query = this.queries[name] = new Query(this, name, id)
@@ -347,22 +347,22 @@ export class Uq {
         return query;
     }
 
-    tuid(name:string):Tuid {return this.tuids[name]}
+    tuid(name: string): Tuid { return this.tuids[name] }
     /*
     tuidDiv(name:string, div:string):TuidDiv {
         let tuid = this.tuids[name.toLowerCase()]
         return tuid && tuid.div(div.toLowerCase());
     }
     */
-    action(name:string):Action {return this.actions[name]}
-    sheet(name:string):Sheet {return this.sheets[name]}
-    query(name:string):Query {return this.queries[name]}
-    map(name:string):Map {return this.maps[name]}
+    action(name: string): Action { return this.actions[name] }
+    sheet(name: string): Sheet { return this.sheets[name] }
+    query(name: string): Query { return this.queries[name] }
+    map(name: string): Map { return this.maps[name] }
     //book(name:string):Book {return this.books[name.toLowerCase()]}
     //history(name:string):History {return this.histories[name.toLowerCase()]}
     //pending(name:string):Pending {return this.pendings[name.toLowerCase()]}
 
-    private newMap(name:string, id:number):Map {
+    private newMap(name: string, id: number): Map {
         let map = this.maps[name];
         if (map !== undefined) return map;
         map = this.maps[name] = new Map(this, name, id)
@@ -400,7 +400,7 @@ export class UqUnitx extends Uq {
         return await this.uqApi.readBus(face, queue);
     }
 
-    async writeBus(face: string, source: string, newQueue: string | number, busVersion:number, body: any) {
+    async writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any) {
         await this.uqApi.writeBus(face, source, newQueue, busVersion, body);
     }
 

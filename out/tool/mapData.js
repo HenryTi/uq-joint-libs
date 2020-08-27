@@ -5,6 +5,7 @@ const createMapTable_1 = require("./createMapTable");
 //import { getOpenApi } from "./openApi";
 const database_1 = require("../db/mysql/database");
 const map_1 = require("./map");
+const defines_1 = require("../defines");
 class MapData {
     //constructor(uqInDict: { [tuid: string]: UqIn }, unit: number) {
     constructor(joint) {
@@ -145,21 +146,22 @@ class MapToUq extends MapData {
             case 'tuid-arr':
                 break;
         }
-        let { entity, uq } = uqIn;
-        let sql = `select id from \`${database_1.databaseName}\`.\`map_${entity.toLowerCase()}\` where no='${value}'`;
+        let entitySchema = defines_1.getMapName(uqIn);
+        let sql = `select id from \`${database_1.databaseName}\`.\`map_${entitySchema}\` where no='${value}'`;
         let ret;
         try {
             ret = await tool_1.execSql(sql);
         }
         catch (err) {
-            await createMapTable_1.createMapTable(entity);
+            await createMapTable_1.createMapTable(entitySchema);
             ret = await tool_1.execSql(sql);
         }
         if (ret.length === 0) {
+            let { entity, uq } = uqIn;
             let vId = await this.getTuidVid(uq, entity);
             if (vId !== undefined) {
                 if (typeof vId === 'number' && vId > 0) {
-                    await map_1.map(entity, vId, value);
+                    await map_1.map(entitySchema, vId, value);
                 }
                 return vId;
             }
@@ -206,14 +208,14 @@ class MapFromUq extends MapData {
         let uqIn = this.joint.uqInDict[tuid];
         if (typeof uqIn !== 'object')
             throw `tuid ${tuid} is not defined in settings.in`;
-        let { entity, uq } = uqIn;
-        let sql = `select no from \`${database_1.databaseName}\`.\`map_${entity.toLowerCase()}\` where id='${value}'`;
+        let entitySchema = defines_1.getMapName(uqIn);
+        let sql = `select no from \`${database_1.databaseName}\`.\`map_${entitySchema}\` where id='${value}'`;
         let ret;
         try {
             ret = await tool_1.execSql(sql);
         }
         catch (error) {
-            await createMapTable_1.createMapTable(entity);
+            await createMapTable_1.createMapTable(entitySchema);
             ret = await tool_1.execSql(sql);
         }
         if (ret.length === 0)

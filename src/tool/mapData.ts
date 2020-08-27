@@ -4,7 +4,7 @@ import { createMapTable } from "./createMapTable";
 //import { getOpenApi } from "./openApi";
 import { databaseName } from "../db/mysql/database";
 import { map } from "./map";
-import { UqIn } from "../defines";
+import { UqIn, getMapName } from "../defines";
 import { Joint } from "../joint";
 
 abstract class MapData {
@@ -18,6 +18,13 @@ abstract class MapData {
         //this.unit = unit;
         this.joint = joint;
     }
+
+    /**
+     * 根据来源数据对象的id以及该id对应的tonva中entity类型，从map中获取对应的tonva系统中id，map中无对应id
+     * 设置的，会首先生成该tuid的虚拟id，并记录在map中
+     * @param tuid 对应的tonva系统中entity类型名称 
+     * @param value 来源数据对象的id值 
+     */
     protected abstract tuidId(tuid: string, value: any): Promise<string | number>;
 
     async mapOwner(tuidAndArr: string, ownerVal: any): Promise<number> {
@@ -29,6 +36,15 @@ abstract class MapData {
         return propId;
     }
 
+    /**
+     * 处理mapper设置中string格式的转换
+     * string设置有几种格式：
+     * 1.普通字符串：
+     * 2.fieldName@entityName: 
+     * @param i 
+     * @param prop mapper中string设置值 
+     * @param data 来源数据对象 
+     */
     protected async mapProp(i: string, prop: string, data: any): Promise<any> {
         let pos = prop.indexOf('@');
         if (pos < 0) {
@@ -71,6 +87,13 @@ abstract class MapData {
         }
     }
 
+    /**
+     * 根据Mapper的设置，将来源数据对象转换为目标数据对象
+     * 对于 filedName@EntityName格式的设置，会去map表中查找对应的tonva系统Id，未找到的情况，会生成虚拟的tonva系统id，并报错到map表中
+     * @param data 来源数据对象
+     * @param mapper 转换规则
+     * @returns 目标数据对象
+     */
     async map(data: any, mapper: Mapper): Promise<any> {
         let body: any = {};
         for (let i in mapper) {
@@ -156,21 +179,22 @@ export class MapToUq extends MapData {
             case 'tuid-arr':
                 break;
         }
-        let { entity, uq } = uqIn as UqIn;
-        let sql = `select id from \`${databaseName}\`.\`map_${entity.toLowerCase()}\` where no='${value}'`;
+        let entitySchema = getMapName(uqIn);
+        let sql = `select id from \`${databaseName}\`.\`map_${entitySchema}\` where no='${value}'`;
         let ret: any[];
         try {
             ret = await execSql(sql);
         }
         catch (err) {
-            await createMapTable(entity);
+            await createMapTable(entitySchema);
             ret = await execSql(sql);
         }
         if (ret.length === 0) {
+            let { entity, uq } = uqIn as UqIn;
             let vId = await this.getTuidVid(uq, entity);
             if (vId !== undefined) {
                 if (typeof vId === 'number' && vId > 0) {
-                    await map(entity, vId, value);
+                    await map(entitySchema, vId, value);
                 }
                 return vId;
             } else {
@@ -198,7 +222,7 @@ export class MapToUq extends MapData {
 }
 
 /**
- * 根据外部系统的no从映射表中获取tonva中的id(映射表中不存在的话，调用getTuidVid生成一个，并写入映射表)
+ * 根据外部系统的no从映射表中获取tonva中的id(映射表中不存在的话，采用不生成虚拟id的策略，目前仅用于webuser中的webuser表）
  */
 export class MapUserToUq extends MapToUq {
     protected async getTuidVid(uq: string, entity: string) {
@@ -217,13 +241,13 @@ export class MapFromUq extends MapData {
         if (typeof uqIn !== 'object')
             throw `tuid ${tuid} is not defined in settings.in`;
 
-        let { entity, uq } = uqIn as UqIn;
-        let sql = `select no from \`${databaseName}\`.\`map_${entity.toLowerCase()}\` where id='${value}'`;
+        let entitySchema = getMapName(uqIn);
+        let sql = `select no from \`${databaseName}\`.\`map_${entitySchema}\` where id='${value}'`;
         let ret: any[];
         try {
             ret = await execSql(sql);
         } catch (error) {
-            await createMapTable(entity);
+            await createMapTable(entitySchema);
             ret = await execSql(sql);
         }
         if (ret.length === 0) return 'n/a';
