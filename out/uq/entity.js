@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Entity = void 0;
+const objPropIgnoreCase_1 = require("../tool/objPropIgnoreCase");
 const tab = '\t';
 const ln = '\n';
 class Entity {
@@ -201,7 +203,8 @@ class Entity {
         let arrs = this.arrFields; //schema['arrs'];
         if (arrs !== undefined) {
             for (let arr of arrs) {
-                this.packArr(ret, arr.fields, data[arr.name]);
+                let arrObj = objPropIgnoreCase_1.getObjPropIgnoreCase(data, arr.name);
+                this.packArr(ret, arr.fields, arrObj);
             }
         }
         return ret.join('');
@@ -249,9 +252,17 @@ class Entity {
     }
     packArr(result, fields, data) {
         if (data !== undefined) {
-            for (let row of data) {
-                this.packRow(result, fields, row);
+            if (data.length === 0) {
+                result.push(ln);
             }
+            else {
+                for (let row of data) {
+                    this.packRow(result, fields, row);
+                }
+            }
+        }
+        else {
+            result.push(ln);
         }
         result.push(ln);
     }

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Query = void 0;
 //import _ from 'lodash';
 //import {Field, ArrFields} from './uq';
 const entity_1 = require("./entity");

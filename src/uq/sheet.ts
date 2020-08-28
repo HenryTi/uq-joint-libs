@@ -16,7 +16,7 @@ export interface StateCount {
 }
 
 export class Sheet extends Entity {
-    get typeName(): string { return 'sheet';}
+    get typeName(): string { return 'sheet'; }
     states: SheetState[];
 
     /*
@@ -25,14 +25,14 @@ export class Sheet extends Entity {
             this.setStateAccess(this.states.find(s=>s.name==state.name), state);
         }
     }*/
-    setSchema(schema:any) {
+    setSchema(schema: any) {
         super.setSchema(schema);
         this.states = schema.states;
     }
-    build(obj:any) {
+    build(obj: any) {
         this.states = [];
         for (let op of obj.ops) {
-            this.states.push({name: op, actions:undefined});
+            this.states.push({ name: op, actions: undefined });
         }
         /*
         for (let p in obj) {
@@ -43,11 +43,11 @@ export class Sheet extends Entity {
             }
         }*/
     }
-    private createSheetState(name:string, obj:object):SheetState {
-        let ret:SheetState = {name:name, actions:[]};
+    private createSheetState(name: string, obj: object): SheetState {
+        let ret: SheetState = { name: name, actions: [] };
         let actions = ret.actions;
         for (let p in obj) {
-            let action:SheetAction = {name: p};
+            let action: SheetAction = { name: p };
             actions.push(action);
         }
         return ret;
@@ -62,7 +62,7 @@ export class Sheet extends Entity {
             s.actions.push(action);
         }
     }*/
-    async save(discription:string, data:any):Promise<any> {
+    async save(discription: string, data: any): Promise<any> {
         /*
         await this.loadSchema();
         let {id} = this.uq;
@@ -71,9 +71,9 @@ export class Sheet extends Entity {
         let ret = await this.uqApi.sheetSave(this.name, );
         return ret;
         */
-        let {id} = this.uq;
+        let { id } = this.uq;
         //let text = this.pack(data);
-        let params = {app: id, discription: discription, data:data};
+        let params = { app: id, discription: discription, data: data };
         return await new SaveCaller(this, params).request();
         /*
         let {id, state} = ret;
@@ -81,14 +81,14 @@ export class Sheet extends Entity {
         return ret;
         */
     }
-    async action(id:number, flow:number, state:string, action:string) {
+    async action(id: number, flow: number, state: string, action: string) {
         /*
         await this.loadSchema();
         return await this.uqApi.sheetAction(this.name, {id:id, flow:flow, state:state, action:action});
         */
-        return await new ActionCaller(this, {id:id, flow:flow, state:state, action:action}).request();
+        return await new ActionCaller(this, { id: id, flow: flow, state: state, action: action }).request();
     }
-    private unpack(data:any):any {
+    private unpack(data: any): any {
         //if (this.schema === undefined) await this.loadSchema();
         let ret = data[0];
         let brief = ret[0];
@@ -100,7 +100,7 @@ export class Sheet extends Entity {
             flows: flows,
         }
     }
-    async getSheet(id:number):Promise<any> {
+    async getSheet(id: number): Promise<any> {
         /*
         await this.loadSchema();
         let ret = await this.uqApi.getSheet(this.name, id);
@@ -109,7 +109,7 @@ export class Sheet extends Entity {
         if (ret[0].length === 0) return await this.getArchive(id);
         return this.unpack(ret);
     }
-    async getArchive(id:number):Promise<any> {
+    async getArchive(id: number): Promise<any> {
         /*
         await this.loadSchema();
         let ret = await this.uqApi.sheetArchive(this.name, id)
@@ -119,28 +119,28 @@ export class Sheet extends Entity {
         return this.unpack(ret);
     }
 
-    async getArchives(pageStart:number, pageSize:number) {
+    async getArchives(pageStart: number, pageSize: number) {
         /*
         await this.loadSchema();
         let ret = await this.uqApi.sheetArchives(this.name, {pageStart:pageStart, pageSize:pageSize});
         return ret;
         */
-        let params = {pageStart:pageStart, pageSize:pageSize};
+        let params = { pageStart: pageStart, pageSize: pageSize };
         return await new SheetArchivesCaller(this, params).request();
     }
 
-    async getStateSheets(state:string, pageStart:number, pageSize:number):Promise<any[]> {
+    async getStateSheets(state: string, pageStart: number, pageSize: number): Promise<any[]> {
         /*
         await this.loadSchema();
         let ret = await this.uqApi.stateSheets(this.name, {state:state, pageStart:pageStart, pageSize:pageSize});
         return ret;
         */
-        let params = {state:state, pageStart:pageStart, pageSize:pageSize};
+        let params = { state: state, pageStart: pageStart, pageSize: pageSize };
         return await new StateSheetsCaller(this, params).request();
     }
     //createPageStateItems<T>(): PageStateItems<T> {return new PageStateItems<T>(this);}
 
-    async stateSheetCount():Promise<StateCount[]> {
+    async stateSheetCount(): Promise<StateCount[]> {
         /*
         await this.loadSchema();
         let ret:StateCount[] = await this.uqApi.stateSheetCount(this.name);
@@ -154,33 +154,33 @@ export class Sheet extends Entity {
         return await new StateSheetCountCaller(this, undefined).request();
     }
 
-    async userSheets(state:string, user:number, pageStart:number, pageSize:number):Promise<any[]> {
-        let params = {state:state, user:user, pageStart:pageStart, pageSize:pageSize};
+    async userSheets(state: string, user: number, pageStart: number, pageSize: number): Promise<any[]> {
+        let params = { state: state, user: user, pageStart: pageStart, pageSize: pageSize };
         return await new UserSheetsCaller(this, params).request();
     }
 
-    async mySheets(state:string, pageStart:number, pageSize:number):Promise<any[]> {
+    async mySheets(state: string, pageStart: number, pageSize: number): Promise<any[]> {
         /*
         await this.loadSchema();
         let ret = await this.uqApi.mySheets(this.name, {state:state, pageStart:pageStart, pageSize:pageSize});
         return ret;
         */
-        let params = {state:state, pageStart:pageStart, pageSize:pageSize};
+        let params = { state: state, pageStart: pageStart, pageSize: pageSize };
         return await new MySheetsCaller(this, params).request();
     }
 }
 
 
 abstract class SheetCaller<T> extends EntityCaller<T> {
-    protected get entity(): Sheet {return this._entity as Sheet;}
-    protected readonly suffix:string;
-    get path():string {return `sheet/${this.entity.name}/${this.suffix}`;}
+    protected get entity(): Sheet { return this._entity as Sheet; }
+    protected readonly suffix: string;
+    get path(): string { return `sheet/${this.entity.name}/${this.suffix}`; }
 }
 
-class SaveCaller extends SheetCaller<{app:number; discription:string; data:any}> {
-    get path():string {return `sheet/${this.entity.name}`;}
+class SaveCaller extends SheetCaller<{ app: number; discription: string; data: any }> {
+    get path(): string { return `sheet/${this.entity.name}`; }
     buildParams() {
-        let {app, discription, data} = this.params;
+        let { app, discription, data } = this.params;
         return {
             app: app,
             discription: discription,
@@ -189,9 +189,9 @@ class SaveCaller extends SheetCaller<{app:number; discription:string; data:any}>
     }
 }
 
-class ActionCaller extends SheetCaller<{id:number, flow:number, state:string, action:string}> {
+class ActionCaller extends SheetCaller<{ id: number, flow: number, state: string, action: string }> {
     method = 'PUT';
-    get path():string {return `sheet/${this.entity.name}`;}
+    get path(): string { return `sheet/${this.entity.name}`; }
     //buildParams() {return this.entity.buildParams(this.params);}
 }
 
@@ -200,50 +200,50 @@ class GetSheetCaller extends SheetCaller<number> {
     method = 'GET';
     //private id:number;
     //protected readonly suffix = 'archive';
-    buildParams() {}
-    get path():string {return `sheet/${this.entity.name}/get/${this.params}`;}
+    buildParams() { }
+    get path(): string { return `sheet/${this.entity.name}/get/${this.params}`; }
 }
 
 class SheetArchiveCaller extends SheetCaller<number> {
     protected readonly params: number;  // id
     method = 'GET';
     //protected readonly suffix = 'archive';
-    buildParams() {}
-    get path():string {return `sheet/${this.entity.name}/archive/${this.params}`;}
+    buildParams() { }
+    get path(): string { return `sheet/${this.entity.name}/archive/${this.params}`; }
 }
 
-class SheetArchivesCaller extends SheetCaller<{pageStart:number, pageSize:number}> {
+class SheetArchivesCaller extends SheetCaller<{ pageStart: number, pageSize: number }> {
     protected readonly suffix = 'archives';
 }
 
-class StateSheetsCaller extends SheetCaller<{state:string, pageStart:number, pageSize:number}> {
+class StateSheetsCaller extends SheetCaller<{ state: string, pageStart: number, pageSize: number }> {
     protected readonly suffix = 'states';
 }
 
 class StateSheetCountCaller extends SheetCaller<undefined> {
     method = 'GET';
     protected readonly suffix = 'statecount';
-    xresult(res:any):any {
-        let {states} = this.entity;
+    xresult(res: any): any {
+        let { states } = this.entity;
         return states.map(s => {
             let n = s.name, count = 0;
             let r = (res as any[]).find(v => v.state === n);
             if (r !== undefined) count = r.count;
-            return {state: n, count: count} 
+            return { state: n, count: count }
         });
     }
 }
 
-class UserSheetsCaller extends SheetCaller<{state:string, user:number, pageStart:number, pageSize:number}> {
+class UserSheetsCaller extends SheetCaller<{ state: string, user: number, pageStart: number, pageSize: number }> {
     protected readonly suffix = 'user-sheets';
-    xresult(res:any):any {
+    xresult(res: any): any {
         return res;
     }
 }
 
-class MySheetsCaller extends SheetCaller<{state:string, pageStart:number, pageSize:number}> {
+class MySheetsCaller extends SheetCaller<{ state: string, pageStart: number, pageSize: number }> {
     protected readonly suffix = 'my-sheets';
-    xresult(res:any):any {
+    xresult(res: any): any {
         return res;
     }
 }

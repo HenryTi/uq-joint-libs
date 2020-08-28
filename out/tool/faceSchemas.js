@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.faceSchemas = void 0;
 const centerApi_1 = require("./centerApi");
+const objPropIgnoreCase_1 = require("./objPropIgnoreCase");
 const tab = '\t';
 const ln = '\n';
 class FaceSchemas {
@@ -92,13 +94,11 @@ class FaceSchemas {
         if (arrs !== undefined && arrs.length > 0) {
             for (let arr of arrs) {
                 let { name, fields } = arr;
-                this.packArr(result, fields, main[name]);
+                let arrObj = objPropIgnoreCase_1.getObjPropIgnoreCase(main, name);
+                this.packArr(result, fields, arrObj);
             }
-            result.push(ln);
         }
-        else {
-            result.push(ln, ln, ln);
-        }
+        result.push(ln);
     }
     escape(d) {
         //if (d === null) return '\b';
@@ -141,9 +141,15 @@ class FaceSchemas {
     }
     packArr(result, fields, data) {
         if (data !== undefined) {
+            if (data.length === 0) {
+                result.push(ln);
+            }
             for (let row of data) {
                 this.packRow(result, fields, row);
             }
+        }
+        else {
+            result.push(ln);
         }
         result.push(ln);
     }
@@ -163,6 +169,13 @@ class FaceSchemas {
         }
         return ret;
     }
+    /**
+     *
+     * @param ret
+     * @param fields
+     * @param data
+     * @param p
+     */
     unpackRow(ret, fields, data, p) {
         let c = p, i = 0, len = data.length, fLen = fields.length;
         for (; p < len; p++) {
@@ -199,6 +212,13 @@ class FaceSchemas {
             }
         }
     }
+    /**
+     *
+     * @param ret 解析的结果存入ret中
+     * @param arr arr的schema
+     * @param data 要解析的数据
+     * @param p 要解析的arr在data中的起始位置
+     */
     unpackArr(ret, arr, data, p) {
         let vals = [], len = data.length;
         let { name, fields } = arr;

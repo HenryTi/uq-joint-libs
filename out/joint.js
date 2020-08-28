@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Joint = void 0;
 const log4js_1 = require("log4js");
 const defines_1 = require("./defines");
 const tool_1 = require("./db/mysql/tool");
@@ -445,6 +446,15 @@ class Joint {
                 }
                 else {
                     let message = await this.uqs.readBus(face, queue);
+                    // 订单导入有问题的情况下，按照下面的方法手动导入，其中body的数据schema为order/order定义的
+                    /*
+                    message = {
+                        id: 442662000000012,
+                        from: "百灵威系统工程部/order",
+                        body: `3	809	200728000002	69463		47036	90503	90503	1	605957	12.00	-12.00	183.00	5	3415	0.00	0.00	0		1\n69928	187032	1	183	183`
+                    }
+                    */
+                    // body: `1	662	200701000011	30771		46623	38265	71494	1	552440	12.00	-12.00	360.00	5		0.00	0.00	0		1\n717	1764	1	121	121\n717	1761	1	239	239`
                     if (message === undefined)
                         break;
                     let { id, from, body } = message;

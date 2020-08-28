@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.UqApi = exports.Caller = void 0;
 const node_fetch_1 = require("node-fetch");
 const fetch_1 = require("./fetch");
 class Caller {

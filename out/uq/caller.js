@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueryPageCaller = exports.QueryQueryCaller = exports.ActionCaller = exports.EntityCaller = void 0;
 const uqApi_1 = require("../tool/uqApi");
 class EntityCaller extends uqApi_1.Caller {
     constructor(entity, params, waiting = true) {

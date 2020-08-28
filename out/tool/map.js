@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.map = void 0;
 const tool_1 = require("../db/mysql/tool");
 const database_1 = require("../db/mysql/database");
 const createMapTable_1 = require("./createMapTable");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.fieldDefaultValue = void 0;
 function fieldDefaultValue(type) {
     switch (type) {
         case 'tinyint':
