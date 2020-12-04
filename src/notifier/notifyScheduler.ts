@@ -20,7 +20,7 @@ export class NotifyScheduler {
         if (config.has("joint-enableNotify"))
             this.enableNotify = config.get<boolean>("joint-enableNotify");
         if (config.has("joint-notifyInterval"))
-            this.enableNotify = config.get<boolean>("joint-notifyInterval");
+            this.notifyInterval = config.get<number>("joint-notifyInterval");
         else
             this.notifyInterval = 864000;
     }

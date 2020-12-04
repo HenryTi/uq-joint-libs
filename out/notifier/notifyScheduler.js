@@ -19,7 +19,7 @@ class NotifyScheduler {
         if (config_1.default.has("joint-enableNotify"))
             this.enableNotify = config_1.default.get("joint-enableNotify");
         if (config_1.default.has("joint-notifyInterval"))
-            this.enableNotify = config_1.default.get("joint-notifyInterval");
+            this.notifyInterval = config_1.default.get("joint-notifyInterval");
         else
             this.notifyInterval = 864000;
     }
