@@ -14,6 +14,7 @@ import { Uqs } from "./uq/uqs";
 import { host } from "./tool/host";
 import { Uq } from "./uq/uq";
 import { centerApi } from "./tool/centerApi";
+import { NotifyScheduler } from "./notifier/notifyScheduler";
 
 const logger = getLogger('joint');
 
@@ -23,6 +24,7 @@ export class Joint {
     private tickCount: number = -1;
     private scanInterval: number;
     private queueOutPCache: { [moniker: string]: number } = {};
+    private notifierScheduler: NotifyScheduler = new NotifyScheduler();
 
     constructor(settings: Settings) {
         this.settings = settings;
@@ -158,17 +160,22 @@ export class Joint {
                     } else {
                         queue = '0';
                     }
-                    switch (typeof pull) {
-                        case 'function':
-                            ret = await pull(this, uqIn, queue);
-                            break;
-                        case 'string':
-                            if (pullReadFromSql === undefined) {
-                                let err = 'pullReadFromSql should be defined in settings!';
-                                throw err;
-                            }
-                            ret = await pullReadFromSql(pull as string, queue);
-                            break;
+
+                    try {
+                        switch (typeof pull) {
+                            case 'function':
+                                ret = await pull(this, uqIn, queue);
+                                break;
+                            case 'string':
+                                if (pullReadFromSql === undefined) {
+                                    let err = 'pullReadFromSql should be defined in settings!';
+                                    throw err;
+                                }
+                                ret = await pullReadFromSql(pull as string, queue);
+                                break;
+                        }
+                    } catch (error) {
+                        this.notifierScheduler.notify(uq + ":" + entity);
                     }
                     if (ret === undefined) break;
                     // queue = ret.queue;
@@ -211,6 +218,7 @@ export class Joint {
                     promises.splice(0);
                     await execProc('write_queue_in_p', [queueName, lastPointer]);
                 } catch (error) {
+                    this.notifierScheduler.notify(uq + ":" + entity);
                     logger.error(error);
                     break;
                 }
@@ -466,6 +474,7 @@ export class Joint {
                                 let newJson = await uq.buildData(json, uqIdProps);
                                 json = newJson;
                             } catch (error) {
+                                await this.notifierScheduler.notify(moniker);
                                 logger.error(error);
                                 break;
                             }
@@ -476,7 +485,13 @@ export class Joint {
                 if (json !== undefined) {
                     let mapFromUq = new MapFromUq(this);
                     let outBody = await mapFromUq.map(json, mapper);
-                    if (await push(this, uqBus, queue, outBody) === false) break;
+                    try {
+                        let succes = await push(this, uqBus, queue, outBody);
+                        if (!succes) break;
+                    } catch (error) {
+                        await this.notifierScheduler.notify(moniker);
+                        break;
+                    }
                 }
                 await this.writeQueueOutP(moniker, newQueue);
             }

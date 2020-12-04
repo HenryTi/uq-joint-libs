@@ -1,6 +1,6 @@
-import {Table} from '../tool';
+import { Table } from '../tool';
 
-const moniker:Table = {
+const moniker: Table = {
     name: 'moniker',
     code: [
         "`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY",
@@ -11,9 +11,9 @@ const moniker:Table = {
     ],
 }
 
-const queueIn:Table = {
+const queueIn: Table = {
     name: 'queue_in',
-	code: [
+    code: [
         "`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY",
         "`moniker` INT NOT NULL",
         "`body` TEXT NOT NULL",
@@ -21,9 +21,9 @@ const queueIn:Table = {
     ]
 };
 
-const queueOut:Table = {
+const queueOut: Table = {
     name: 'queue_out',
-	code: [
+    code: [
         "`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY",
         "`moniker` INT NOT NULL",
         "`body` TEXT NOT NULL",
@@ -31,7 +31,7 @@ const queueOut:Table = {
     ]
 };
 
-const queueP:Table = {
+const queueP: Table = {
     name: 'queue_p',
     code: [
         "moniker INT NOT NULL",
@@ -41,6 +41,15 @@ const queueP:Table = {
     ]
 };
 
+const notify: Table = {
+    name: 'notify',
+    code: [
+        "moniker INT NOT NULL",
+        "notifiedAt TIMESTAMP NOT NULL",
+        "PRIMARY KEY(moniker)"
+    ]
+}
+
 export default [
-    moniker, queueIn, queueOut, queueP
+    moniker, queueIn, queueOut, queueP, notify
 ];

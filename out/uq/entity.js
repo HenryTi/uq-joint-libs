@@ -372,11 +372,19 @@ class Entity {
         }
     }
     unpackArr(ret, arr, data, p) {
+        let p0 = p;
         let vals = [], len = data.length;
         let { name, fields } = arr;
         while (p < len) {
             let ch = data.charCodeAt(p);
             if (ch === 10) {
+                if (p === p0) {
+                    ch = data.charCodeAt(p);
+                    if (ch !== 10) {
+                        throw new Error('upackArr: arr第一个字符是10，则必须紧跟一个10，表示整个arr的结束');
+                    }
+                    ++p;
+                }
                 ++p;
                 break;
             }

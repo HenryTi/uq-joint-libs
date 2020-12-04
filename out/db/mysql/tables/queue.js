@@ -37,7 +37,15 @@ const queueP = {
         "PRIMARY KEY(moniker)"
     ]
 };
+const notify = {
+    name: 'notify',
+    code: [
+        "moniker INT NOT NULL",
+        "notifiedAt TIMESTAMP NOT NULL",
+        "PRIMARY KEY(moniker)"
+    ]
+};
 exports.default = [
-    moniker, queueIn, queueOut, queueP
+    moniker, queueIn, queueOut, queueP, notify
 ];
 //# sourceMappingURL=queue.js.map

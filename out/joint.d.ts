@@ -8,6 +8,7 @@ export declare class Joint {
     private tickCount;
     private scanInterval;
     private queueOutPCache;
+    private notifierScheduler;
     constructor(settings: Settings);
     readonly uqInDict: {
         [tuid: string]: UqIn;
