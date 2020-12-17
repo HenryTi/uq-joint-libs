@@ -16,21 +16,22 @@ declare abstract class MapData {
      * string设置有几种格式：
      * 1.普通字符串：
      * 2.fieldName@entityName:
-     * @param i
-     * @param prop mapper中string设置值
+     * @param i mapper中的第i个属性
+     * @param prop mapper中属性值（是转换前的data中的属性名）
      * @param data 来源数据对象
      */
     protected mapProp(i: string, prop: string, data: any): Promise<any>;
     protected mapArrProp(i: string, prop: string, row: any, data: any): Promise<any>;
     /**
      * 根据Mapper的设置，将来源数据对象转换为目标数据对象
-     * 对于 filedName@EntityName格式的设置，会去map表中查找对应的tonva系统Id，未找到的情况，会生成虚拟的tonva系统id，并报错到map表中
+     * 对于 filedName@EntityName格式的设置，会去map表中查找对应的tonva系统Id，未找到的情况，会生成虚拟的tonva系统id，并保存到map表中
      * @param data 来源数据对象
      * @param mapper 转换规则
      * @returns 目标数据对象
      */
     map(data: any, mapper: Mapper): Promise<any>;
     private mapArr;
+    private replaceTabWithBlank;
 }
 /**
  * 根据外部系统的no从映射表中获取tonva中的id(映射表中不存在的话，调用getTuidVid生成一个，并写入映射表)

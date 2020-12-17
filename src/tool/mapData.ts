@@ -41,14 +41,14 @@ abstract class MapData {
      * string设置有几种格式：
      * 1.普通字符串：
      * 2.fieldName@entityName: 
-     * @param i 
-     * @param prop mapper中string设置值 
+     * @param i mapper中的第i个属性
+     * @param prop mapper中属性值（是转换前的data中的属性名）
      * @param data 来源数据对象 
      */
     protected async mapProp(i: string, prop: string, data: any): Promise<any> {
         let pos = prop.indexOf('@');
         if (pos < 0) {
-            return data[prop];
+            return this.replaceTabWithBlank(data[prop]);
         }
         else {
             let v: string;
@@ -73,7 +73,7 @@ abstract class MapData {
         }
         let pos = prop.indexOf('@');
         if (pos < 0) {
-            return p[prop];
+            return this.replaceTabWithBlank(p[prop]);
         }
         else {
             let v: string;
@@ -89,7 +89,7 @@ abstract class MapData {
 
     /**
      * 根据Mapper的设置，将来源数据对象转换为目标数据对象
-     * 对于 filedName@EntityName格式的设置，会去map表中查找对应的tonva系统Id，未找到的情况，会生成虚拟的tonva系统id，并报错到map表中
+     * 对于 filedName@EntityName格式的设置，会去map表中查找对应的tonva系统Id，未找到的情况，会生成虚拟的tonva系统id，并保存到map表中
      * @param data 来源数据对象
      * @param mapper 转换规则
      * @returns 目标数据对象
@@ -159,6 +159,12 @@ abstract class MapData {
         }
         return ret;
     }
+
+    private replaceTabWithBlank(input: string): string {
+        if (input && typeof input === 'string')
+            return input.replace(/[\t\n]/g, ' ');
+        return input;
+    };
 }
 
 /**
