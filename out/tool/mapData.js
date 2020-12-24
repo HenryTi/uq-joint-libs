@@ -43,6 +43,13 @@ class MapData {
             else
                 v = prop.substr(0, pos);
             let tuid = prop.substr(pos + 1);
+            // 对于tuid，支持在@TuidName后添加(默认值)，在来源数据未提供时，使用此默认值
+            var matched = tuid.match(/(\w+)\(([-\w]+)\)$/);
+            if (matched && matched.length === 3) {
+                tuid = matched[1];
+                if (data[v] === undefined)
+                    return matched[2];
+            }
             let propId = await this.tuidId(tuid, data[v]);
             return propId;
         }
@@ -67,6 +74,13 @@ class MapData {
             else
                 v = prop.substr(0, pos);
             let tuid = prop.substr(pos + 1);
+            // 对于tuid，支持在@TuidName后添加(默认值)，在来源数据未提供时，使用此默认值
+            var matched = tuid.match(/(\w+)\(([-\w]+)\)$/);
+            if (matched && matched.length === 3) {
+                tuid = matched[1];
+                if (data[v] === undefined)
+                    return matched[2];
+            }
             let propId = await this.tuidId(tuid, p[v]);
             return propId;
         }

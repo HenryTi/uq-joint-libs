@@ -44,7 +44,19 @@ declare class CenterApi extends Fetch {
     queueOutOne(id: number): Promise<any>;
     /**
      * 用来将user数据写入Tonva系统（的中心服务器?)
-     * @param param: 要写入的user数据，格式如上
+     * @param param: 要写入的user数据，格式如下
+     * param: {
+        $type: '$user',
+        id: 2,
+        name: '1',
+        pwd: 'pwd',
+        nick: 'nick1-1',
+        icon: 'icon1-1',
+        country: 3,
+        mobile: 13901060561,
+        email: 'liaohengyi123@outlook.com',
+        wechat: 'wechat212',
+     * }
      * @returns 正数值表示新建user的id；
      * 出现错误时{id, message} id的含义：-1:id和name不匹配；-2：email已经被使用过了；-3: mobile已经被使用过了；-4: wechat已经被使用了；
      */
