@@ -33,7 +33,7 @@ declare class CenterApi extends Fetch {
     }): Promise<User>;
     busSchema(owner: string, bus: string): Promise<string>;
     serviceBus(serviceUID: string, serviceBuses: string): Promise<void>;
-    unitx(unit: number): Promise<CenterUnitxUrls>;
+    unitUnitx(unit: number): Promise<CenterUnitxUrls>;
     uqToken(unit: number, uqOwner: string, uqName: string): Promise<any>;
     uqUrl(unit: number, uq: number): Promise<any>;
     urlFromUq(unit: number, uqFullName: string): Promise<any>;

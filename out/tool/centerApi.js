@@ -50,8 +50,8 @@ class CenterApi extends fetch_1.Fetch {
             bus: serviceBuses,
         });
     }
-    async unitx(unit) {
-        let items = await this.get('open/unitx', { unit: unit });
+    async unitUnitx(unit) {
+        let items = await this.get('open/unit-unitx', { unit: unit });
         let ret = {};
         for (let item of items) {
             let { type } = item;

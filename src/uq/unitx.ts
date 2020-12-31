@@ -46,7 +46,7 @@ export abstract class Unitx /*extends Uq*/ {
 	}
 
 	async init():Promise<void> {
-		let unitxUrls = await centerApi.unitx(this.unit);
+		let unitxUrls = await centerApi.unitUnitx(this.unit);
 		let {tv, current} = this.toTvCurrent(unitxUrls);
 		let prevUnitxUrlServer:UnitxUrlServer, currentUnitxUrlServer:UnitxUrlServer;
 		if (current !== undefined) {

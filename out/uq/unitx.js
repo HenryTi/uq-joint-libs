@@ -33,7 +33,7 @@ class Unitx /*extends Uq*/ {
         this.unit = unit;
     }
     async init() {
-        let unitxUrls = await centerApi_1.centerApi.unitx(this.unit);
+        let unitxUrls = await centerApi_1.centerApi.unitUnitx(this.unit);
         let { tv, current } = this.toTvCurrent(unitxUrls);
         let prevUnitxUrlServer, currentUnitxUrlServer;
         if (current !== undefined) {
