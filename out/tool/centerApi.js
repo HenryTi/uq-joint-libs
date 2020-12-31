@@ -51,7 +51,13 @@ class CenterApi extends fetch_1.Fetch {
         });
     }
     async unitx(unit) {
-        return await this.get('open/unitx', { unit: unit });
+        let items = await this.get('open/unitx', { unit: unit });
+        let ret = {};
+        for (let item of items) {
+            let { type } = item;
+            ret[type] = item;
+        }
+        return ret;
     }
     async uqToken(unit, uqOwner, uqName) {
         return await this.get('tie/app-uq', { unit: unit, uqOwner: uqOwner, uqName: uqName, testing: false });

@@ -10,6 +10,17 @@ interface User extends Guest {
     nick?: string;
     icon?: string;
 }
+export interface UnitxUrlServer {
+    type: 'tv' | 'test' | 'prod';
+    url: string;
+    server: number;
+    create: number;
+}
+export interface CenterUnitxUrls {
+    tv: UnitxUrlServer;
+    test: UnitxUrlServer;
+    prod: UnitxUrlServer;
+}
 declare class CenterApi extends Fetch {
     private _user;
     private _loginResult;
@@ -22,7 +33,7 @@ declare class CenterApi extends Fetch {
     }): Promise<User>;
     busSchema(owner: string, bus: string): Promise<string>;
     serviceBus(serviceUID: string, serviceBuses: string): Promise<void>;
-    unitx(unit: number): Promise<any>;
+    unitx(unit: number): Promise<CenterUnitxUrls>;
     uqToken(unit: number, uqOwner: string, uqName: string): Promise<any>;
     uqUrl(unit: number, uq: number): Promise<any>;
     urlFromUq(unit: number, uqFullName: string): Promise<any>;

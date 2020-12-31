@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UqUnitx = exports.Uq = void 0;
+exports.UqTest = exports.UqProd = exports.Uq = void 0;
 const tuid_1 = require("./tuid");
 const uqApi_1 = require("../tool/uqApi");
 const centerApi_1 = require("../tool/centerApi");
@@ -183,9 +183,7 @@ class Uq {
     }
     async initUqApi(userName, password) {
         let { unit } = this.uqs;
-        let uqUrl = await centerApi_1.centerApi.urlFromUq(unit, this.uqFullName);
-        let { db, url, urlTest } = uqUrl;
-        let realUrl = host_1.host.getUrlOrTest(db, url, urlTest);
+        let realUrl = await this.unitUrl(unit);
         let loginResult = await centerApi_1.centerApi.login({ user: userName, pwd: password });
         let uqToken;
         if (loginResult !== undefined) {
@@ -193,6 +191,14 @@ class Uq {
             uqToken = await centerApi_1.centerApi.uqToken(unit, parts[0], parts[1]);
         }
         this.uqApi = new uqApi_1.UqApi(realUrl, unit, uqToken && uqToken.token);
+    }
+    async unitUrl(unit) {
+        let uqUrl = await centerApi_1.centerApi.urlFromUq(unit, this.uqFullName);
+        let { db } = uqUrl;
+        let url = this.getReadUrl(uqUrl);
+        //let { db, url, urlTest } = uqUrl;
+        let realUrl = host_1.host.getUqUrl(db, url);
+        return realUrl;
     }
     buildTuids(tuids) {
         for (let i in tuids) {
@@ -377,15 +383,16 @@ class Uq {
     }
 }
 exports.Uq = Uq;
-class UqUnitx extends Uq {
-    async readBus(face, queue) {
-        return await this.uqApi.readBus(face, queue);
-    }
-    async writeBus(face, source, newQueue, busVersion, body) {
-        await this.uqApi.writeBus(face, source, newQueue, busVersion, body);
-    }
-    async loadEntities() {
+class UqProd extends Uq {
+    getReadUrl(uqUrl) {
+        return uqUrl.url;
     }
 }
-exports.UqUnitx = UqUnitx;
+exports.UqProd = UqProd;
+class UqTest extends Uq {
+    getReadUrl(uqUrl) {
+        return uqUrl.urlTest;
+    }
+}
+exports.UqTest = UqTest;
 //# sourceMappingURL=uq.js.map

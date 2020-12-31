@@ -1,38 +1,53 @@
 import { Router } from "express";
 import { getLogger } from 'log4js';
 
-import { Settings, UqIn, UqOut, DataPush, UqInTuid, UqInMap, UqInTuidArr, DataPullResult, getMapName, getOwnerMapName } from "./defines";
+import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr, DataPullResult, getMapName, getOwnerMapName } from "./defines";
 import { tableFromProc, execProc, execSql } from "./db/mysql/tool";
-import { MapFromUq as MapFromUq, MapToUq as MapToUq, MapUserToUq } from "./tool/mapData";
+import { MapFromUq as MapFromUq, MapToUq as MapToUq } from "./tool/mapData";
 import { map } from "./tool/map";
 import { createRouter } from './router';
 import { databaseName } from "./db/mysql/database";
 import { createMapTable } from "./tool/createMapTable";
 import { faceSchemas } from "./tool/faceSchemas";
-import { Uqs } from "./uq/uqs";
-//import { centerApi } from "./tool/centerApi";
+import { Uqs, UqsProd, UqsTest } from "./uq/uqs";
 import { host } from "./tool/host";
 import { Uq } from "./uq/uq";
 import { centerApi } from "./tool/centerApi";
 import { NotifyScheduler } from "./notifier/notifyScheduler";
+import { Unitx, UqUnitxProd, UqUnitxTest } from "./uq/unitx";
 
 const logger = getLogger('joint');
 
-export class Joint {
-    protected uqs: Uqs;
-    protected settings: Settings;
-    private tickCount: number = -1;
-    private scanInterval: number;
-    private queueOutPCache: { [moniker: string]: number } = {};
-    private notifierScheduler: NotifyScheduler = new NotifyScheduler();
+export type ProdOrTest = 'prod' | 'test';
 
-    constructor(settings: Settings) {
-        this.settings = settings;
+export class Joint {
+    private readonly scanInterval: number;
+    private readonly notifierScheduler: NotifyScheduler = new NotifyScheduler();
+	private readonly queueOutPCache: { [moniker: string]: number } = {};
+	private readonly settings: Settings;
+    private readonly uqs: Uqs;
+	private readonly unitx: Unitx;
+	
+	private tickCount: number = -1;
+
+    constructor(settings: Settings, prodOrTest: ProdOrTest = 'prod') {
+		this.settings = settings;
         let { unit, uqIns: allUqIns, scanInterval, userName, password } = settings;
         this.unit = unit;
         this.scanInterval = scanInterval || 3000;
-        if (allUqIns === undefined) return;
-        this.uqs = new Uqs(unit, userName, password);
+		if (allUqIns === undefined) return;
+		switch (prodOrTest) {
+			case 'prod':
+				this.uqs = new UqsProd(unit, userName, password);
+				this.unitx = new UqUnitxProd(unit);
+				break;
+			case 'test':
+				this.uqs = new UqsTest(unit, userName, password);
+				this.unitx = new UqUnitxTest(unit);
+				break;
+			default:
+				throw new Error('prodOrTest not valid in JOINT counstructor:' + prodOrTest);
+		}
         for (let uqIn of allUqIns) {
             let { entity, type } = uqIn;
             if (this.uqInDict[entity] !== undefined) throw 'can not have multiple ' + entity;
@@ -47,22 +62,16 @@ export class Joint {
         return createRouter(this.settings);
     }
 
-    /*
-    async getUqApi(uqFullName:string):Promise<UqApi> {
-        let uq = await this.uqs.getUq(uqFullName);
-        return uq.uqApi;
-    }
-    */
-
     async getUq(uqFullName: string): Promise<Uq> {
         let uq = await this.uqs.getUq(uqFullName);
         return uq;
     }
 
     async init() {
-        await host.start();
+		await host.start();
+		await this.unitx.init();
         //centerApi.initBaseUrl(host.centerUrl);
-        await this.uqs.init();
+        //await this.uqs.init();
     }
 
     async start() {
@@ -87,27 +96,6 @@ export class Joint {
             setTimeout(this.tick, this.scanInterval);
         }
     }
-
-
-
-    /*
-    private uqOpenApis: { [uqFullName: string]: { [unit: number]: UqApi } } = {};
-    //async getOpenApi(uqFullName:string, unit:number):Promise<OpenApi> {
-    async getOpenApi(uq: string): Promise<UqApi> {
-        let openApis = this.uqOpenApis[uq];
-        if (openApis === null) return null;
-        if (openApis === undefined) {
-            this.uqOpenApis[uq] = openApis = {};
-        }
-        let uqUrl = await centerApi.urlFromUq(this.unit, uq);
-        if (uqUrl === undefined) return openApis[this.unit] = null;
-        //let {url, urlDebug} = uqUrl;
-        //url = await host.getUrlOrDebug(url, urlDebug);
-        let { db, url, urlTest } = uqUrl;
-        let realUrl = host.getUrlOrTest(db, url, urlTest)
-        return openApis[this.unit] = new UqApi(realUrl, this.unit);
-    }
-    */
 
     /*
     private async scanPull() {
@@ -447,7 +435,7 @@ export class Joint {
                     newQueue = message['$queue'];
                     json = message;
                 } else {
-                    let message = await this.uqs.readBus(face, queue);
+                    let message = await this.unitx.readBus(face, queue);
                     // 订单导入有问题的情况下，按照下面的方法手动导入，其中body的数据schema为order/order定义的
                     /*
                     message = {
@@ -513,7 +501,7 @@ export class Joint {
                 // henry??? 暂时不处理bus version
                 let busVersion = 0;
                 let packed = await faceSchemas.packBusData(face, inBody);
-                await this.uqs.writeBus(face, joinName, uniqueId/*newQueue*/, busVersion, packed);
+                await this.unitx.writeBus(face, joinName, uniqueId/*newQueue*/, busVersion, packed);
                 await execProc('write_queue_in_p', [moniker, newQueue]);
             }
         }

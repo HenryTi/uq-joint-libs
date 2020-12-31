@@ -6,7 +6,7 @@ import { Sheet } from "./sheet";
 import { Action } from "./action";
 import { Query } from "./query";
 import { Map } from "./map";
-export declare class Uq {
+export declare abstract class Uq {
     private readonly uqs;
     private readonly uqFullName;
     private readonly tuids;
@@ -46,6 +46,11 @@ export declare class Uq {
     setMap(map: string, body: any): Promise<void>;
     delMap(map: string, body: any): Promise<void>;
     private initUqApi;
+    protected abstract getReadUrl(uqUrl: {
+        url: string;
+        urlTest: string;
+    }): string;
+    protected unitUrl(unit: number): Promise<string>;
     private buildTuids;
     private buildAccess;
     private fromType;
@@ -67,10 +72,17 @@ export declare class Uq {
     map(name: string): Map;
     private newMap;
 }
-export declare class UqUnitx extends Uq {
-    readBus(face: string, queue: number): Promise<any>;
-    writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any): Promise<void>;
-    protected loadEntities(): Promise<void>;
+export declare class UqProd extends Uq {
+    protected getReadUrl(uqUrl: {
+        url: string;
+        urlTest: string;
+    }): string;
+}
+export declare class UqTest extends Uq {
+    protected getReadUrl(uqUrl: {
+        url: string;
+        urlTest: string;
+    }): string;
 }
 export interface Prop {
     all?: boolean;

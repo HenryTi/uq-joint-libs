@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Uqs = void 0;
+exports.UqsTest = exports.UqsProd = exports.Uqs = void 0;
+//import { Unitx, UqUnitxProd, UqUnitxTest } from './unitx';
 const uq_1 = require("./uq");
-const $unitx = '$$$/$unitx';
 class Uqs {
     constructor(unit, userName, password) {
         this.uqs = {};
@@ -17,21 +17,19 @@ class Uqs {
         return this.uqs[uqFullName] = await this.createUq(uqFullName);
     }
     async createUq(uqFullName) {
-        let uq = new uq_1.Uq(this, uqFullName);
+        let uq = this.newUq(uqFullName);
         await uq.init(this.userName, this.password);
         this.uqs[uqFullName] = uq;
         return uq;
     }
-    async init() {
-        this.unitx = new uq_1.UqUnitx(this, $unitx);
-        await this.unitx.init(this.userName, this.password);
-    }
-    async readBus(face, queue) {
-        return await this.unitx.readBus(face, queue);
-    }
-    async writeBus(face, source, newQueue, busVersion, body) {
-        await this.unitx.writeBus(face, source, newQueue, busVersion, body);
-    }
 }
 exports.Uqs = Uqs;
+class UqsProd extends Uqs {
+    newUq(uqFullName) { return new uq_1.UqProd(this, uqFullName); }
+}
+exports.UqsProd = UqsProd;
+class UqsTest extends Uqs {
+    newUq(uqFullName) { return new uq_1.UqTest(this, uqFullName); }
+}
+exports.UqsTest = UqsTest;
 //# sourceMappingURL=uqs.js.map

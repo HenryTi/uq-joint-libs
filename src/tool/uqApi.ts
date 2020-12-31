@@ -1,13 +1,6 @@
 import { Headers } from "node-fetch";
 import { Fetch } from "./fetch";
 
-export interface BusMessage {
-    id: number;
-    face: string;
-    from: string;
-    body: string;
-}
-
 export abstract class Caller<T> {
     protected readonly _params: T;
     constructor(params: T, waiting: boolean) {
@@ -85,26 +78,6 @@ export class UqApi extends Fetch {
         let ret = await this.post('open/bus', {
             faces: faces,
             faceUnitMessages: faceUnitMessages,
-        });
-        return ret;
-    }
-    async readBus(face: string, queue: number): Promise<BusMessage> {
-        let ret = await this.post('joint-read-bus', {
-            unit: this.unit,
-            face: face,
-            queue: queue
-        });
-        return ret;
-    }
-    async writeBus(face: string, from: string, queue: number | string, busVersion: number, body: string): Promise<BusMessage> {
-        //let ret = await this.post('open/joint-write-bus', {
-        let ret = await this.post('joint-write-bus', {
-            unit: this.unit,
-            face: face,
-            from: from,
-            fromQueueId: queue,
-            version: busVersion,
-            body: body,
         });
         return ret;
     }

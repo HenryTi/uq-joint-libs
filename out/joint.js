@@ -11,16 +11,16 @@ const database_1 = require("./db/mysql/database");
 const createMapTable_1 = require("./tool/createMapTable");
 const faceSchemas_1 = require("./tool/faceSchemas");
 const uqs_1 = require("./uq/uqs");
-//import { centerApi } from "./tool/centerApi";
 const host_1 = require("./tool/host");
 const centerApi_1 = require("./tool/centerApi");
 const notifyScheduler_1 = require("./notifier/notifyScheduler");
+const unitx_1 = require("./uq/unitx");
 const logger = log4js_1.getLogger('joint');
 class Joint {
-    constructor(settings) {
-        this.tickCount = -1;
-        this.queueOutPCache = {};
+    constructor(settings, prodOrTest = 'prod') {
         this.notifierScheduler = new notifyScheduler_1.NotifyScheduler();
+        this.queueOutPCache = {};
+        this.tickCount = -1;
         this.uqInDict = {};
         this.tick = async () => {
             try {
@@ -45,7 +45,18 @@ class Joint {
         this.scanInterval = scanInterval || 3000;
         if (allUqIns === undefined)
             return;
-        this.uqs = new uqs_1.Uqs(unit, userName, password);
+        switch (prodOrTest) {
+            case 'prod':
+                this.uqs = new uqs_1.UqsProd(unit, userName, password);
+                this.unitx = new unitx_1.UqUnitxProd(unit);
+                break;
+            case 'test':
+                this.uqs = new uqs_1.UqsTest(unit, userName, password);
+                this.unitx = new unitx_1.UqUnitxTest(unit);
+                break;
+            default:
+                throw new Error('prodOrTest not valid in JOINT counstructor:' + prodOrTest);
+        }
         for (let uqIn of allUqIns) {
             let { entity, type } = uqIn;
             if (this.uqInDict[entity] !== undefined)
@@ -56,43 +67,20 @@ class Joint {
     createRouter() {
         return router_1.createRouter(this.settings);
     }
-    /*
-    async getUqApi(uqFullName:string):Promise<UqApi> {
-        let uq = await this.uqs.getUq(uqFullName);
-        return uq.uqApi;
-    }
-    */
     async getUq(uqFullName) {
         let uq = await this.uqs.getUq(uqFullName);
         return uq;
     }
     async init() {
         await host_1.host.start();
+        await this.unitx.init();
         //centerApi.initBaseUrl(host.centerUrl);
-        await this.uqs.init();
+        //await this.uqs.init();
     }
     async start() {
         await this.init();
         setTimeout(this.tick, this.scanInterval);
     }
-    /*
-    private uqOpenApis: { [uqFullName: string]: { [unit: number]: UqApi } } = {};
-    //async getOpenApi(uqFullName:string, unit:number):Promise<OpenApi> {
-    async getOpenApi(uq: string): Promise<UqApi> {
-        let openApis = this.uqOpenApis[uq];
-        if (openApis === null) return null;
-        if (openApis === undefined) {
-            this.uqOpenApis[uq] = openApis = {};
-        }
-        let uqUrl = await centerApi.urlFromUq(this.unit, uq);
-        if (uqUrl === undefined) return openApis[this.unit] = null;
-        //let {url, urlDebug} = uqUrl;
-        //url = await host.getUrlOrDebug(url, urlDebug);
-        let { db, url, urlTest } = uqUrl;
-        let realUrl = host.getUrlOrTest(db, url, urlTest)
-        return openApis[this.unit] = new UqApi(realUrl, this.unit);
-    }
-    */
     /*
     private async scanPull() {
         for (let i in this.settings.pull) {
@@ -453,7 +441,7 @@ class Joint {
                     json = message;
                 }
                 else {
-                    let message = await this.uqs.readBus(face, queue);
+                    let message = await this.unitx.readBus(face, queue);
                     // 订单导入有问题的情况下，按照下面的方法手动导入，其中body的数据schema为order/order定义的
                     /*
                     message = {
@@ -523,7 +511,7 @@ class Joint {
                 // henry??? 暂时不处理bus version
                 let busVersion = 0;
                 let packed = await faceSchemas_1.faceSchemas.packBusData(face, inBody);
-                await this.uqs.writeBus(face, joinName, uniqueId /*newQueue*/, busVersion, packed);
+                await this.unitx.writeBus(face, joinName, uniqueId /*newQueue*/, busVersion, packed);
                 await tool_1.execProc('write_queue_in_p', [moniker, newQueue]);
             }
         }

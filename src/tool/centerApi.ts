@@ -25,6 +25,19 @@ function decodeUserToken(token: string): User {
     return user;
 }
 
+export interface UnitxUrlServer {
+	type: 'tv'|'test'|'prod';
+	url:string;
+	server:number;
+	create: number;		// tick time on create
+}
+
+export interface CenterUnitxUrls {
+	tv: UnitxUrlServer;
+	test: UnitxUrlServer;
+	prod: UnitxUrlServer;
+}
+
 class CenterApi extends Fetch {
     private _user: string;
     private _loginResult: any;
@@ -64,8 +77,14 @@ class CenterApi extends Fetch {
         });
     }
 
-    async unitx(unit: number): Promise<any> {
-        return await this.get('open/unitx', { unit: unit });
+    async unitx(unit: number): Promise<CenterUnitxUrls> {
+		let items:UnitxUrlServer[] = await this.get('open/unitx', { unit: unit });
+		let ret:CenterUnitxUrls = {} as any;
+		for (let item of items) {
+			let {type} = item;
+			ret[type] = item;
+		}
+		return ret;
     }
 
     async uqToken(unit: number, uqOwner: string, uqName: string): Promise<any> {

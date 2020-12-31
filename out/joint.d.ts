@@ -1,15 +1,16 @@
 import { Router } from "express";
 import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr } from "./defines";
-import { Uqs } from "./uq/uqs";
 import { Uq } from "./uq/uq";
+export declare type ProdOrTest = 'prod' | 'test';
 export declare class Joint {
-    protected uqs: Uqs;
-    protected settings: Settings;
+    private readonly scanInterval;
+    private readonly notifierScheduler;
+    private readonly queueOutPCache;
+    private readonly settings;
+    private readonly uqs;
+    private readonly unitx;
     private tickCount;
-    private scanInterval;
-    private queueOutPCache;
-    private notifierScheduler;
-    constructor(settings: Settings);
+    constructor(settings: Settings, prodOrTest?: ProdOrTest);
     readonly uqInDict: {
         [tuid: string]: UqIn;
     };

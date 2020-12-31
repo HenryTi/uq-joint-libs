@@ -152,6 +152,11 @@ class Host {
         url = this.getUrlOrDebug(url);
         return url + path;
     }
+    getUqUrl(db, url) {
+        let path = uqPath + db + '/';
+        let urlOrDebug = this.getUrlOrDebug(url);
+        return urlOrDebug + path;
+    }
     async localCheck(urlDebug) {
         return await localCheck(urlDebug);
     }

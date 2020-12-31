@@ -1,11 +1,5 @@
 import { Headers } from "node-fetch";
 import { Fetch } from "./fetch";
-export interface BusMessage {
-    id: number;
-    face: string;
-    from: string;
-    body: string;
-}
 export declare abstract class Caller<T> {
     protected readonly _params: T;
     constructor(params: T, waiting: boolean);
@@ -28,8 +22,6 @@ export declare class UqApi extends Fetch {
     protected buildHeaders(): Headers;
     protected appendHeaders(headers: Headers): void;
     bus(faces: string, faceUnitMessages: string): Promise<any>;
-    readBus(face: string, queue: number): Promise<BusMessage>;
-    writeBus(face: string, from: string, queue: number | string, busVersion: number, body: string): Promise<BusMessage>;
     tuid(unit: number, id: number, tuid: string, maps: string[]): Promise<any>;
     saveTuid(tuid: string, data: any): Promise<any>;
     saveTuidArr(tuid: string, arr: string, owner: number, data: any): Promise<any>;

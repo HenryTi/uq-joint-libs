@@ -1,14 +1,17 @@
 import { Uq } from "./uq";
-export declare class Uqs {
-    private uqs;
-    private unitx;
-    private userName;
-    private password;
-    constructor(unit: number, userName: string, password: string);
+export declare abstract class Uqs {
+    private readonly uqs;
+    private readonly userName;
+    private readonly password;
     readonly unit: number;
+    constructor(unit: number, userName: string, password: string);
     getUq(uqFullName: string): Promise<Uq>;
     private createUq;
-    init(): Promise<void>;
-    readBus(face: string, queue: number): Promise<any>;
-    writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any): Promise<void>;
+    protected abstract newUq(uqFullName: string): Uq;
+}
+export declare class UqsProd extends Uqs {
+    protected newUq(uqFullName: string): any;
+}
+export declare class UqsTest extends Uqs {
+    protected newUq(uqFullName: string): any;
 }

@@ -1,20 +1,18 @@
-import { UqUnitx, Uq } from "./uq";
+//import { Unitx, UqUnitxProd, UqUnitxTest } from './unitx';
+import { Uq, UqProd, UqTest } from "./uq";
 
-const $unitx = '$$$/$unitx';
+export abstract class Uqs {
+	private readonly uqs: { [name: string]: Uq } = {};
+    private readonly userName: string;
+    private readonly password: string;
 
-export class Uqs {
-    private uqs: { [name: string]: Uq } = {};
-    private unitx: UqUnitx;
-    private userName: string;
-    private password: string;
+    readonly unit:number;
 
     constructor(unit: number, userName: string, password: string) {
         this.unit = unit;
         this.userName = userName;
         this.password = password;
     }
-
-    readonly unit:number;
 
     async getUq(uqFullName: string) {
         let uq = this.uqs[uqFullName];
@@ -23,15 +21,17 @@ export class Uqs {
     }
 
     private async createUq(uqFullName: string): Promise<Uq> {
-        let uq = new Uq(this, uqFullName);
+        let uq =  this.newUq(uqFullName);
         await uq.init(this.userName, this.password);
         this.uqs[uqFullName] = uq;
         return uq;
     }
 
+	protected abstract newUq(uqFullName:string):Uq;
+	//protected abstract newUqUnitx():Unitx;
+/*
     async init() {
-        this.unitx = new UqUnitx(this, $unitx);
-        await this.unitx.init(this.userName, this.password);
+        // await this.unitx.init(this.userName, this.password);
     }
 
     async readBus(face: string, queue: number): Promise<any> {
@@ -40,6 +40,16 @@ export class Uqs {
 
     async writeBus(face: string, source: string, newQueue: string | number, busVersion:number, body: any) {
         await this.unitx.writeBus(face, source, newQueue, busVersion, body);
-    }
+	}
+*/
 }
 
+export class UqsProd extends Uqs {
+	protected newUq(uqFullName:string) { return  new UqProd(this, uqFullName); }
+	//protected newUqUnitx() { return new UqUnitxProd(this); }
+}
+
+export class UqsTest extends Uqs {
+	protected newUq(uqFullName:string) { return  new UqTest(this, uqFullName); }
+	//protected newUqUnitx() { return new UqUnitxTest(this); }
+}

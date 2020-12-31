@@ -1,4 +1,4 @@
-import { TuidMain, Tuid, TuidDiv } from "./tuid";
+import { TuidMain, Tuid } from "./tuid";
 import { Field, ArrFields } from "./field";
 import { UqApi } from "../tool/uqApi";
 import { Uqs } from "./uqs";
@@ -33,7 +33,7 @@ function createIgnoreCaseProxy<T>(): { [name: string]: T } {
     });
 }
 
-export class Uq {
+export abstract class Uq {
     private readonly uqs: Uqs;
     private readonly uqFullName: string;
     private readonly tuids: { [name: string]: TuidMain } = createIgnoreCaseProxy<TuidMain>();
@@ -194,9 +194,7 @@ export class Uq {
 
     private async initUqApi(userName: string, password: string): Promise<void> {
         let { unit } = this.uqs;
-        let uqUrl = await centerApi.urlFromUq(unit, this.uqFullName);
-        let { db, url, urlTest } = uqUrl;
-        let realUrl = host.getUrlOrTest(db, url, urlTest);
+        let realUrl = await this.unitUrl(unit);
         let loginResult = await centerApi.login({ user: userName, pwd: password });
 
         let uqToken: any;
@@ -206,7 +204,18 @@ export class Uq {
         }
 
         this.uqApi = new UqApi(realUrl, unit, uqToken && uqToken.token);
-    }
+	}
+	
+	protected abstract getReadUrl(uqUrl: {url:string, urlTest:string}):string;
+
+	protected async unitUrl(unit: number): Promise<string> {
+		let uqUrl = await centerApi.urlFromUq(unit, this.uqFullName);
+		let {db} = uqUrl;
+		let url = this.getReadUrl(uqUrl);
+        //let { db, url, urlTest } = uqUrl;
+		let realUrl = host.getUqUrl(db, url);
+		return realUrl;
+	}
 
     private buildTuids(tuids: any) {
         for (let i in tuids) {
@@ -395,17 +404,16 @@ export class Uq {
     */
 }
 
-export class UqUnitx extends Uq {
-    async readBus(face: string, queue: number): Promise<any> {
-        return await this.uqApi.readBus(face, queue);
-    }
+export class UqProd extends Uq {
+	protected getReadUrl(uqUrl: {url:string, urlTest:string}):string {
+		return uqUrl.url;
+	}
+}
 
-    async writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any) {
-        await this.uqApi.writeBus(face, source, newQueue, busVersion, body);
-    }
-
-    protected async loadEntities() {
-    }
+export class UqTest extends Uq {
+	protected getReadUrl(uqUrl: {url:string, urlTest:string}):string {
+		return uqUrl.urlTest;
+	}
 }
 
 export interface Prop {

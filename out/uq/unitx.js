@@ -1,0 +1,95 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UqUnitxTest = exports.UqUnitxProd = exports.Unitx = void 0;
+const centerApi_1 = require("../tool/centerApi");
+const fetch_1 = require("../tool/fetch");
+class UnitxApi extends fetch_1.Fetch {
+    constructor(unit, url) {
+        super(url);
+        this.unit = unit;
+    }
+    async readBus(face, queue) {
+        let ret = await this.post('joint-read-bus', {
+            unit: this.unit,
+            face: face,
+            queue: queue
+        });
+        return ret;
+    }
+    async writeBus(face, from, queue, busVersion, body) {
+        let ret = await this.post('joint-write-bus', {
+            unit: this.unit,
+            face: face,
+            from: from,
+            fromQueueId: queue,
+            version: busVersion,
+            body: body,
+        });
+        return ret;
+    }
+}
+class Unitx /*extends Uq*/ {
+    constructor(unit) {
+        this.unit = unit;
+    }
+    async init() {
+        let unitxUrls = await centerApi_1.centerApi.unitx(this.unit);
+        let { tv, current } = this.toTvCurrent(unitxUrls);
+        let prevUnitxUrlServer, currentUnitxUrlServer;
+        if (current !== undefined) {
+            prevUnitxUrlServer = tv;
+            currentUnitxUrlServer = current;
+        }
+        else {
+            prevUnitxUrlServer = undefined;
+            currentUnitxUrlServer = tv;
+        }
+        this.currentCreateTick = currentUnitxUrlServer.create;
+        console.log('unitx prev', prevUnitxUrlServer);
+        console.log('unitx current', currentUnitxUrlServer);
+        this.prevUnitxApi = await this.createUnitxApi(prevUnitxUrlServer);
+        this.currentUnitxApi = await this.createUnitxApi(currentUnitxUrlServer);
+    }
+    async createUnitxApi(unitxUrlServer) {
+        if (unitxUrlServer === undefined)
+            return undefined;
+        let { url } = unitxUrlServer;
+        let unitxUrl = this.unitxUrl(url);
+        return new UnitxApi(this.unit, unitxUrl);
+    }
+    async readBus(face, queue) {
+        let unitxApi;
+        if (this.prevUnitxApi === undefined) {
+            unitxApi = this.currentUnitxApi;
+        }
+        else {
+            let delta = Date.now() / 1000 - this.currentCreateTick;
+            let minutes = delta / 60;
+            unitxApi = minutes < 10 ? this.prevUnitxApi : this.currentUnitxApi;
+        }
+        return await unitxApi.readBus(face, queue);
+    }
+    async writeBus(face, source, newQueue, busVersion, body) {
+        await this.currentUnitxApi.writeBus(face, source, newQueue, busVersion, body);
+    }
+}
+exports.Unitx = Unitx;
+class UqUnitxProd extends Unitx {
+    toTvCurrent(unitxUrls) {
+        let { tv, prod: current } = unitxUrls;
+        return { tv, current };
+    }
+    unitxUrl(url) { return url + 'uq/unitx-prod/'; }
+    ;
+}
+exports.UqUnitxProd = UqUnitxProd;
+class UqUnitxTest extends Unitx {
+    toTvCurrent(unitxUrls) {
+        let { tv, test: current } = unitxUrls;
+        return { tv, current };
+    }
+    unitxUrl(url) { return url + 'uq/unitx-test/'; }
+    ;
+}
+exports.UqUnitxTest = UqUnitxTest;
+//# sourceMappingURL=unitx.js.map

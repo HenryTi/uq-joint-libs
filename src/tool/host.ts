@@ -160,7 +160,12 @@ class Host {
         }
         url = this.getUrlOrDebug(url);
         return url + path;
-    }
+	}
+	getUqUrl(db:string, url:string): string {
+        let path: string = uqPath + db + '/';
+        let urlOrDebug = this.getUrlOrDebug(url);
+        return urlOrDebug + path;
+	}
 
     async localCheck(urlDebug: string): Promise<boolean> {
         return await localCheck(urlDebug);
