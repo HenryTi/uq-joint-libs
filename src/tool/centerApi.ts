@@ -26,16 +26,16 @@ function decodeUserToken(token: string): User {
 }
 
 export interface UnitxUrlServer {
-	type: 'tv'|'test'|'prod';
-	url:string;
-	server:number;
-	create: number;		// tick time on create
+    type: 'tv' | 'test' | 'prod';
+    url: string;
+    server: number;
+    create: number;		// tick time on create
 }
 
 export interface CenterUnitxUrls {
-	tv: UnitxUrlServer;
-	test: UnitxUrlServer;
-	prod: UnitxUrlServer;
+    tv: UnitxUrlServer;
+    test: UnitxUrlServer;
+    prod: UnitxUrlServer;
 }
 
 class CenterApi extends Fetch {
@@ -77,14 +77,19 @@ class CenterApi extends Fetch {
         });
     }
 
+    /**
+     * 获取某个unit所对应的unitx服务器的地址 
+     * @param unit 
+     * @returns ret object, 各属性名为unitx的类型，值为对应unitx的地址？
+     */
     async unitUnitx(unit: number): Promise<CenterUnitxUrls> {
-		let items:UnitxUrlServer[] = await this.get('open/unit-unitx', { unit: unit });
-		let ret:CenterUnitxUrls = {} as any;
-		for (let item of items) {
-			let {type} = item;
-			ret[type] = item;
-		}
-		return ret;
+        let items: UnitxUrlServer[] = await this.get('open/unit-unitx', { unit: unit });
+        let ret: CenterUnitxUrls = {} as any;
+        for (let item of items) {
+            let { type } = item;
+            ret[type] = item;
+        }
+        return ret;
     }
 
     async uqToken(unit: number, uqOwner: string, uqName: string): Promise<any> {

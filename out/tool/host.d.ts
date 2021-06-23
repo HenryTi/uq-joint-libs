@@ -6,9 +6,19 @@ declare class Host {
     centerUrl: string;
     ws: string;
     resHost: string;
+    /**
+     * 设置centerApi的buseUrl
+     */
     start(): Promise<void>;
     private debugHostUrl;
+    /**
+     * 这个好像什么也没干啊？
+     */
     private tryLocal;
+    /**
+     *
+     * @returns center host的地址，来自配置文件的centerhost项
+     */
     private getCenterHost;
     private getResHost;
     getUrlOrDebug(url: string, debugHost?: string): string;

@@ -32,6 +32,9 @@ class Unitx /*extends Uq*/ {
     constructor(unit) {
         this.unit = unit;
     }
+    /**
+     * 初始化this.currentCreateTick / this.prevUnitxApi / this.currentUnitxApi(这3个是干什么的？)
+     */
     async init() {
         let unitxUrls = await centerApi_1.centerApi.unitUnitx(this.unit);
         let { tv, current } = this.toTvCurrent(unitxUrls);

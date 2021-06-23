@@ -1,6 +1,7 @@
 import { Mapper } from "./tool/mapper";
 import { Joint } from "./joint";
 import { UqProp } from "./uq/uq";
+import { Notifier } from "./notifier/smsNotifier";
 
 export interface DataPullResult { lastPointer: number | string, data: any[] };
 export type DataPull<T> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
@@ -96,6 +97,7 @@ export interface Settings {
     uqInEntities: { name: string, intervalUnit: number }[],
     uqBusSettings: string[];
     scanInterval?: number;
+    notifier?: Notifier;
 
     userName?: string;
     password?: string;
@@ -129,4 +131,4 @@ export function getOwnerMapName(uqIn: UqInTuidArr): string {
         console.error('uq格式不正确，其中应该带有/符号');
         throw EvalError;
     }
-} 
+}

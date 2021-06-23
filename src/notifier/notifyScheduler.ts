@@ -1,17 +1,17 @@
 import config from 'config';
 import { databaseName } from '../db/mysql/database';
 import { execSql } from "../db/mysql/tool";
-import { SmsNotifier } from "./smsNotifier";
+import { Notifier } from "./smsNotifier";
 
 export class NotifyScheduler {
 
-    private notifier: SmsNotifier;
+    private notifier: Notifier;
     private getLastNotify: string;
     private updateNotify: string;
     private enableNotify: boolean = false;
     private notifyInterval: number;
-    constructor() {
-        this.notifier = new SmsNotifier();
+    constructor(notifier: Notifier) {
+        this.notifier = notifier;
 
         this.getLastNotify = `select UNIX_TIMESTAMP(a.notifiedAt) as notifiedAt from \`${databaseName}\`.notify a inner join \`${databaseName}\`.moniker m on m.id = a.moniker 
             where m.moniker = ?`;
@@ -28,6 +28,10 @@ export class NotifyScheduler {
     async notify(moniker: string) {
 
         if (!this.enableNotify) return;
+        if (!this.notifier) {
+            console.warn('nofify scheduler: no valid notifier!');
+            return;
+        }
 
         let notifiedAt: number = 0;
         let result = await execSql(this.getLastNotify, [moniker]);

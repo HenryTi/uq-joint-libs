@@ -11,6 +11,9 @@ export declare abstract class Unitx {
     private currentUnitxApi;
     private currentCreateTick;
     constructor(unit: number);
+    /**
+     * 初始化this.currentCreateTick / this.prevUnitxApi / this.currentUnitxApi(这3个是干什么的？)
+     */
     init(): Promise<void>;
     private createUnitxApi;
     readBus(face: string, queue: number): Promise<any>;

@@ -22,6 +22,9 @@ const centerDebugHost = 'localhost:3000'; //'192.168.86.64';
 const resDebugHost = 'localhost:3015'; //'192.168.86.63';
 const uqDebugHost = 'localhost:3015'; //'192.168.86.63';
 const uqDebugBuilderHost = 'localhost:3009';
+/**
+ * 几类host(center host/res host/uq host/unitx host/uq build host)地址的配置对象
+ */
 const hosts = {
     centerhost: {
         value: tryConfig('debug-center-host') || centerDebugHost,
@@ -70,6 +73,9 @@ const fetchOptions = {
     },
 };
 class Host {
+    /**
+     * 设置centerApi的buseUrl
+     */
     async start() {
         if (exports.isDevelopment === true) {
             await this.tryLocal();
@@ -82,6 +88,9 @@ class Host {
         centerApi_1.centerApi.initBaseUrl(this.centerUrl);
     }
     debugHostUrl(host) { return `http://${host}/hello`; }
+    /**
+     * 这个好像什么也没干啊？
+     */
     async tryLocal() {
         let promises = [];
         let hostArr = [];
@@ -116,9 +125,14 @@ class Host {
         }
         */
     }
+    /**
+     *
+     * @returns center host的地址，来自配置文件的centerhost项
+     */
     getCenterHost() {
         let { value, local } = hosts.centerhost;
         if (exports.isDevelopment === true) {
+            // 这个永远不会返回value
             if (local === true)
                 return value;
         }

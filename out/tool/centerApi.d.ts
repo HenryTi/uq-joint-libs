@@ -33,6 +33,11 @@ declare class CenterApi extends Fetch {
     }): Promise<User>;
     busSchema(owner: string, bus: string): Promise<string>;
     serviceBus(serviceUID: string, serviceBuses: string): Promise<void>;
+    /**
+     * 获取某个unit所对应的unitx服务器的地址
+     * @param unit
+     * @returns ret object, 各属性名为unitx的类型，值为对应unitx的地址？
+     */
     unitUnitx(unit: number): Promise<CenterUnitxUrls>;
     uqToken(unit: number, uqOwner: string, uqName: string): Promise<any>;
     uqUrl(unit: number, uq: number): Promise<any>;

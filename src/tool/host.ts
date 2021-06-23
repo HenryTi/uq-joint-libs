@@ -24,6 +24,10 @@ interface HostValue {
     value: string;
     local: boolean;
 }
+
+/**
+ * 几类host(center host/res host/uq host/unitx host/uq build host)地址的配置对象 
+ */
 const hosts: { [name: string]: HostValue } = {
     centerhost: {
         value: tryConfig('debug-center-host') || centerDebugHost,
@@ -81,6 +85,9 @@ class Host {
     ws: string;
     resHost: string;
 
+    /**
+     * 设置centerApi的buseUrl
+     */
     async start() {
         if (isDevelopment === true) {
             await this.tryLocal();
@@ -94,6 +101,10 @@ class Host {
     }
 
     private debugHostUrl(host: string) { return `http://${host}/hello` }
+
+    /**
+     * 这个好像什么也没干啊？ 
+     */
     private async tryLocal() {
         let promises: PromiseLike<any>[] = [];
         let hostArr: string[] = [];
@@ -129,9 +140,15 @@ class Host {
         */
     }
 
+    /**
+     * 
+     * @returns center host的地址，来自配置文件的centerhost项
+     */
     private getCenterHost(): string {
         let { value, local } = hosts.centerhost;
+
         if (isDevelopment === true) {
+            // 这个永远不会返回value
             if (local === true) return value;
         }
         return centerHost;
@@ -154,18 +171,18 @@ class Host {
         return `http://${value}/`;
     }
     getUrlOrTest(db: string, url: string, urlTest: string): string {
-        let path: string = db === '$unitx'? uqUnitxPath : uqPath + db + '/';
+        let path: string = db === '$unitx' ? uqUnitxPath : uqPath + db + '/';
         if (isDevelopment === true) {
             if (urlTest && urlTest !== '-') url = urlTest;
         }
         url = this.getUrlOrDebug(url);
         return url + path;
-	}
-	getUqUrl(db:string, url:string): string {
+    }
+    getUqUrl(db: string, url: string): string {
         let path: string = uqPath + db + '/';
         let urlOrDebug = this.getUrlOrDebug(url);
         return urlOrDebug + path;
-	}
+    }
 
     async localCheck(urlDebug: string): Promise<boolean> {
         return await localCheck(urlDebug);

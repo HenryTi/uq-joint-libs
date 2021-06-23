@@ -15,6 +15,7 @@ import { Uq } from "./uq/uq";
 import { centerApi } from "./tool/centerApi";
 import { NotifyScheduler } from "./notifier/notifyScheduler";
 import { Unitx, UqUnitxProd, UqUnitxTest } from "./uq/unitx";
+import { Notifier } from "./notifier/smsNotifier";
 
 const logger = getLogger('joint');
 
@@ -22,32 +23,33 @@ export type ProdOrTest = 'prod' | 'test';
 
 export class Joint {
     private readonly scanInterval: number;
-    private readonly notifierScheduler: NotifyScheduler = new NotifyScheduler();
-	private readonly queueOutPCache: { [moniker: string]: number } = {};
-	private readonly settings: Settings;
+    private readonly notifierScheduler: NotifyScheduler;
+    private readonly queueOutPCache: { [moniker: string]: number } = {};
+    private readonly settings: Settings;
     private readonly uqs: Uqs;
-	private readonly unitx: Unitx;
-	
-	private tickCount: number = -1;
+    private readonly unitx: Unitx;
+
+    private tickCount: number = -1;
 
     constructor(settings: Settings, prodOrTest: ProdOrTest = 'prod') {
-		this.settings = settings;
-        let { unit, uqIns: allUqIns, scanInterval, userName, password } = settings;
+        this.settings = settings;
+        let { unit, uqIns: allUqIns, scanInterval, userName, password, notifier } = settings;
         this.unit = unit;
         this.scanInterval = scanInterval || 3000;
-		if (allUqIns === undefined) return;
-		switch (prodOrTest) {
-			case 'prod':
-				this.uqs = new UqsProd(unit, userName, password);
-				this.unitx = new UqUnitxProd(unit);
-				break;
-			case 'test':
-				this.uqs = new UqsTest(unit, userName, password);
-				this.unitx = new UqUnitxTest(unit);
-				break;
-			default:
-				throw new Error('prodOrTest not valid in JOINT counstructor:' + prodOrTest);
-		}
+        this.notifierScheduler = new NotifyScheduler(notifier);
+        if (allUqIns === undefined) return;
+        switch (prodOrTest) {
+            case 'prod':
+                this.uqs = new UqsProd(unit, userName, password);
+                this.unitx = new UqUnitxProd(unit);
+                break;
+            case 'test':
+                this.uqs = new UqsTest(unit, userName, password);
+                this.unitx = new UqUnitxTest(unit);
+                break;
+            default:
+                throw new Error('prodOrTest not valid in JOINT counstructor:' + prodOrTest);
+        }
         for (let uqIn of allUqIns) {
             let { entity, type } = uqIn;
             if (this.uqInDict[entity] !== undefined) throw 'can not have multiple ' + entity;
@@ -68,8 +70,8 @@ export class Joint {
     }
 
     async init() {
-		await host.start();
-		await this.unitx.init();
+        await host.start();
+        await this.unitx.init();
         //centerApi.initBaseUrl(host.centerUrl);
         //await this.uqs.init();
     }
@@ -477,6 +479,7 @@ export class Joint {
                         let succes = await push(this, uqBus, queue, outBody);
                         if (!succes) break;
                     } catch (error) {
+                        console.error(error);
                         await this.notifierScheduler.notify(moniker);
                         break;
                     }

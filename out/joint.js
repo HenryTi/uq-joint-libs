@@ -18,7 +18,6 @@ const unitx_1 = require("./uq/unitx");
 const logger = log4js_1.getLogger('joint');
 class Joint {
     constructor(settings, prodOrTest = 'prod') {
-        this.notifierScheduler = new notifyScheduler_1.NotifyScheduler();
         this.queueOutPCache = {};
         this.tickCount = -1;
         this.uqInDict = {};
@@ -40,9 +39,10 @@ class Joint {
             }
         };
         this.settings = settings;
-        let { unit, uqIns: allUqIns, scanInterval, userName, password } = settings;
+        let { unit, uqIns: allUqIns, scanInterval, userName, password, notifier } = settings;
         this.unit = unit;
         this.scanInterval = scanInterval || 3000;
+        this.notifierScheduler = new notifyScheduler_1.NotifyScheduler(notifier);
         if (allUqIns === undefined)
             return;
         switch (prodOrTest) {
@@ -486,6 +486,7 @@ class Joint {
                             break;
                     }
                     catch (error) {
+                        console.error(error);
                         await this.notifierScheduler.notify(moniker);
                         break;
                     }

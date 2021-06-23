@@ -1,6 +1,7 @@
 import { Mapper } from "./tool/mapper";
 import { Joint } from "./joint";
 import { UqProp } from "./uq/uq";
+import { Notifier } from "./notifier/smsNotifier";
 export interface DataPullResult {
     lastPointer: number | string;
     data: any[];
@@ -94,6 +95,7 @@ export interface Settings {
     }[];
     uqBusSettings: string[];
     scanInterval?: number;
+    notifier?: Notifier;
     userName?: string;
     password?: string;
     bus?: {

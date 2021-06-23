@@ -50,6 +50,11 @@ class CenterApi extends fetch_1.Fetch {
             bus: serviceBuses,
         });
     }
+    /**
+     * 获取某个unit所对应的unitx服务器的地址
+     * @param unit
+     * @returns ret object, 各属性名为unitx的类型，值为对应unitx的地址？
+     */
     async unitUnitx(unit) {
         let items = await this.get('open/unit-unitx', { unit: unit });
         let ret = {};

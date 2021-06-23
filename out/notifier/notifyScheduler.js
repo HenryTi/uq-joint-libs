@@ -7,11 +7,10 @@ exports.NotifyScheduler = void 0;
 const config_1 = __importDefault(require("config"));
 const database_1 = require("../db/mysql/database");
 const tool_1 = require("../db/mysql/tool");
-const smsNotifier_1 = require("./smsNotifier");
 class NotifyScheduler {
-    constructor() {
+    constructor(notifier) {
         this.enableNotify = false;
-        this.notifier = new smsNotifier_1.SmsNotifier();
+        this.notifier = notifier;
         this.getLastNotify = `select UNIX_TIMESTAMP(a.notifiedAt) as notifiedAt from \`${database_1.databaseName}\`.notify a inner join \`${database_1.databaseName}\`.moniker m on m.id = a.moniker 
             where m.moniker = ?`;
         this.updateNotify = `insert into \`${database_1.databaseName}\`.notify(moniker, notifiedAt) 
@@ -26,6 +25,10 @@ class NotifyScheduler {
     async notify(moniker) {
         if (!this.enableNotify)
             return;
+        if (!this.notifier) {
+            console.warn('nofify scheduler: no valid notifier!');
+            return;
+        }
         let notifiedAt = 0;
         let result = await tool_1.execSql(this.getLastNotify, [moniker]);
         if (result.length > 0) {
