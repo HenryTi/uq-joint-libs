@@ -146,7 +146,8 @@ class Joint {
                         }
                     }
                     catch (error) {
-                        this.notifierScheduler.notify(uq + ":" + entity);
+                        this.notifierScheduler.notify(uq + ":" + entity, queue);
+                        logger.error(error);
                     }
                     if (ret === undefined)
                         break;
@@ -189,7 +190,7 @@ class Joint {
                     await tool_1.execProc('write_queue_in_p', [queueName, lastPointer]);
                 }
                 catch (error) {
-                    this.notifierScheduler.notify(uq + ":" + entity);
+                    this.notifierScheduler.notify(uq + ":" + entity, queue);
                     logger.error(error);
                     break;
                 }
@@ -470,7 +471,7 @@ class Joint {
                                 json = newJson;
                             }
                             catch (error) {
-                                await this.notifierScheduler.notify(moniker);
+                                await this.notifierScheduler.notify(moniker, queue.toString());
                                 logger.error(error);
                                 break;
                             }
@@ -487,7 +488,7 @@ class Joint {
                     }
                     catch (error) {
                         console.error(error);
-                        await this.notifierScheduler.notify(moniker);
+                        await this.notifierScheduler.notify(moniker, queue.toString());
                         break;
                     }
                 }

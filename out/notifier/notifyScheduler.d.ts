@@ -6,5 +6,5 @@ export declare class NotifyScheduler {
     private enableNotify;
     private notifyInterval;
     constructor(notifier: Notifier);
-    notify(moniker: string): Promise<void>;
+    notify(moniker: string, id: string): Promise<void>;
 }

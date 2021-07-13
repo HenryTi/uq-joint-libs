@@ -165,7 +165,8 @@ export class Joint {
                                 break;
                         }
                     } catch (error) {
-                        this.notifierScheduler.notify(uq + ":" + entity);
+                        this.notifierScheduler.notify(uq + ":" + entity, queue);
+                        logger.error(error);
                     }
                     if (ret === undefined) break;
                     // queue = ret.queue;
@@ -208,7 +209,7 @@ export class Joint {
                     promises.splice(0);
                     await execProc('write_queue_in_p', [queueName, lastPointer]);
                 } catch (error) {
-                    this.notifierScheduler.notify(uq + ":" + entity);
+                    this.notifierScheduler.notify(uq + ":" + entity, queue);
                     logger.error(error);
                     break;
                 }
@@ -464,7 +465,7 @@ export class Joint {
                                 let newJson = await uq.buildData(json, uqIdProps);
                                 json = newJson;
                             } catch (error) {
-                                await this.notifierScheduler.notify(moniker);
+                                await this.notifierScheduler.notify(moniker, queue.toString());
                                 logger.error(error);
                                 break;
                             }
@@ -480,7 +481,7 @@ export class Joint {
                         if (!succes) break;
                     } catch (error) {
                         console.error(error);
-                        await this.notifierScheduler.notify(moniker);
+                        await this.notifierScheduler.notify(moniker, queue.toString());
                         break;
                     }
                 }

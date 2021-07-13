@@ -25,7 +25,7 @@ export class NotifyScheduler {
             this.notifyInterval = 864000;
     }
 
-    async notify(moniker: string) {
+    async notify(moniker: string, id: string) {
 
         if (!this.enableNotify) return;
         if (!this.notifier) {
@@ -39,7 +39,7 @@ export class NotifyScheduler {
             notifiedAt = result[0].notifiedAt;
         }
         if ((Date.now() / 1000) - this.notifyInterval > notifiedAt) {
-            let message = moniker + " joint error, 请速度查看！";
+            let message = moniker + ":" + id + " joint error, 请速度查看！";
             let success = await this.notifier.notify(message);
             if (success)
                 await execSql(this.updateNotify, [moniker])
