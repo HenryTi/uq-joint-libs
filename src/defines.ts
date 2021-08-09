@@ -16,7 +16,7 @@ interface UqPullPush {
 export interface UqIn extends UqPullPush{
     uq: string;
     entity: string;
-    type: 'tuid' | 'tuid-arr' | 'map';
+    type: 'ID' | 'tuid' | 'tuid-arr' | 'map';
     /**
      * 配置从源数据到目的数据的转换规则
      */
@@ -35,6 +35,16 @@ export interface UqIn extends UqPullPush{
      */
     firstPullWrite?: PullWrite<UqIn>;
     push?: DataPush<UqIn>;
+}
+
+export interface UqInID extends UqIn {
+    type: 'ID';
+    key: string;    // 在源数据中，ID主键的名称, 用于建立map
+    /**
+     * 从
+     */
+    pull?: DataPull<UqInID> | string;
+    push?: DataPush<UqInID>;
 }
 
 export interface UqInTuid extends UqIn {

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getLogger } from 'log4js';
 
-import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr, DataPullResult, getMapName, getOwnerMapName } from "./defines";
+import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr, DataPullResult, getMapName, getOwnerMapName, UqInID } from "./defines";
 import { tableFromProc, execProc, execSql } from "./db/mysql/tool";
 import { MapFromUq as MapFromUq, MapToUq as MapToUq } from "./tool/mapData";
 import { map } from "./tool/map";
@@ -219,9 +219,43 @@ export class Joint {
 
     async uqIn(uqIn: UqIn, data: any) {
         switch (uqIn.type) {
+            case 'ID': await this.uqInID(uqIn as UqInID, data); break;
             case 'tuid': await this.uqInTuid(uqIn as UqInTuid, data); break;
             case 'tuid-arr': await this.uqInTuidArr(uqIn as UqInTuidArr, data); break;
             case 'map': await this.uqInMap(uqIn as UqInMap, data); break;
+        }
+    }
+
+    protected async uqInID(uqIn: UqInID, data: any): Promise<number> {
+        let { key, mapper, uq: uqFullName, entity } = uqIn;
+        if (key === undefined) throw 'key is not defined';
+        if (uqFullName === undefined) throw 'ID ' + entity + ' not defined';
+        let keyVal = data[key];
+        let mapToUq = new MapToUq(this);
+        let body = await mapToUq.map(data, mapper);
+        let uq = await this.uqs.getUq(uqFullName);
+        try {
+            let ret = await uq.saveID(entity, body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id) {
+                    if (id < 0) id = -id;
+                    await map(getMapName(uqIn), id, keyVal);
+                    return id;
+                } else {
+                    logger.error('save ' + uqFullName + ':' + entity + ' no ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
+            }
+        } catch (error) {
+            if (error.code === "ETIMEDOUT") {
+                logger.error(error);
+                await this.uqInID(uqIn, data);
+            } else {
+                logger.error(uqFullName + ':' + entity);
+                logger.error(body);
+                throw error;
+            }
         }
     }
 

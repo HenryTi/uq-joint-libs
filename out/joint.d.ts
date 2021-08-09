@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr } from "./defines";
+import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr, UqInID } from "./defines";
 import { Uq } from "./uq/uq";
 export declare type ProdOrTest = 'prod' | 'test';
 export declare class Joint {
@@ -25,6 +25,7 @@ export declare class Joint {
      */
     private scanIn;
     uqIn(uqIn: UqIn, data: any): Promise<void>;
+    protected uqInID(uqIn: UqInID, data: any): Promise<number>;
     protected uqInTuid(uqIn: UqInTuid, data: any): Promise<number>;
     protected uqInTuidArr(uqIn: UqInTuidArr, data: any): Promise<number>;
     /**

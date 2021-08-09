@@ -199,6 +199,9 @@ class Joint {
     }
     async uqIn(uqIn, data) {
         switch (uqIn.type) {
+            case 'ID':
+                await this.uqInID(uqIn, data);
+                break;
             case 'tuid':
                 await this.uqInTuid(uqIn, data);
                 break;
@@ -208,6 +211,44 @@ class Joint {
             case 'map':
                 await this.uqInMap(uqIn, data);
                 break;
+        }
+    }
+    async uqInID(uqIn, data) {
+        let { key, mapper, uq: uqFullName, entity } = uqIn;
+        if (key === undefined)
+            throw 'key is not defined';
+        if (uqFullName === undefined)
+            throw 'ID ' + entity + ' not defined';
+        let keyVal = data[key];
+        let mapToUq = new mapData_1.MapToUq(this);
+        let body = await mapToUq.map(data, mapper);
+        let uq = await this.uqs.getUq(uqFullName);
+        try {
+            let ret = await uq.saveID(entity, body);
+            if (!body.$id) {
+                let { id, inId } = ret;
+                if (id) {
+                    if (id < 0)
+                        id = -id;
+                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
+                    return id;
+                }
+                else {
+                    logger.error('save ' + uqFullName + ':' + entity + ' no ' + keyVal + ' failed.');
+                    logger.error(body);
+                }
+            }
+        }
+        catch (error) {
+            if (error.code === "ETIMEDOUT") {
+                logger.error(error);
+                await this.uqInID(uqIn, data);
+            }
+            else {
+                logger.error(uqFullName + ':' + entity);
+                logger.error(body);
+                throw error;
+            }
         }
     }
     async uqInTuid(uqIn, data) {

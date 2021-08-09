@@ -82,6 +82,15 @@ class UqApi extends fetch_1.Fetch {
         });
         return ret;
     }
+    async saveID(ID, data) {
+        let actsParam = {};
+        actsParam[ID] = [data];
+        let ret = await this.post('joint/acts/', data);
+        let { ret: text } = ret[0];
+        let rows = text.split('\n');
+        let results = rows.map(v => v.split('\t'));
+        return { id: Number(results[0][0]) };
+    }
     async saveTuid(tuid, data) {
         let ret = await this.post('joint/tuid/' + tuid, data);
         return ret;

@@ -90,6 +90,15 @@ export class UqApi extends Fetch {
         });
         return ret;
     }
+    async saveID(ID: string, data: any): Promise<any> {
+        let actsParam:{[ID:string]:object} = {};
+        actsParam[ID] = [data];
+        let ret = await this.post('joint/acts/', data);
+        let {ret:text} = ret[0];
+        let rows = (text as string).split('\n');
+        let results = rows.map(v => v.split('\t'));
+        return {id: Number(results[0][0])};
+    }
     async saveTuid(tuid: string, data: any): Promise<any> {
         let ret = await this.post('joint/tuid/' + tuid, data);
         return ret;

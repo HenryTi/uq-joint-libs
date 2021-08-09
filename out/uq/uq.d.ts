@@ -32,6 +32,10 @@ export declare abstract class Uq {
     getTuidFromUq(uqFullName: string, tuidName: string): Promise<Tuid>;
     getTuidFromName(tuidName: string): Tuid;
     schema(entityName: string): Promise<any>;
+    saveID(ID: string, body: any): Promise<{
+        id: number;
+        inId: number;
+    }>;
     saveTuid(tuid: string, body: any): Promise<{
         id: number;
         inId: number;
