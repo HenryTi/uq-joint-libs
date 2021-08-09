@@ -6,10 +6,14 @@ export interface DataPullResult {
     lastPointer: number | string;
     data: any[];
 }
-export declare type DataPull<T> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
-export declare type PullWrite<T> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
-export declare type DataPush<T> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
-export interface UqIn {
+export declare type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
+export declare type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
+export declare type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
+interface UqPullPush {
+    pull?: DataPull<UqPullPush> | string;
+    push?: DataPush<UqPullPush>;
+}
+export interface UqIn extends UqPullPush {
     uq: string;
     entity: string;
     type: 'tuid' | 'tuid-arr' | 'map';
@@ -52,13 +56,13 @@ export interface UqInMap extends UqIn {
     pull?: DataPull<UqInMap> | string;
     push?: DataPush<UqInMap>;
 }
-export interface UqOut {
+export interface UqOut extends UqPullPush {
     uq: string;
     entity: string;
     type: 'tuid' | 'tuid-arr' | 'map';
     mapper: Mapper;
 }
-export interface UqBus {
+export interface UqBus extends UqPullPush {
     /**
      * face的名称
      */
@@ -105,3 +109,4 @@ export interface Settings {
 }
 export declare function getMapName(uqIn: UqIn): string;
 export declare function getOwnerMapName(uqIn: UqInTuidArr): string;
+export {};

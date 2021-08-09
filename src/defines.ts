@@ -4,11 +4,16 @@ import { UqProp } from "./uq/uq";
 import { Notifier } from "./notifier/smsNotifier";
 
 export interface DataPullResult { lastPointer: number | string, data: any[] };
-export type DataPull<T> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
-export type PullWrite<T> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
-export type DataPush<T> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
+export type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
+export type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
+export type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
 
-export interface UqIn {
+interface UqPullPush {
+    pull?: DataPull<UqPullPush> | string;
+    push?: DataPush<UqPullPush>;
+}
+
+export interface UqIn extends UqPullPush{
     uq: string;
     entity: string;
     type: 'tuid' | 'tuid-arr' | 'map';
@@ -56,7 +61,7 @@ export interface UqInMap extends UqIn {
     push?: DataPush<UqInMap>;
 }
 
-export interface UqOut {
+export interface UqOut extends UqPullPush {
     uq: string;
     entity: string;
     type: 'tuid' | 'tuid-arr' | 'map';
@@ -64,7 +69,7 @@ export interface UqOut {
     //push?: DataPush;
 }
 
-export interface UqBus {
+export interface UqBus extends UqPullPush {
     /**
      * face的名称
      */

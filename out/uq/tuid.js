@@ -47,16 +47,6 @@ class Tuid extends entity_1.Entity {
     }
     get typeName() { return 'tuid'; }
     getIdFromObj(obj) { return obj.id; }
-    /*
-    async getApiFrom() {
-        if (this.from === undefined) return this.uq.openApi;
-        if (this.fromUq === undefined) {
-            let {owner, uq:uqName} = this.from;
-            this.fromUq = await this.uq.getFromUq(owner+'/'+uqName);
-        }
-        return this.fromUq.openApi;
-    }
-    */
     setSchema(schema) {
         super.setSchema(schema);
         this.from = schema.from;
@@ -92,46 +82,8 @@ class Tuid extends entity_1.Entity {
             this.cache.setValue(id, ret);
         return ret;
     }
-    //isImport = false;
-    //abstract get hasDiv():boolean;// {return this.divs!==undefined}
-    //abstract div(name:string):TuidDiv;
-    //abstract async loadMain(id:number):Promise<any>;
-    //abstract async load(id:number):Promise<any>;
-    //abstract async all():Promise<any[]>;
     async save(id, props) {
-        /*
-        let {fields} = this.schema;
-        let params:any = {$id: id};
-        for (let field of fields as Field[]) {
-            let {name, tuid, type} = field;
-            let val = props[name];
-            if (tuid !== undefined) {
-                if (typeof val === 'object') {
-                    if (val !== null) val = val.id;
-                }
-            }
-            else {
-                switch (type) {
-                    case 'date':
-                    case 'datetime':
-                        val = new Date(val).toISOString();
-                        val = (val as string).replace('T', ' ');
-                        val = (val as string).replace('Z', '');
-                        break;
-                }
-            }
-            params[name] = val;
-        }
-        let ret = await this.uqApi.tuidSave(this.name, params);
-        return ret;
-        */
         let ret = new SaveCaller(this, { id: id, props: props }).request();
-        /*
-        if (id !== undefined) {
-            this.idCache.remove(id);
-            this.localArr.removeItem(id);
-        }
-        */
         return ret;
     }
     async all() {
@@ -143,14 +95,8 @@ class Tuid extends entity_1.Entity {
         return ret;
     }
     async searchArr(owner, key, pageStart, pageSize) {
-        //let api = this.uqApi;
-        //let ret = await api.tuidSearch(this.name, undefined, owner, key, pageStart, pageSize);
         let params = { arr: undefined, owner: owner, key: key, pageStart: pageStart, pageSize: pageSize };
         let ret = await new SearchCaller(this, params).request();
-        let { fields } = this.schema;
-        //for (let row of ret) {
-        //    this.cacheFieldsInValue(row, fields);
-        //}
         return ret;
     }
     async loadArr(arr, owner, id) {

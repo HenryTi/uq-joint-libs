@@ -46,6 +46,7 @@ class UqApi extends fetch_1.Fetch {
             headers: headers,
             method: undefined,
             body: undefined,
+            // cache: 'no-cache',
         };
         return options;
     }
