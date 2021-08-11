@@ -160,6 +160,9 @@ class Uq {
     async schema(entityName) {
         return await this.uqApi.schema(entityName);
     }
+    async getIDNew(ID, keys) {
+        return await this.uqApi.getIDNew(ID, keys);
+    }
     async saveID(ID, body) {
         return await this.uqApi.saveID(ID, body);
     }

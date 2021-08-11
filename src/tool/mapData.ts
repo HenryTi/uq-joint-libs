@@ -192,11 +192,16 @@ export class MapToUq extends MapData {
         if (typeof uqIn !== 'object') {
             throw `tuid ${tuid} is not defined in settings.in`;
         }
+        let vid: (uqFullName: string, entity: string) => Promise<number>;
         switch (uqIn.type) {
             default:
                 throw `${tuid} is not tuid in settings.in`;
+            case 'ID':
+                vid = async (uqFullName: string, entity: string): Promise<number> => await this.getIDNew(uqFullName, entity, value);
+                break;
             case 'tuid':
             case 'tuid-arr':
+                vid = async (uqFullName: string, entity: string): Promise<number> => await this.getTuidVid(uqFullName, entity);
                 break;
         }
         let entitySchema = getMapName(uqIn);
@@ -210,8 +215,8 @@ export class MapToUq extends MapData {
             ret = await execSql(sql);
         }
         if (ret.length === 0) {
-            let { entity, uq } = uqIn as UqIn;
-            let vId = await this.getTuidVid(uq, entity);
+            let { entity, uq } = uqIn;
+            let vId = await vid(uq, entity);
             if (vId !== undefined) {
                 if (typeof vId === 'number' && vId > 0) {
                     await map(entitySchema, vId, value);
@@ -224,10 +229,22 @@ export class MapToUq extends MapData {
         return ret[0]['id'];
     }
 
-    protected async getTuidVid(uqFullName: string, entity: string) {
+    protected async getIDNew(uqFullName: string, entity: string, key:any):Promise<number> {
+        let uq = await this.joint.getUq(uqFullName);
         try {
-            //let uqApi = await this.joint.getUqApi(uq);
-            //let vId = await uqApi.getTuidVId(entity);
+            let vId = await uq.getIDNew(entity, key);
+            return vId;
+        } catch (error) {
+            console.error(error);
+            if (error.code === 'EITMEOUT')
+                return uq.getIDNew(entity, key);
+            else
+                throw error;
+        }
+    }
+
+    protected async getTuidVid(uqFullName: string, entity: string):Promise<number> {
+        try {
             let uq = await this.joint.getUq(uqFullName);
             let vId = await uq.getTuidVId(entity);
             return vId;

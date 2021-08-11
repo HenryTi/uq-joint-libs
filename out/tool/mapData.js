@@ -176,11 +176,16 @@ class MapToUq extends MapData {
         if (typeof uqIn !== 'object') {
             throw `tuid ${tuid} is not defined in settings.in`;
         }
+        let vid;
         switch (uqIn.type) {
             default:
                 throw `${tuid} is not tuid in settings.in`;
+            case 'ID':
+                vid = async (uqFullName, entity) => await this.getIDNew(uqFullName, entity, value);
+                break;
             case 'tuid':
             case 'tuid-arr':
+                vid = async (uqFullName, entity) => await this.getTuidVid(uqFullName, entity);
                 break;
         }
         let entitySchema = defines_1.getMapName(uqIn);
@@ -195,7 +200,7 @@ class MapToUq extends MapData {
         }
         if (ret.length === 0) {
             let { entity, uq } = uqIn;
-            let vId = await this.getTuidVid(uq, entity);
+            let vId = await vid(uq, entity);
             if (vId !== undefined) {
                 if (typeof vId === 'number' && vId > 0) {
                     await map_1.map(entitySchema, vId, value);
@@ -208,10 +213,22 @@ class MapToUq extends MapData {
         }
         return ret[0]['id'];
     }
+    async getIDNew(uqFullName, entity, key) {
+        let uq = await this.joint.getUq(uqFullName);
+        try {
+            let vId = await uq.getIDNew(entity, key);
+            return vId;
+        }
+        catch (error) {
+            console.error(error);
+            if (error.code === 'EITMEOUT')
+                return uq.getIDNew(entity, key);
+            else
+                throw error;
+        }
+    }
     async getTuidVid(uqFullName, entity) {
         try {
-            //let uqApi = await this.joint.getUqApi(uq);
-            //let vId = await uqApi.getTuidVId(entity);
             let uq = await this.joint.getUq(uqFullName);
             let vId = await uq.getTuidVId(entity);
             return vId;

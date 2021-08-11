@@ -445,6 +445,7 @@ export class Joint {
 
         for (let uqBusName of uqBusSettings) {
             let uqBus = bus[uqBusName];
+            if (!uqBus) continue;
             let { face, from: busFrom, mapper, push, pull, uqIdProps } = uqBus;
             // bus out(从bus中读取消息，发送到外部系统)
             let moniker = monikerPrefix + face;
@@ -525,22 +526,27 @@ export class Joint {
             // bus in(从外部系统读入数据，写入bus)
             for (; ;) {
                 if (pull === undefined) break;
-                console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
-                let queue: number, uniqueId: number;
-                let retp = await tableFromProc('read_queue_in_p', [moniker]);
-                let r = retp[0];
-                queue = r.queue;
-                uniqueId = r.uniqueId;
-                let message = await pull(this, uqBus, queue);
-                if (message === undefined) break;
-                let { lastPointer: newQueue, data } = message;
-                let mapToUq = new MapToUq(this);
-                let inBody = await mapToUq.map(data[0], mapper);
-                // henry??? 暂时不处理bus version
-                let busVersion = 0;
-                let packed = await faceSchemas.packBusData(face, inBody);
-                await this.unitx.writeBus(face, joinName, uniqueId/*newQueue*/, busVersion, packed);
-                await execProc('write_queue_in_p', [moniker, newQueue]);
+                try {
+                    console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
+                    let queue: number, uniqueId: number;
+                    let retp = await tableFromProc('read_queue_in_p', [moniker]);
+                    let r = retp[0];
+                    queue = r.queue;
+                    uniqueId = r.uniqueId;
+                    let message = await pull(this, uqBus, queue);
+                    if (message === undefined) break;
+                    let { lastPointer: newQueue, data } = message;
+                    let mapToUq = new MapToUq(this);
+                    let inBody = await mapToUq.map(data[0], mapper);
+                    // henry??? 暂时不处理bus version
+                    let busVersion = 0;
+                    let packed = await faceSchemas.packBusData(face, inBody);
+                    await this.unitx.writeBus(face, joinName, uniqueId/*newQueue*/, busVersion, packed);
+                    await execProc('write_queue_in_p', [moniker, newQueue]);
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
         }
     }

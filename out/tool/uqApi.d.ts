@@ -23,6 +23,9 @@ export declare class UqApi extends Fetch {
     protected appendHeaders(headers: Headers): void;
     bus(faces: string, faceUnitMessages: string): Promise<any>;
     tuid(unit: number, id: number, tuid: string, maps: string[]): Promise<any>;
+    getIDNew(ID: string, keys: {
+        [key: string]: any;
+    }): Promise<number>;
     saveID(ID: string, data: any): Promise<any>;
     saveTuid(tuid: string, data: any): Promise<any>;
     saveTuidArr(tuid: string, arr: string, owner: number, data: any): Promise<any>;

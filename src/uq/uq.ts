@@ -164,6 +164,10 @@ export abstract class Uq {
         return await this.uqApi.schema(entityName);
     }
 
+    async getIDNew(ID: string, keys: {[key:string]:any}): Promise<number> {
+        return await this.uqApi.getIDNew(ID, keys);
+    }
+
     async saveID(ID: string, body: any): Promise<{ id: number, inId: number }> {
         return await this.uqApi.saveID(ID, body);
     }

@@ -38,7 +38,8 @@ declare abstract class MapData {
  */
 export declare class MapToUq extends MapData {
     protected tuidId(tuid: string, value: any): Promise<string | number>;
-    protected getTuidVid(uqFullName: string, entity: string): any;
+    protected getIDNew(uqFullName: string, entity: string, key: any): Promise<number>;
+    protected getTuidVid(uqFullName: string, entity: string): Promise<number>;
 }
 /**
  * 根据外部系统的no从映射表中获取tonva中的id(映射表中不存在的话，采用不生成虚拟id的策略，目前仅用于webuser中的webuser表）
