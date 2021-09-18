@@ -16,6 +16,12 @@ function buildCall(proc, values) {
     }
     return ret + ');';
 }
+/**
+ * 执行sql语句
+ * @param sql 要执行的sql语句
+ * @param values 参数数组
+ * @returns mysqlpackage的原始执行结果：{}
+ */
 function execSql(sql, values = []) {
     return new Promise((resolve, reject) => {
         pool.query(sql, values, (err, result) => {
@@ -28,6 +34,12 @@ function execSql(sql, values = []) {
     });
 }
 exports.execSql = execSql;
+/**
+ * 执行sql语句
+ * @param sql 要执行的sql语句
+ * @param values 参数数组
+ * @returns 为数据的对象数组
+ */
 async function tableFromSql(sql, values) {
     let res = await execSql(sql, values);
     if (Array.isArray(res) === false)
@@ -44,6 +56,12 @@ async function tablesFromSql(sql, values) {
     return await execSql(sql, values);
 }
 exports.tablesFromSql = tablesFromSql;
+/**
+ * 执行存储过程
+ * @param proc 要执行的存储过程名称
+ * @param values 参数数组
+ * @returns 返回值
+ */
 async function execProc(proc, values) {
     return await new Promise((resolve, reject) => {
         let sql = buildCall(proc, values);

@@ -1,11 +1,11 @@
-import {createConnection, createPool, Pool, Query} from 'mysql';
+import { createConnection, createPool, Pool, Query } from 'mysql';
 import config from 'config';
 const mysqlConfig = config.get("mysqlConn");
 const pool = createPool(mysqlConfig);
 
 const databaseName = config.get<string>('database');
 
-function buildCall(proc:string, values?: any[]) {
+function buildCall(proc: string, values?: any[]) {
     let ret = 'call `' + databaseName + '`.`' + proc + '`(';
     if (values !== undefined) {
         ret += values.map(v => '?').join(',');
@@ -32,7 +32,7 @@ export interface Table extends TableBase {
 export interface TableEx extends TableBase {
     fields: Field[];
     key: Index;
-    indexes: Index[];    
+    indexes: Index[];
 }
 
 export interface Procedure {
@@ -43,7 +43,13 @@ export interface Procedure {
     code: string;
 }
 
-export function execSql(sql:string, values:any[] = []): Promise<any> {
+/**
+ * 执行sql语句 
+ * @param sql 要执行的sql语句
+ * @param values 参数数组 
+ * @returns mysqlpackage的原始执行结果：{}
+ */
+export function execSql(sql: string, values: any[] = []): Promise<any> {
     return new Promise<any>((resolve, reject) => {
         pool.query(sql, values, (err, result) => {
             if (err !== null) {
@@ -55,7 +61,13 @@ export function execSql(sql:string, values:any[] = []): Promise<any> {
     });
 }
 
-export async function tableFromSql(sql:string, values?:any[]): Promise<any[]> {
+/**
+ * 执行sql语句 
+ * @param sql 要执行的sql语句
+ * @param values 参数数组 
+ * @returns 为数据的对象数组 
+ */
+export async function tableFromSql(sql: string, values?: any[]): Promise<any[]> {
     let res = await execSql(sql, values);
     if (Array.isArray(res) === false) return [];
     if (res.length === 0) return [];
@@ -64,11 +76,17 @@ export async function tableFromSql(sql:string, values?:any[]): Promise<any[]> {
     return res;
 }
 
-export async function tablesFromSql(sql:string, values?:any[]): Promise<any[]> {
+export async function tablesFromSql(sql: string, values?: any[]): Promise<any[]> {
     return await execSql(sql, values);
 }
 
-export async function execProc(proc:string, values?:any[]): Promise<any> {
+/**
+ * 执行存储过程 
+ * @param proc 要执行的存储过程名称
+ * @param values 参数数组 
+ * @returns 返回值 
+ */
+export async function execProc(proc: string, values?: any[]): Promise<any> {
     return await new Promise<any>((resolve, reject) => {
         let sql = buildCall(proc, values);
         pool.query(sql, values, (err, result) => {
@@ -81,7 +99,7 @@ export async function execProc(proc:string, values?:any[]): Promise<any> {
     });
 }
 
-export async function tableFromProc(proc:string, values?:any[]): Promise<any[]> {
+export async function tableFromProc(proc: string, values?: any[]): Promise<any[]> {
     let res = await execProc(proc, values);
     if (Array.isArray(res) === false) return [];
     switch (res.length) {
@@ -90,14 +108,14 @@ export async function tableFromProc(proc:string, values?:any[]): Promise<any[]> 
     }
 }
 
-export async function tablesFromProc(proc:string, values?:any[]): Promise<any[][]> {
+export async function tablesFromProc(proc: string, values?: any[]): Promise<any[][]> {
     return await execProc(proc, values);
 }
 
-export function buildProcedureSql(proc: Procedure):string {
-    let {name, params, label, code, returns} = proc;
+export function buildProcedureSql(proc: Procedure): string {
+    let { name, params, label, code, returns } = proc;
     let ret = 'CREATE ';
-    ret += returns === undefined? 'PROCEDURE ' : 'FUNCTION ';
+    ret += returns === undefined ? 'PROCEDURE ' : 'FUNCTION ';
     ret += name + ' (';
     if (params !== undefined) ret += params.join(',');
     ret += ')\n';
@@ -110,7 +128,7 @@ export function buildProcedureSql(proc: Procedure):string {
     return ret;
 }
 
-export function buildTableSql(tbl: Table):string {
+export function buildTableSql(tbl: Table): string {
     let ret = 'CREATE TABLE IF NOT EXISTS ' + tbl.name + ' (';
     ret += (tbl.code as string[]).join(',');
     ret += ');\n';

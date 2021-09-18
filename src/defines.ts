@@ -13,7 +13,7 @@ interface UqPullPush {
     push?: DataPush<UqPullPush>;
 }
 
-export interface UqIn extends UqPullPush{
+export interface UqIn extends UqPullPush {
     uq: string;
     entity: string;
     type: 'ID' | 'tuid' | 'tuid-arr' | 'map';
@@ -30,6 +30,7 @@ export interface UqIn extends UqPullPush{
      * 将增量数据发送到目的服务器的函数
      */
     pullWrite?: PullWrite<UqIn>;
+    onPullWriteError?: 'continue' | 'break';
     /**
      * 将初始数据发送到目的服务器的函数
      */

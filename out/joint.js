@@ -15,6 +15,7 @@ const host_1 = require("./tool/host");
 const centerApi_1 = require("./tool/centerApi");
 const notifyScheduler_1 = require("./notifier/notifyScheduler");
 const unitx_1 = require("./uq/unitx");
+const onJointPushError_1 = require("./db/mysql/onJointPushError");
 const logger = log4js_1.getLogger('joint');
 class Joint {
     constructor(settings, prodOrTest = 'prod') {
@@ -113,7 +114,7 @@ class Joint {
             let uqIn = this.uqInDict[uqInName.name];
             if (uqIn === undefined)
                 continue;
-            let { uq, type, entity, pull, pullWrite } = uqIn;
+            let { uq, type, entity, pull, pullWrite, onPullWriteError } = uqIn;
             if (this.tickCount % (uqInName.intervalUnit || 1) !== 0)
                 continue;
             let queueName = uq + ':' + entity;
@@ -192,7 +193,13 @@ class Joint {
                 catch (error) {
                     this.notifierScheduler.notify(uq + ":" + entity, queue);
                     logger.error(error);
-                    break;
+                    if (onPullWriteError === 'continue') {
+                        await tool_1.execProc('write_queue_in_p', [queueName, lastPointer]);
+                        // 记录错误历史
+                        await onJointPushError_1.onJointPushError(lastPointer);
+                    }
+                    else
+                        break;
                 }
             }
         }
