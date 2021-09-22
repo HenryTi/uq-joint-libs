@@ -25,6 +25,7 @@ const queueInFailed: Table = {
     name: 'queue_in_failed',
     code: [
         "`id` BIGINT(20) NOT NULL PRIMARY KEY",
+        "`reason` TEXT",
         "date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP",
     ]
 };

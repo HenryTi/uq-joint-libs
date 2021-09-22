@@ -83,6 +83,7 @@ const writeQueueIn = {
         set _monikerId=last_insert_id();
     end if;
     insert into queue_in (moniker, body) values (_monikerId, _body);
+    select LAST_INSERT_ID() as id;
 `
 };
 const writeQueueOut = {

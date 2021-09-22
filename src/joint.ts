@@ -215,7 +215,7 @@ export class Joint {
                     if (onPullWriteError === 'continue') {
                         await execProc('write_queue_in_p', [queueName, lastPointer]);
                         // 记录错误历史
-                        await onJointPushError(lastPointer as any);
+                        await onJointPushError(lastPointer as any, error.message);
                     } else
                         break;
                 }

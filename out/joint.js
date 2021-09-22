@@ -196,7 +196,7 @@ class Joint {
                     if (onPullWriteError === 'continue') {
                         await tool_1.execProc('write_queue_in_p', [queueName, lastPointer]);
                         // 记录错误历史
-                        await onJointPushError_1.onJointPushError(lastPointer);
+                        await onJointPushError_1.onJointPushError(lastPointer, error.message);
                     }
                     else
                         break;

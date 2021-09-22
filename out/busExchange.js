@@ -22,7 +22,8 @@ async function busExchange(req, res) {
         if (moniker === undefined)
             continue;
         if (data !== undefined) {
-            await tool_1.execProc('write_queue_in', [moniker, JSON.stringify(data)]);
+            let queueInId = await tool_1.tableFromProc('write_queue_in', [moniker, JSON.stringify(data)]);
+            ret.push({ moniker: moniker, queue: queueInId[0].id, data: undefined });
         }
         else {
             let q = Number(queue);
