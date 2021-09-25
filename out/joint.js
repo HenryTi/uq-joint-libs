@@ -569,7 +569,7 @@ class Joint {
                     // henry??? 暂时不处理bus version
                     let busVersion = 0;
                     let packed = await faceSchemas_1.faceSchemas.packBusData(face, inBody);
-                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer);
+                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer !== null && defer !== void 0 ? defer : 1);
                     await tool_1.execProc('write_queue_in_p', [moniker, newQueue]);
                 }
                 catch (err) {
