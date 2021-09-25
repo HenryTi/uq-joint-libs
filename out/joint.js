@@ -454,7 +454,7 @@ class Joint {
             let uqBus = bus[uqBusName];
             if (!uqBus)
                 continue;
-            let { face, from: busFrom, mapper, push, pull, uqIdProps } = uqBus;
+            let { face, from: busFrom, mapper, push, pull, uqIdProps, defer } = uqBus;
             // bus out(从bus中读取消息，发送到外部系统)
             let moniker = monikerPrefix + face;
             for (;;) {
@@ -485,7 +485,8 @@ class Joint {
                     json = message;
                 }
                 else {
-                    let message = await this.unitx.readBus(face, queue);
+                    let defer = 0;
+                    let message = await this.unitx.readBus(face, queue, defer);
                     // 订单导入有问题的情况下，按照下面的方法手动导入，其中body的数据schema为order/order定义的
                     /*
                     message = {
@@ -495,6 +496,10 @@ class Joint {
                     }
                     */
                     // body: `1	662	200701000011	30771		46623	38265	71494	1	552440	12.00	-12.00	360.00	5		0.00	0.00	0		1\n717	1764	1	121	121\n717	1761	1	239	239`
+                    if (message === undefined) {
+                        defer++;
+                        message = await this.unitx.readBus(face, queue, defer);
+                    }
                     if (message === undefined)
                         break;
                     let { id, from, body } = message;
@@ -557,7 +562,7 @@ class Joint {
                     // henry??? 暂时不处理bus version
                     let busVersion = 0;
                     let packed = await faceSchemas_1.faceSchemas.packBusData(face, inBody);
-                    await this.unitx.writeBus(face, joinName, uniqueId /*newQueue*/, busVersion, packed);
+                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer);
                     await tool_1.execProc('write_queue_in_p', [moniker, newQueue]);
                 }
                 catch (err) {

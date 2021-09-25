@@ -28,20 +28,6 @@ export abstract class Uqs {
     }
 
 	protected abstract newUq(uqFullName:string):Uq;
-	//protected abstract newUqUnitx():Unitx;
-/*
-    async init() {
-        // await this.unitx.init(this.userName, this.password);
-    }
-
-    async readBus(face: string, queue: number): Promise<any> {
-        return await this.unitx.readBus(face, queue);
-    }
-
-    async writeBus(face: string, source: string, newQueue: string | number, busVersion:number, body: any) {
-        await this.unitx.writeBus(face, source, newQueue, busVersion, body);
-	}
-*/
 }
 
 export class UqsProd extends Uqs {

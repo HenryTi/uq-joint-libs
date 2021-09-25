@@ -8,15 +8,16 @@ class UnitxApi extends fetch_1.Fetch {
         super(url);
         this.unit = unit;
     }
-    async readBus(face, queue) {
+    async readBus(face, queue, defer) {
         let ret = await this.post('joint-read-bus', {
             unit: this.unit,
-            face: face,
-            queue: queue
+            face,
+            queue,
+            defer,
         });
         return ret;
     }
-    async writeBus(face, from, queue, busVersion, body) {
+    async writeBus(face, from, queue, busVersion, body, defer) {
         let ret = await this.post('joint-write-bus', {
             unit: this.unit,
             face: face,
@@ -24,6 +25,7 @@ class UnitxApi extends fetch_1.Fetch {
             fromQueueId: queue,
             version: busVersion,
             body: body,
+            defer,
         });
         return ret;
     }
@@ -60,7 +62,7 @@ class Unitx /*extends Uq*/ {
         let unitxUrl = this.unitxUrl(url);
         return new UnitxApi(this.unit, unitxUrl);
     }
-    async readBus(face, queue) {
+    async readBus(face, queue, defer) {
         let unitxApi;
         if (this.prevUnitxApi === undefined) {
             unitxApi = this.currentUnitxApi;
@@ -70,10 +72,10 @@ class Unitx /*extends Uq*/ {
             let minutes = delta / 60;
             unitxApi = minutes < 10 ? this.prevUnitxApi : this.currentUnitxApi;
         }
-        return await unitxApi.readBus(face, queue);
+        return await unitxApi.readBus(face, queue, defer);
     }
-    async writeBus(face, source, newQueue, busVersion, body) {
-        await this.currentUnitxApi.writeBus(face, source, newQueue, busVersion, body);
+    async writeBus(face, source, newQueue, busVersion, body, defer) {
+        await this.currentUnitxApi.writeBus(face, source, newQueue, busVersion, body, defer);
     }
 }
 exports.Unitx = Unitx;

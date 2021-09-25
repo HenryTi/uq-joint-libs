@@ -95,6 +95,7 @@ export interface UqBus extends UqPullPush {
     uqIdProps?: {
         [name: string]: UqProp;
     };
+    defer?: number;
 }
 export interface Settings {
     name: string;
