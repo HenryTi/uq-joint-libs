@@ -101,6 +101,7 @@ export interface UqBus extends UqPullPush {
      */
     push?: DataPush<UqBus>;
     uqIdProps?: { [name: string]: UqProp }; //{contact: {tuid: 'contact'}}
+    defer?: number;
 }
 
 export interface Settings {
