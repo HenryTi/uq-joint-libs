@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { execProc, tableFromProc, execSql } from "./db/mysql/tool";
+import { tableFromProc, execSql } from "./db/mysql/tool";
 import { alterTableIncrement } from "./db/mysql/database";
 
 let lastHour: number;
@@ -10,11 +10,11 @@ interface Ticket {
     data: string;
 };
 export async function busExchange(req: Request, res: Response) {
-    let tickets:Ticket[] = req.body;
+    let tickets: Ticket[] = req.body;
     if (Array.isArray(tickets) === false) tickets = [tickets as any];
-    
-    let ret:{moniker:string, queue:number, data:any}[] = [];
-    let hour = Math.floor(Date.now()/(3600*1000));
+
+    let ret: { moniker: string, queue: number, data: any }[] = [];
+    let hour = Math.floor(Date.now() / (3600 * 1000));
     if (lastHour === undefined || hour > lastHour) {
         let inc = hour * 1000000000;
         await execSql(alterTableIncrement('queue_out', inc));
@@ -22,10 +22,11 @@ export async function busExchange(req: Request, res: Response) {
         lastHour = hour;
     }
     for (let ticket of tickets) {
-        let {moniker, queue, data} = ticket;
+        let { moniker, queue, data } = ticket;
         if (moniker === undefined) continue;
         if (data !== undefined) {
-            await execProc('write_queue_in', [moniker, JSON.stringify(data)]);
+            let queueInId = await tableFromProc('write_queue_in', [moniker, JSON.stringify(data)]);
+            ret.push({ moniker: moniker, queue: queueInId[0].id, data: undefined });
         }
         else {
             let q = Number(queue);

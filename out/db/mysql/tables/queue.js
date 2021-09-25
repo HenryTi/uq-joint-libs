@@ -19,6 +19,14 @@ const queueIn = {
         "date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
     ]
 };
+const queueInFailed = {
+    name: 'queue_in_failed',
+    code: [
+        "`id` BIGINT(20) NOT NULL PRIMARY KEY",
+        "`reason` TEXT",
+        "date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP",
+    ]
+};
 const queueOut = {
     name: 'queue_out',
     code: [
@@ -46,6 +54,6 @@ const notify = {
     ]
 };
 exports.default = [
-    moniker, queueIn, queueOut, queueP, notify
+    moniker, queueIn, queueInFailed, queueOut, queueP, notify
 ];
 //# sourceMappingURL=queue.js.map

@@ -16,6 +16,7 @@ import { centerApi } from "./tool/centerApi";
 import { NotifyScheduler } from "./notifier/notifyScheduler";
 import { Unitx, UqUnitxProd, UqUnitxTest } from "./uq/unitx";
 import { Notifier } from "./notifier/smsNotifier";
+import { onJointPushError } from "./db/mysql/onJointPushError";
 
 const logger = getLogger('joint');
 
@@ -134,7 +135,7 @@ export class Joint {
             let uqIn = this.uqInDict[uqInName.name];
             if (uqIn === undefined) continue;
 
-            let { uq, type, entity, pull, pullWrite } = uqIn;
+            let { uq, type, entity, pull, pullWrite, onPullWriteError } = uqIn;
             if (this.tickCount % (uqInName.intervalUnit || 1) !== 0) continue;
             let queueName = uq + ':' + entity;
             console.log('scan in ' + queueName + ' at ' + new Date().toLocaleString());
@@ -211,7 +212,12 @@ export class Joint {
                 } catch (error) {
                     this.notifierScheduler.notify(uq + ":" + entity, queue);
                     logger.error(error);
-                    break;
+                    if (onPullWriteError === 'continue') {
+                        await execProc('write_queue_in_p', [queueName, lastPointer]);
+                        // 记录错误历史
+                        await onJointPushError(lastPointer as any, error.message);
+                    } else
+                        break;
                 }
             }
         }

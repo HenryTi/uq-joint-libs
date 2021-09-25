@@ -1,27 +1,27 @@
-import {Procedure} from '../tool';
+import { Procedure } from '../tool';
 
-const readQueueOutP:Procedure = {
+const readQueueOutP: Procedure = {
     name: 'read_queue_out_p',
     params: [
         "_moniker varchar(200)",
     ],
     label: '_exit',
     code:
-`
+        `
     select a.queue_out as queue
         from queue_p a join moniker b on a.moniker=b.id
         where b.moniker=_moniker;
 `
 }
 
-const readQueueInP:Procedure = {
+const readQueueInP: Procedure = {
     name: 'read_queue_in_p',
     params: [
         "_moniker varchar(200)",
     ],
     label: '_exit',
     code:
-`
+        `
     declare _monikerId int;
     declare _uniqueId bigint;
 
@@ -72,7 +72,7 @@ const readQueue:Procedure = {
 `
 }
 */
-const writeQueueIn:Procedure = {
+const writeQueueIn: Procedure = {
     name: 'write_queue_in',
     params: [
         "_moniker varchar(200)",
@@ -80,7 +80,7 @@ const writeQueueIn:Procedure = {
     ],
     label: '_exit',
     code:
-`
+        `
     declare _monikerId int;
     select a.id into _monikerId from moniker as a where a.moniker=_moniker;
     if _monikerId is null then
@@ -88,10 +88,11 @@ const writeQueueIn:Procedure = {
         set _monikerId=last_insert_id();
     end if;
     insert into queue_in (moniker, body) values (_monikerId, _body);
+    select LAST_INSERT_ID() as id;
 `
 }
 
-const writeQueueOut:Procedure = {
+const writeQueueOut: Procedure = {
     name: 'write_queue_out',
     params: [
         "_moniker varchar(200)",
@@ -100,7 +101,7 @@ const writeQueueOut:Procedure = {
     ],
     label: '_exit',
     code:
-`
+        `
     declare _monikerId int;
     select a.id into _monikerId from moniker as a where a.moniker=_moniker;
     if _monikerId is null then
@@ -114,14 +115,14 @@ const writeQueueOut:Procedure = {
 `
 }
 
-const readQueueIn:Procedure = {
+const readQueueIn: Procedure = {
     name: 'read_queue_in',
     params: [
         "_moniker varchar(200)",
     ],
     label: '_exit',
     code:
-`
+        `
     declare _monikerId int;
     declare _queue bigint;
     select id into _monikerId from moniker where moniker=_moniker;
@@ -142,7 +143,7 @@ const readQueueIn:Procedure = {
 `
 }
 
-const readQueueOut:Procedure = {
+const readQueueOut: Procedure = {
     name: 'read_queue_out',
     params: [
         "_moniker varchar(200)",
@@ -150,7 +151,7 @@ const readQueueOut:Procedure = {
     ],
     label: '_exit',
     code:
-`
+        `
     declare _monikerId int;
     select id into _monikerId from moniker where moniker=_moniker;
     if _monikerId is null then
@@ -169,7 +170,7 @@ const readQueueOut:Procedure = {
 `
 }
 
-const writeQueueInP:Procedure = {
+const writeQueueInP: Procedure = {
     name: 'write_queue_in_p',
     params: [
         "_moniker varchar(200)",
@@ -177,7 +178,7 @@ const writeQueueInP:Procedure = {
     ],
     label: '_exit',
     code:
-`
+        `
     declare _monikerId int;
     select a.id into _monikerId from moniker as a where a.moniker=_moniker;
     if _monikerId is null then
@@ -190,7 +191,7 @@ const writeQueueInP:Procedure = {
 `
 }
 
-const writeQueueOutP:Procedure = {
+const writeQueueOutP: Procedure = {
     name: 'write_queue_out_p',
     params: [
         "_moniker varchar(200)",
@@ -198,7 +199,7 @@ const writeQueueOutP:Procedure = {
     ],
     label: '_exit',
     code:
-`
+        `
     declare _monikerId int;
     select a.id into _monikerId from moniker as a where a.moniker=_moniker;
     if _monikerId is null then
@@ -215,6 +216,6 @@ export default [
     readQueueOutP, readQueueInP,
     //readQueue, 
     writeQueueIn, writeQueueOut,
-    readQueueIn, readQueueOut, 
+    readQueueIn, readQueueOut,
     writeQueueInP, writeQueueOutP
 ];
