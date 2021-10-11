@@ -490,12 +490,14 @@ export class Joint {
                     }
                     */
                     // body: `1	662	200701000011	30771		46623	38265	71494	1	552440	12.00	-12.00	360.00	5		0.00	0.00	0		1\n717	1764	1	121	121\n717	1761	1	239	239`
-                    if (message === undefined) {
+                    let { id, from, body } = message;
+                    if (body === undefined) {
                         defer++;
                         message = await this.unitx.readBus(face, queue, defer);
+                        id = message.id;
+                        from = message.from;
+                        body = message.body;
                     }
-                    if (message === undefined) break;
-                    let { id, from, body } = message;
                     newQueue = id;
                     // 当from是undefined的时候，直接返回的整个队列最大值。没有消息，所以应该退出
                     // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走

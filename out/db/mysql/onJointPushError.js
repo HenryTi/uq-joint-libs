@@ -8,7 +8,7 @@ async function onJointPushError(failedId, reason) {
         if (typeof failedId === 'number') {
             let sql = `insert into \`${database_1.databaseName}\`.queue_in_failed(id, reason) 
             values(${failedId}, '${reason}') on duplicate key update reason = values(reason), date = CURRENT_TIMESTAMP;`;
-            await tool_1.execSql(sql);
+            await (0, tool_1.execSql)(sql);
         }
     }
     catch (err) {

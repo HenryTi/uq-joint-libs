@@ -16,7 +16,7 @@ const centerApi_1 = require("./tool/centerApi");
 const notifyScheduler_1 = require("./notifier/notifyScheduler");
 const unitx_1 = require("./uq/unitx");
 const onJointPushError_1 = require("./db/mysql/onJointPushError");
-const logger = log4js_1.getLogger('joint');
+const logger = (0, log4js_1.getLogger)('joint');
 class Joint {
     constructor(settings, prodOrTest = 'prod') {
         this.queueOutPCache = {};
@@ -66,7 +66,7 @@ class Joint {
         }
     }
     createRouter() {
-        return router_1.createRouter(this.settings);
+        return (0, router_1.createRouter)(this.settings);
     }
     async getUq(uqFullName) {
         let uq = await this.uqs.getUq(uqFullName);
@@ -125,7 +125,7 @@ class Joint {
                 let queue;
                 let ret = undefined;
                 if (pull !== undefined) {
-                    let retp = await tool_1.tableFromProc('read_queue_in_p', [queueName]);
+                    let retp = await (0, tool_1.tableFromProc)('read_queue_in_p', [queueName]);
                     if (retp.length > 0) {
                         queue = retp[0].queue;
                     }
@@ -156,7 +156,7 @@ class Joint {
                     // message = ret.data;
                 }
                 else {
-                    let retp = await tool_1.tableFromProc('read_queue_in', [queueName]);
+                    let retp = await (0, tool_1.tableFromProc)('read_queue_in', [queueName]);
                     if (!retp || retp.length === 0)
                         break;
                     let { id, body, date } = retp[0];
@@ -188,15 +188,15 @@ class Joint {
                 try {
                     await Promise.all(promises);
                     promises.splice(0);
-                    await tool_1.execProc('write_queue_in_p', [queueName, lastPointer]);
+                    await (0, tool_1.execProc)('write_queue_in_p', [queueName, lastPointer]);
                 }
                 catch (error) {
                     this.notifierScheduler.notify(uq + ":" + entity, queue);
                     logger.error(error);
                     if (onPullWriteError === 'continue') {
-                        await tool_1.execProc('write_queue_in_p', [queueName, lastPointer]);
+                        await (0, tool_1.execProc)('write_queue_in_p', [queueName, lastPointer]);
                         // 记录错误历史
-                        await onJointPushError_1.onJointPushError(lastPointer, error.message);
+                        await (0, onJointPushError_1.onJointPushError)(lastPointer, error.message);
                     }
                     else
                         break;
@@ -237,7 +237,7 @@ class Joint {
                 if (id) {
                     if (id < 0)
                         id = -id;
-                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
+                    await (0, map_1.map)((0, defines_1.getMapName)(uqIn), id, keyVal);
                     return id;
                 }
                 else {
@@ -275,7 +275,7 @@ class Joint {
                 if (id) {
                     if (id < 0)
                         id = -id;
-                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
+                    await (0, map_1.map)((0, defines_1.getMapName)(uqIn), id, keyVal);
                     return id;
                 }
                 else {
@@ -328,7 +328,7 @@ class Joint {
                 else if (id < 0)
                     id = -id;
                 if (id) {
-                    await map_1.map(defines_1.getMapName(uqIn), id, keyVal);
+                    await (0, map_1.map)((0, defines_1.getMapName)(uqIn), id, keyVal);
                     return id;
                 }
                 else {
@@ -354,21 +354,21 @@ class Joint {
      * @param ownerVal
      */
     async mapOwner(uqIn, ownerEntity, ownerVal) {
-        let ownerSchema = defines_1.getOwnerMapName(uqIn);
+        let ownerSchema = (0, defines_1.getOwnerMapName)(uqIn);
         let sql = `select id from \`${database_1.databaseName}\`.\`map_${ownerSchema}\` where no='${ownerVal}'`;
         let ret;
         try {
-            ret = await tool_1.execSql(sql);
+            ret = await (0, tool_1.execSql)(sql);
         }
         catch (err) {
-            await createMapTable_1.createMapTable(ownerSchema);
-            ret = await tool_1.execSql(sql);
+            await (0, createMapTable_1.createMapTable)(ownerSchema);
+            ret = await (0, tool_1.execSql)(sql);
         }
         if (ret.length === 0) {
             try {
                 let uq = await this.uqs.getUq(uqIn.uq);
                 let vId = await uq.getTuidVId(ownerEntity);
-                await map_1.map(ownerSchema, vId, ownerVal);
+                await (0, map_1.map)(ownerSchema, vId, ownerVal);
                 return vId;
             }
             catch (error) {
@@ -409,7 +409,7 @@ class Joint {
         let lastP = this.queueOutPCache[moniker];
         if (lastP === p)
             return;
-        await tool_1.execProc('write_queue_out_p', [moniker, p]);
+        await (0, tool_1.execProc)('write_queue_out_p', [moniker, p]);
         this.queueOutPCache[moniker] = p;
     }
     /**
@@ -425,7 +425,7 @@ class Joint {
             console.log('scan out ' + queueName);
             for (;;) {
                 let queue;
-                let retp = await tool_1.tableFromProc('read_queue_out_p', [queueName]);
+                let retp = await (0, tool_1.tableFromProc)('read_queue_out_p', [queueName]);
                 if (retp.length === 0)
                     queue = 0;
                 else
@@ -469,7 +469,7 @@ class Joint {
                     break;
                 console.log('scan bus out ' + uqBusName + ' at ' + new Date().toLocaleString());
                 let queue;
-                let retp = await tool_1.tableFromProc('read_queue_out_p', [moniker]);
+                let retp = await (0, tool_1.tableFromProc)('read_queue_out_p', [moniker]);
                 if (retp.length > 0) {
                     queue = retp[0].queue;
                 }
@@ -503,13 +503,14 @@ class Joint {
                     }
                     */
                     // body: `1	662	200701000011	30771		46623	38265	71494	1	552440	12.00	-12.00	360.00	5		0.00	0.00	0		1\n717	1764	1	121	121\n717	1761	1	239	239`
-                    if (message === undefined) {
+                    let { id, from, body } = message;
+                    if (body === undefined) {
                         defer++;
                         message = await this.unitx.readBus(face, queue, defer);
+                        id = message.id;
+                        from = message.from;
+                        body = message.body;
                     }
-                    if (message === undefined)
-                        break;
-                    let { id, from, body } = message;
                     newQueue = id;
                     // 当from是undefined的时候，直接返回的整个队列最大值。没有消息，所以应该退出
                     // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
@@ -556,7 +557,7 @@ class Joint {
                 try {
                     console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
                     let queue, uniqueId;
-                    let retp = await tool_1.tableFromProc('read_queue_in_p', [moniker]);
+                    let retp = await (0, tool_1.tableFromProc)('read_queue_in_p', [moniker]);
                     let r = retp[0];
                     queue = r.queue;
                     uniqueId = r.uniqueId;
@@ -570,7 +571,7 @@ class Joint {
                     let busVersion = 0;
                     let packed = await faceSchemas_1.faceSchemas.packBusData(face, inBody);
                     await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer !== null && defer !== void 0 ? defer : 1);
-                    await tool_1.execProc('write_queue_in_p', [moniker, newQueue]);
+                    await (0, tool_1.execProc)('write_queue_in_p', [moniker, newQueue]);
                 }
                 catch (err) {
                     console.error(err);
