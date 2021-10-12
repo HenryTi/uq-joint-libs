@@ -479,8 +479,7 @@ export class Joint {
                     newQueue = message['$queue'];
                     json = message;
                 } else {
-                    let defer = 0;
-                    let message = await this.unitx.readBus(face, queue, defer);
+                    let message = await this.unitx.readBus(face, queue, defer ?? 0);
                     // 订单导入有问题的情况下，按照下面的方法手动导入，其中body的数据schema为order/order定义的
                     /*
                     message = {
@@ -490,14 +489,8 @@ export class Joint {
                     }
                     */
                     // body: `1	662	200701000011	30771		46623	38265	71494	1	552440	12.00	-12.00	360.00	5		0.00	0.00	0		1\n717	1764	1	121	121\n717	1761	1	239	239`
+                    if (message === undefined) return;
                     let { id, from, body } = message;
-                    if (body === undefined) {
-                        defer++;
-                        message = await this.unitx.readBus(face, queue, defer);
-                        id = message.id;
-                        from = message.from;
-                        body = message.body;
-                    }
                     newQueue = id;
                     // 当from是undefined的时候，直接返回的整个队列最大值。没有消息，所以应该退出
                     // 如果没有读到消息，id返回最大消息id，下次从这个地方开始走
@@ -554,7 +547,7 @@ export class Joint {
                     // henry??? 暂时不处理bus version
                     let busVersion = 0;
                     let packed = await faceSchemas.packBusData(face, inBody);
-                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer??1);
+                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer ?? 0);
                     await execProc('write_queue_in_p', [moniker, newQueue]);
                 }
                 catch (err) {
