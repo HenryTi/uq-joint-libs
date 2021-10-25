@@ -17,7 +17,7 @@ class UnitxApi extends fetch_1.Fetch {
         });
         return ret;
     }
-    async writeBus(face, from, queue, busVersion, body, defer) {
+    async writeBus(face, from, queue, busVersion, body, defer, stamp) {
         let ret = await this.post('joint-write-bus', {
             unit: this.unit,
             face: face,
@@ -26,6 +26,7 @@ class UnitxApi extends fetch_1.Fetch {
             version: busVersion,
             body: body,
             defer,
+            stamp
         });
         return ret;
     }
@@ -74,8 +75,8 @@ class Unitx /*extends Uq*/ {
         }
         return await unitxApi.readBus(face, queue, defer);
     }
-    async writeBus(face, source, newQueue, busVersion, body, defer) {
-        await this.currentUnitxApi.writeBus(face, source, newQueue, busVersion, body, defer);
+    async writeBus(face, source, newQueue, busVersion, body, defer, stamp) {
+        await this.currentUnitxApi.writeBus(face, source, newQueue, busVersion, body, defer, stamp);
     }
 }
 exports.Unitx = Unitx;

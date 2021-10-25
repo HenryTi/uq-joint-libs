@@ -15,7 +15,6 @@ import { Uq } from "./uq/uq";
 import { centerApi } from "./tool/centerApi";
 import { NotifyScheduler } from "./notifier/notifyScheduler";
 import { Unitx, UqUnitxProd, UqUnitxTest } from "./uq/unitx";
-import { Notifier } from "./notifier/smsNotifier";
 import { onJointPushError } from "./db/mysql/onJointPushError";
 
 const logger = getLogger('joint');
@@ -177,7 +176,11 @@ export class Joint {
                     let retp = await tableFromProc('read_queue_in', [queueName]);
                     if (!retp || retp.length === 0) break;
                     let { id, body, date } = retp[0];
-                    ret = { lastPointer: id, data: [JSON.parse(body)] };
+                    ret = { 
+                        lastPointer: id, 
+                        data: [JSON.parse(body)],
+                        stamp: undefined,
+                    };
                     // queue = id;
                     // message = JSON.parse(body);
                 }
@@ -546,13 +549,13 @@ export class Joint {
                     uniqueId = r.uniqueId;
                     let message = await pull(this, uqBus, queue);
                     if (message === undefined) break;
-                    let { lastPointer: newQueue, data } = message;
+                    let { lastPointer: newQueue, data, stamp } = message;
                     let mapToUq = new MapToUq(this);
                     let inBody = await mapToUq.map(data[0], mapper);
                     // henry??? 暂时不处理bus version
                     let busVersion = 0;
                     let packed = await faceSchemas.packBusData(face, inBody);
-                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer??1);
+                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer??1, stamp);
                     await execProc('write_queue_in_p', [moniker, newQueue]);
                 }
                 catch (err) {

@@ -17,7 +17,7 @@ export declare abstract class Unitx {
     init(): Promise<void>;
     private createUnitxApi;
     readBus(face: string, queue: number, defer: number): Promise<any>;
-    writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any, defer: number): Promise<void>;
+    writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any, defer: number, stamp?: number): Promise<void>;
     protected abstract toTvCurrent(unitxUrls: CenterUnitxUrls): {
         tv: UnitxUrlServer;
         current: UnitxUrlServer;

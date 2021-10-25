@@ -23,7 +23,7 @@ class UnitxApi extends Fetch {
 		});
 		return ret;
 	}
-	async writeBus(face: string, from: string, queue: number | string, busVersion: number, body:string, defer:number): Promise<BusMessage> {
+	async writeBus(face: string, from: string, queue: number | string, busVersion: number, body:string, defer:number, stamp?:number): Promise<BusMessage> {
 		let ret = await this.post('joint-write-bus', {
 			unit: this.unit,
 			face: face,
@@ -32,6 +32,7 @@ class UnitxApi extends Fetch {
 			version: busVersion,
 			body: body,
 			defer,
+			stamp
 		});
 		return ret;
 	}
@@ -90,8 +91,8 @@ export abstract class Unitx /*extends Uq*/ {
 		return await unitxApi.readBus(face, queue, defer);
 	}
 
-	async writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any, defer:number) {
-		await this.currentUnitxApi.writeBus(face, source, newQueue, busVersion, body, defer);
+	async writeBus(face: string, source: string, newQueue: string | number, busVersion: number, body: any, defer:number, stamp?:number) {
+		await this.currentUnitxApi.writeBus(face, source, newQueue, busVersion, body, defer, stamp);
 	}
 
 	protected abstract toTvCurrent(unitxUrls: CenterUnitxUrls): { tv: UnitxUrlServer, current: UnitxUrlServer };

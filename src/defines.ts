@@ -3,7 +3,11 @@ import { Joint } from "./joint";
 import { UqProp } from "./uq/uq";
 import { Notifier } from "./notifier/smsNotifier";
 
-export interface DataPullResult { lastPointer: number | string, data: any[] };
+export interface DataPullResult { 
+    lastPointer: number | string;
+    data: any[];
+    stamp: number;
+};
 export type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
 export type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
 export type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
