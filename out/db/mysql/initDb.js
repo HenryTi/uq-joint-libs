@@ -7,20 +7,20 @@ const procs_1 = require("./procs");
 const tool_1 = require("./tool");
 //import {buildRoot} from './buildRoot';
 async function init() {
-    let tbl = await (0, tool_1.tableFromSql)(database_1.existsDatabase);
+    let tbl = await tool_1.tableFromSql(database_1.existsDatabase);
     let exists = tbl[0];
     if (exists !== undefined) {
         console.log('Database already exists. Nothing to do this time.');
         return;
     }
     console.log('Start init database %s.', database_1.databaseName);
-    await (0, tool_1.execSql)(database_1.createDatabase);
-    await (0, tool_1.execSql)(database_1.useDatabase);
+    await tool_1.execSql(database_1.createDatabase);
+    await tool_1.execSql(database_1.useDatabase);
     console.log('Database %s created.', database_1.databaseName);
     for (let i in tables_1.tableDefs) {
         let tbl = tables_1.tableDefs[i];
-        let sql = (0, tool_1.buildTableSql)(tbl);
-        await (0, tool_1.execSql)(sql).then(v => {
+        let sql = tool_1.buildTableSql(tbl);
+        await tool_1.execSql(sql).then(v => {
             console.log('succeed: ' + tbl.name);
         }).catch(reason => {
             console.log('error: ' + tbl.name);
@@ -30,8 +30,8 @@ async function init() {
     for (let i in procs_1.procDefs) {
         let proc = procs_1.procDefs[i];
         console.log('CREATE PROCEDURE ' + proc.name);
-        let sql = (0, tool_1.buildProcedureSql)(proc);
-        await (0, tool_1.execSql)(sql).then(v => {
+        let sql = tool_1.buildProcedureSql(proc);
+        await tool_1.execSql(sql).then(v => {
         }).catch(reason => {
             console.log(reason);
         });

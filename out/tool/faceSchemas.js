@@ -94,7 +94,7 @@ class FaceSchemas {
         if (arrs !== undefined && arrs.length > 0) {
             for (let arr of arrs) {
                 let { name, fields } = arr;
-                let arrObj = (0, objPropIgnoreCase_1.getObjPropIgnoreCase)(main, name);
+                let arrObj = objPropIgnoreCase_1.getObjPropIgnoreCase(main, name);
                 this.packArr(result, fields, arrObj);
             }
         }

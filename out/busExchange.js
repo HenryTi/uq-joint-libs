@@ -13,8 +13,8 @@ async function busExchange(req, res) {
     let hour = Math.floor(Date.now() / (3600 * 1000));
     if (lastHour === undefined || hour > lastHour) {
         let inc = hour * 1000000000;
-        await (0, tool_1.execSql)((0, database_1.alterTableIncrement)('queue_out', inc));
-        await (0, tool_1.execSql)((0, database_1.alterTableIncrement)('queue_in', inc));
+        await tool_1.execSql(database_1.alterTableIncrement('queue_out', inc));
+        await tool_1.execSql(database_1.alterTableIncrement('queue_in', inc));
         lastHour = hour;
     }
     for (let ticket of tickets) {
@@ -22,13 +22,13 @@ async function busExchange(req, res) {
         if (moniker === undefined)
             continue;
         if (data !== undefined) {
-            let queueInId = await (0, tool_1.tableFromProc)('write_queue_in', [moniker, JSON.stringify(data)]);
+            let queueInId = await tool_1.tableFromProc('write_queue_in', [moniker, JSON.stringify(data)]);
             ret.push({ moniker: moniker, queue: queueInId[0].id, data: undefined });
         }
         else {
             let q = Number(queue);
             if (Number.isNaN(q) === false) {
-                let readQueue = await (0, tool_1.tableFromProc)('read_queue_out', [moniker, q]);
+                let readQueue = await tool_1.tableFromProc('read_queue_out', [moniker, q]);
                 if (readQueue.length > 0) {
                     ret.push(readQueue[0]);
                 }

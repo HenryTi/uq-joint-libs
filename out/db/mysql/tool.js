@@ -7,7 +7,7 @@ exports.buildTableSql = exports.buildProcedureSql = exports.tablesFromProc = exp
 const mysql_1 = require("mysql");
 const config_1 = __importDefault(require("config"));
 const mysqlConfig = config_1.default.get("mysqlConn");
-const pool = (0, mysql_1.createPool)(mysqlConfig);
+const pool = mysql_1.createPool(mysqlConfig);
 const databaseName = config_1.default.get('database');
 function buildCall(proc, values) {
     let ret = 'call `' + databaseName + '`.`' + proc + '`(';

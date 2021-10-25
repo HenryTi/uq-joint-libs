@@ -13,7 +13,7 @@ async function createMapTable(moniker) {
         unique index no_idx(no)
     );
     `;
-    await (0, tool_1.execSql)(sql);
+    await tool_1.execSql(sql);
 }
 exports.createMapTable = createMapTable;
 //# sourceMappingURL=createMapTable.js.map

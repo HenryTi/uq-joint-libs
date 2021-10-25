@@ -70,7 +70,7 @@ class Fetch {
             method: method,
             body: body,
         };
-        let res = await (0, node_fetch_1.default)(url, fetchInit);
+        let res = await node_fetch_1.default(url, fetchInit);
         if (res.status !== 200) {
             console.error(res.statusText, res.status);
             throw {

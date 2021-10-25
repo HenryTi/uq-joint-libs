@@ -30,7 +30,7 @@ class NotifyScheduler {
             return;
         }
         let notifiedAt = 0;
-        let result = await (0, tool_1.execSql)(this.getLastNotify, [moniker]);
+        let result = await tool_1.execSql(this.getLastNotify, [moniker]);
         if (result.length > 0) {
             notifiedAt = result[0].notifiedAt;
         }
@@ -38,7 +38,7 @@ class NotifyScheduler {
             let message = moniker + ":" + id + " joint error, 请速度查看！";
             let success = await this.notifier.notify(message);
             if (success)
-                await (0, tool_1.execSql)(this.updateNotify, [moniker]);
+                await tool_1.execSql(this.updateNotify, [moniker]);
         }
     }
 }

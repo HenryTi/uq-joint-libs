@@ -188,22 +188,22 @@ class MapToUq extends MapData {
                 vid = async (uqFullName, entity) => await this.getTuidVid(uqFullName, entity);
                 break;
         }
-        let entitySchema = (0, defines_1.getMapName)(uqIn);
+        let entitySchema = defines_1.getMapName(uqIn);
         let sql = `select id from \`${database_1.databaseName}\`.\`map_${entitySchema}\` where no='${value}'`;
         let ret;
         try {
-            ret = await (0, tool_1.execSql)(sql);
+            ret = await tool_1.execSql(sql);
         }
         catch (err) {
-            await (0, createMapTable_1.createMapTable)(entitySchema);
-            ret = await (0, tool_1.execSql)(sql);
+            await createMapTable_1.createMapTable(entitySchema);
+            ret = await tool_1.execSql(sql);
         }
         if (ret.length === 0) {
             let { entity, uq } = uqIn;
             let vId = await vid(uq, entity);
             if (vId !== undefined) {
                 if (typeof vId === 'number' && vId > 0) {
-                    await (0, map_1.map)(entitySchema, vId, value);
+                    await map_1.map(entitySchema, vId, value);
                 }
                 return vId;
             }
@@ -262,15 +262,15 @@ class MapFromUq extends MapData {
         let uqIn = this.joint.uqInDict[tuid];
         if (typeof uqIn !== 'object')
             throw `tuid ${tuid} is not defined in settings.in`;
-        let entitySchema = (0, defines_1.getMapName)(uqIn);
+        let entitySchema = defines_1.getMapName(uqIn);
         let sql = `select no from \`${database_1.databaseName}\`.\`map_${entitySchema}\` where id='${value}'`;
         let ret;
         try {
-            ret = await (0, tool_1.execSql)(sql);
+            ret = await tool_1.execSql(sql);
         }
         catch (error) {
-            await (0, createMapTable_1.createMapTable)(entitySchema);
-            ret = await (0, tool_1.execSql)(sql);
+            await createMapTable_1.createMapTable(entitySchema);
+            ret = await tool_1.execSql(sql);
         }
         if (ret.length === 0)
             return 'n/a';

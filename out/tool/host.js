@@ -184,7 +184,7 @@ exports.host = new Host();
 const timeout = 200;
 function fetchLocalCheck(url) {
     return new Promise((resolve, reject) => {
-        (0, node_fetch_1.default)(url, fetchOptions)
+        node_fetch_1.default(url, fetchOptions)
             .then(v => {
             v.text().then(resolve).catch(reject);
         })
