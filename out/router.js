@@ -9,7 +9,7 @@ const getIp_1 = require("./getIp");
 const busPage_1 = require("./busPage");
 const busExchange_1 = require("./busExchange");
 function createRouter(settings) {
-    let router = express_1.Router({ mergeParams: true });
+    let router = (0, express_1.Router)({ mergeParams: true });
     router.get('/', async (req, res) => {
         await routerProcess(req, res, busPage_1.busPage);
     });
@@ -18,10 +18,10 @@ function createRouter(settings) {
     });
     async function routerProcess(req, res, action) {
         try {
-            let reqIP = getIp_1.getClientIp(req);
-            let innerIP = getIp_1.getIp(req);
-            let netIP = getIp_1.getNetIp(req);
-            if (getIp_1.validIp(settings.allowedIP, [innerIP, netIP]) === false) {
+            let reqIP = (0, getIp_1.getClientIp)(req);
+            let innerIP = (0, getIp_1.getIp)(req);
+            let netIP = (0, getIp_1.getNetIp)(req);
+            if ((0, getIp_1.validIp)(settings.allowedIP, [innerIP, netIP]) === false) {
                 res.end('<div>Your IP ' + (netIP || innerIP || reqIP) + ' is not valid!</div>');
                 return;
             }
