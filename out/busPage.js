@@ -15,9 +15,9 @@ sample post:
 ]
 </pre>`);
     res.write('<br/>');
-    res.write('<div>in ip ' + getIp_1.getIp(req) +
-        ' out ip ' + getIp_1.getNetIp(req) +
-        ' cliet ip ' + getIp_1.getClientIp(req) + '</div><br/><br/>');
+    res.write('<div>in ip ' + (0, getIp_1.getIp)(req) +
+        ' out ip ' + (0, getIp_1.getNetIp)(req) +
+        ' cliet ip ' + (0, getIp_1.getClientIp)(req) + '</div><br/><br/>');
     res.end();
 }
 exports.busPage = busPage;
