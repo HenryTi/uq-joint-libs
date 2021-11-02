@@ -7,7 +7,7 @@ export interface DataPullResult {
     lastPointer: number | string;
     data: any[];
     stamp?: number;
-    importing: boolean;
+    importing?: boolean;
 };
 export type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
 export type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;

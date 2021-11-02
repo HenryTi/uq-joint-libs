@@ -160,6 +160,10 @@ class FaceSchemas {
         if (schema === undefined || data === undefined) return;
         let fields = schema.fields;
         let p = 0;
+        if (data.substr(0, 3) === '\r^\r') {
+            ret.importing = true;
+            p = 3;
+        }
         if (fields !== undefined) p = this.unpackRow(ret, schema.fields, data, p);
         let arrs = schema['arrs'];
         if (arrs !== undefined) {
