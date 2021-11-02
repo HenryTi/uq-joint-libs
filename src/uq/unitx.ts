@@ -30,7 +30,7 @@ class UnitxApi extends Fetch {
 			from: from,
 			fromQueueId: queue,
 			version: busVersion,
-			body: body,
+			body,
 			defer,
 			stamp
 		});

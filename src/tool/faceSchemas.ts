@@ -21,11 +21,11 @@ class FaceSchemas {
     private busSchemas: { [bus: string]: any } = {};
     private faceSchemas: { [face: string]: any } = {};
 
-    async packBusData(faceName: string, data: any): Promise<string> {
+    async packBusData(faceName: string, data: any, importing: boolean): Promise<string> {
         if (data === undefined) return;
         let faceSchema = await this.getFaceSchema(faceName);
         if (faceSchema === undefined) return;
-        return this.pack(faceSchema, data);
+        return this.pack(faceSchema, data, importing);
     }
 
     async unpackBusData(faceName: string, data: string): Promise<any> {
@@ -83,8 +83,9 @@ class FaceSchemas {
         return this.busSchemas[fullBusName] = JSON.parse(text);
     }
 
-    private pack(schema: BusSchema, data: any): string {
+    private pack(schema: BusSchema, data: any, importing:boolean): string {
         let result: string[] = [];
+        if (importing === true) result = ['\r^\r'];
         if (data !== undefined) {
             if (Array.isArray(data) === false) data = [data];
             let len = data.length;
