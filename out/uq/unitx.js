@@ -24,7 +24,7 @@ class UnitxApi extends fetch_1.Fetch {
             from: from,
             fromQueueId: queue,
             version: busVersion,
-            body: body,
+            body,
             defer,
             stamp
         });

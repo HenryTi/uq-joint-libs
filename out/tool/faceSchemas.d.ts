@@ -1,7 +1,7 @@
 declare class FaceSchemas {
     private busSchemas;
     private faceSchemas;
-    packBusData(faceName: string, data: any): Promise<string>;
+    packBusData(faceName: string, data: any, importing: boolean): Promise<string>;
     unpackBusData(faceName: string, data: string): Promise<any>;
     private getFaceSchema;
     private faceSchemaFromBus;

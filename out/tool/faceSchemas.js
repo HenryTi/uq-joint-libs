@@ -10,13 +10,13 @@ class FaceSchemas {
         this.busSchemas = {};
         this.faceSchemas = {};
     }
-    async packBusData(faceName, data) {
+    async packBusData(faceName, data, importing) {
         if (data === undefined)
             return;
         let faceSchema = await this.getFaceSchema(faceName);
         if (faceSchema === undefined)
             return;
-        return this.pack(faceSchema, data);
+        return this.pack(faceSchema, data, importing);
     }
     async unpackBusData(faceName, data) {
         if (data === undefined)
@@ -77,8 +77,10 @@ class FaceSchemas {
         let text = await centerApi_1.centerApi.busSchema(owner, busName);
         return this.busSchemas[fullBusName] = JSON.parse(text);
     }
-    pack(schema, data) {
+    pack(schema, data, importing) {
         let result = [];
+        if (importing === true)
+            result = ['\r^\r'];
         if (data !== undefined) {
             if (Array.isArray(data) === false)
                 data = [data];

@@ -164,6 +164,7 @@ class Joint {
                         lastPointer: id,
                         data: [JSON.parse(body)],
                         stamp: undefined,
+                        importing: undefined,
                     };
                     // queue = id;
                     // message = JSON.parse(body);
@@ -562,12 +563,12 @@ class Joint {
                     let message = await pull(this, uqBus, queue);
                     if (message === undefined)
                         break;
-                    let { lastPointer: newQueue, data, stamp } = message;
+                    let { lastPointer: newQueue, data, stamp, importing } = message;
                     let mapToUq = new mapData_1.MapToUq(this);
                     let inBody = await mapToUq.map(data[0], mapper);
                     // henry??? 暂时不处理bus version
                     let busVersion = 0;
-                    let packed = await faceSchemas_1.faceSchemas.packBusData(face, inBody);
+                    let packed = await faceSchemas_1.faceSchemas.packBusData(face, inBody, importing);
                     await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer !== null && defer !== void 0 ? defer : 0, stamp);
                     await (0, tool_1.execProc)('write_queue_in_p', [moniker, newQueue]);
                 }
