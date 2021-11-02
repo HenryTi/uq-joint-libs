@@ -203,7 +203,7 @@ class Entity {
         let arrs = this.arrFields; //schema['arrs'];
         if (arrs !== undefined) {
             for (let arr of arrs) {
-                let arrObj = objPropIgnoreCase_1.getObjPropIgnoreCase(data, arr.name);
+                let arrObj = (0, objPropIgnoreCase_1.getObjPropIgnoreCase)(data, arr.name);
                 this.packArr(ret, arr.fields, arrObj);
             }
         }

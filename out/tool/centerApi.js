@@ -7,7 +7,7 @@ exports.centerApi = void 0;
 const jwt_decode_1 = __importDefault(require("jwt-decode"));
 const fetch_1 = require("./fetch");
 function decodeUserToken(token) {
-    let ret = jwt_decode_1.default(token);
+    let ret = (0, jwt_decode_1.default)(token);
     let user = {
         id: ret.id,
         name: ret.name,

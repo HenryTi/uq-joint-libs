@@ -17,11 +17,11 @@ async function map(moniker, id, no) {
     `;
     // on duplicate key update id=${id};
     try {
-        await tool_1.execSql(sql);
+        await (0, tool_1.execSql)(sql);
     }
     catch (err) {
-        await createMapTable_1.createMapTable(moniker);
-        await tool_1.execSql(sql);
+        await (0, createMapTable_1.createMapTable)(moniker);
+        await (0, tool_1.execSql)(sql);
     }
 }
 exports.map = map;
