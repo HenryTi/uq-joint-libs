@@ -553,9 +553,9 @@ class Joint {
             for (;;) {
                 if (pull === undefined)
                     break;
+                let queue, uniqueId;
                 try {
                     console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
-                    let queue, uniqueId;
                     let retp = await (0, tool_1.tableFromProc)('read_queue_in_p', [moniker]);
                     let r = retp[0];
                     queue = r.queue;
@@ -574,6 +574,8 @@ class Joint {
                 }
                 catch (err) {
                     console.error(err);
+                    await this.notifierScheduler.notify(moniker, queue.toString());
+                    break;
                 }
             }
         }

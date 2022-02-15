@@ -536,9 +536,9 @@ export class Joint {
             // bus in(从外部系统读入数据，写入bus)
             for (; ;) {
                 if (pull === undefined) break;
+                let queue: number, uniqueId: number;
                 try {
                     console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
-                    let queue: number, uniqueId: number;
                     let retp = await tableFromProc('read_queue_in_p', [moniker]);
                     let r = retp[0];
                     queue = r.queue;
@@ -556,6 +556,8 @@ export class Joint {
                 }
                 catch (err) {
                     console.error(err);
+                    await this.notifierScheduler.notify(moniker, queue.toString());
+                    break;
                 }
             }
         }
