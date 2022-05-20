@@ -237,7 +237,7 @@ class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveID(entity, body);
-            if (!body.$id) {
+            if (!body["id"]) {
                 let { id, inId } = ret;
                 if (id) {
                     if (id < 0)
@@ -275,7 +275,7 @@ class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveTuid(tuid, body);
-            if (!body.$id) {
+            if (!body["$id"]) {
                 let { id, inId } = ret;
                 if (id) {
                     if (id < 0)

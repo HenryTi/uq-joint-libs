@@ -176,8 +176,8 @@ export class Joint {
                     let retp = await tableFromProc('read_queue_in', [queueName]);
                     if (!retp || retp.length === 0) break;
                     let { id, body, date } = retp[0];
-                    ret = { 
-                        lastPointer: id, 
+                    ret = {
+                        lastPointer: id,
                         data: [JSON.parse(body)],
                         stamp: undefined,
                         importing: undefined,
@@ -246,7 +246,7 @@ export class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveID(entity, body);
-            if (!body.$id) {
+            if (!body["id"]) {
                 let { id, inId } = ret;
                 if (id) {
                     if (id < 0) id = -id;
@@ -279,7 +279,7 @@ export class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveTuid(tuid, body);
-            if (!body.$id) {
+            if (!body["$id"]) {
                 let { id, inId } = ret;
                 if (id) {
                     if (id < 0) id = -id;
@@ -551,7 +551,7 @@ export class Joint {
                     // henry??? 暂时不处理bus version
                     let busVersion = 0;
                     let packed = await faceSchemas.packBusData(face, inBody, importing);
-                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer??0, stamp);
+                    await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer ?? 0, stamp);
                     await execProc('write_queue_in_p', [moniker, newQueue]);
                 }
                 catch (err) {
