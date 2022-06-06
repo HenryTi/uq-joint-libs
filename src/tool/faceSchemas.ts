@@ -83,7 +83,7 @@ class FaceSchemas {
         return this.busSchemas[fullBusName] = JSON.parse(text);
     }
 
-    private pack(schema: BusSchema, data: any, importing:boolean): string {
+    private pack(schema: BusSchema, data: any, importing: boolean): string {
         let result: string[] = [];
         if (importing === true) result = ['\r^\r'];
         if (data !== undefined) {
@@ -212,7 +212,8 @@ class FaceSchemas {
                 case 'smallint':
                 case 'int':
                 case 'bigint':
-                case 'dec': return Number(v);
+                case 'dec':
+                    return v === '' ? undefined : Number(v);
             }
         }
     }
