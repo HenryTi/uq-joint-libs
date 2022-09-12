@@ -186,7 +186,7 @@ class Joint {
                         dataCopy.push(no);
                     }
                     if (pullWrite !== undefined)
-                        promises.push(pullWrite(this, uqIn, message));
+                        promises.push(pullWrite(this, uqIn, message, lastPointer));
                     else
                         promises.push(this.uqIn(uqIn, message));
                 }
