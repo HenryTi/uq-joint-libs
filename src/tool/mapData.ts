@@ -128,7 +128,7 @@ abstract class MapData {
                     break;
                 case 'string':
                     let val = await this.mapProp(i, prop, data);
-                    body[i] = val;
+                    body[i] = val === null ? undefined : val;
                     break;
                 case 'object':
                     let arr = prop.$name || i;
@@ -229,7 +229,7 @@ export class MapToUq extends MapData {
         return ret[0]['id'];
     }
 
-    protected async getIDNew(uqFullName: string, entity: string, key:any):Promise<number> {
+    protected async getIDNew(uqFullName: string, entity: string, key: any): Promise<number> {
         let uq = await this.joint.getUq(uqFullName);
         try {
             let vId = await uq.getIDNew(entity, key);
@@ -243,7 +243,7 @@ export class MapToUq extends MapData {
         }
     }
 
-    protected async getTuidVid(uqFullName: string, entity: string):Promise<number> {
+    protected async getTuidVid(uqFullName: string, entity: string): Promise<number> {
         try {
             let uq = await this.joint.getUq(uqFullName);
             let vId = await uq.getTuidVId(entity);

@@ -59,10 +59,11 @@ class Joint {
                 throw new Error('prodOrTest not valid in JOINT counstructor:' + prodOrTest);
         }
         for (let uqIn of allUqIns) {
-            let { entity, type } = uqIn;
-            if (this.uqInDict[entity] !== undefined)
+            let { uq, entity } = uqIn;
+            let uqFullName = uq + ":" + entity;
+            if (this.uqInDict[uqFullName] !== undefined)
                 throw 'can not have multiple ' + entity;
-            this.uqInDict[entity] = uqIn;
+            this.uqInDict[uqFullName] = uqIn;
         }
     }
     createRouter() {
@@ -112,8 +113,29 @@ class Joint {
             return;
         for (let uqInName of uqInEntities) {
             let uqIn = this.uqInDict[uqInName.name];
-            if (uqIn === undefined)
+            if (uqIn === undefined) {
+                let find = 0;
+                for (const key in this.uqInDict) {
+                    let pos = key.indexOf(":");
+                    if (pos > 0 && key.substring(pos) === uqInName.name) {
+                        find++;
+                        uqIn = this.uqInDict[key];
+                    }
+                }
+                if (find === 0) {
+                    console.log("配置文件中的name:'" + uqInName.name + "'无对应的uq实体");
+                    continue;
+                }
+                if (find > 1) {
+                    console.log("配置文件中的name:'" + uqInName.name + "'对应了多个uq实体，请使用'uq名称+:+entity名称'的格式配置。");
+                    continue;
+                }
+            }
+            ;
+            if (uqIn === undefined) {
+                console.log("配置文件中的name:'" + uqInName.name + "'无对应的uq实体");
                 continue;
+            }
             let { uq, type, entity, pull, pullWrite, onPullWriteError } = uqIn;
             if (this.tickCount % (uqInName.intervalUnit || 1) !== 0)
                 continue;

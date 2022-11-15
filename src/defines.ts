@@ -20,6 +20,10 @@ interface UqPullPush {
 
 export interface UqIn extends UqPullPush {
     uq: string;
+
+    /**
+     * 要映射到的 uq中的 entity 名称
+     */
     entity: string;
     type: 'ID' | 'tuid' | 'tuid-arr' | 'map';
     /**
@@ -45,7 +49,10 @@ export interface UqIn extends UqPullPush {
 
 export interface UqInID extends UqIn {
     type: 'ID';
-    key: string;    // 在源数据中，ID主键的名称, 用于建立map
+    /**
+     * 在源数据中，ID主键的名称, 该属性所对应的值将在建立map时用作 no 值
+     */
+    key: string;
     /**
      * 从
      */
@@ -55,7 +62,10 @@ export interface UqInID extends UqIn {
 
 export interface UqInTuid extends UqIn {
     type: 'tuid';
-    key: string;    // 在源数据中，tuid主键的名称, 用于建立map
+    /**
+     * 在源数据中，ID主键的名称, 该属性所对应的值将在建立map时用作 no 值
+     */
+    key: string;
     /**
      * 从
      */
@@ -114,6 +124,9 @@ export interface Settings {
     name: string;
     unit: number;
     allowedIP: string[];
+    /**
+     * Joint中用到的所有uqIn的mapper配置
+     */
     uqIns: UqIn[];
     uqOuts: UqOut[];
     uqInEntities: { name: string, intervalUnit: number }[],

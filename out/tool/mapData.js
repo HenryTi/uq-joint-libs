@@ -112,7 +112,7 @@ class MapData {
                     break;
                 case 'string':
                     let val = await this.mapProp(i, prop, data);
-                    body[i] = val;
+                    body[i] = val === null ? undefined : val;
                     break;
                 case 'object':
                     let arr = prop.$name || i;
