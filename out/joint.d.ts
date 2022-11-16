@@ -11,9 +11,8 @@ export declare class Joint {
     private readonly unitx;
     private tickCount;
     constructor(settings: Settings, prodOrTest?: ProdOrTest);
-    readonly uqInDict: {
-        [tuid: string]: UqIn;
-    };
+    private uqInDict;
+    getUqIn(uqFullName: string): UqIn;
     readonly unit: number;
     createRouter(): Router;
     getUq(uqFullName: string): Promise<Uq>;

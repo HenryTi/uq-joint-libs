@@ -59,12 +59,31 @@ class Joint {
                 throw new Error('prodOrTest not valid in JOINT counstructor:' + prodOrTest);
         }
         for (let uqIn of allUqIns) {
+            if (!uqIn)
+                continue;
             let { uq, entity } = uqIn;
             let uqFullName = uq + ":" + entity;
             if (this.uqInDict[uqFullName] !== undefined)
                 throw 'can not have multiple ' + entity;
             this.uqInDict[uqFullName] = uqIn;
         }
+    }
+    getUqIn(uqFullName) {
+        let uqIn = this.uqInDict[uqFullName];
+        if (uqIn === undefined) {
+            let find = 0;
+            for (const key in this.uqInDict) {
+                let pos = key.indexOf(":");
+                if (pos >= 0 && key.substring(pos + 1) === uqFullName) {
+                    find++;
+                    uqIn = this.uqInDict[key];
+                }
+            }
+            if (find !== 1)
+                uqIn = undefined;
+        }
+        ;
+        return uqIn;
     }
     createRouter() {
         return (0, router_1.createRouter)(this.settings);
@@ -112,28 +131,9 @@ class Joint {
         if (uqInEntities === undefined)
             return;
         for (let uqInName of uqInEntities) {
-            let uqIn = this.uqInDict[uqInName.name];
+            let uqIn = this.getUqIn(uqInName.name);
             if (uqIn === undefined) {
-                let find = 0;
-                for (const key in this.uqInDict) {
-                    let pos = key.indexOf(":");
-                    if (pos > 0 && key.substring(pos) === uqInName.name) {
-                        find++;
-                        uqIn = this.uqInDict[key];
-                    }
-                }
-                if (find === 0) {
-                    console.log("配置文件中的name:'" + uqInName.name + "'无对应的uq实体");
-                    continue;
-                }
-                if (find > 1) {
-                    console.log("配置文件中的name:'" + uqInName.name + "'对应了多个uq实体，请使用'uq名称+:+entity名称'的格式配置。");
-                    continue;
-                }
-            }
-            ;
-            if (uqIn === undefined) {
-                console.log("配置文件中的name:'" + uqInName.name + "'无对应的uq实体");
+                console.log("entity name:'" + uqInName.name + "'没有对应的mapper设置。");
                 continue;
             }
             let { uq, type, entity, pull, pullWrite, onPullWriteError } = uqIn;

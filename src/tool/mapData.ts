@@ -188,7 +188,7 @@ export class MapToUq extends MapData {
     protected async tuidId(tuid: string, value: any): Promise<string | number> {
         if (value === undefined || value === null) return;
 
-        let uqIn = this.joint.uqInDict[tuid];
+        let uqIn = this.joint.getUqIn(tuid);
         if (typeof uqIn !== 'object') {
             throw `tuid ${tuid} is not defined in settings.in`;
         }
@@ -274,7 +274,7 @@ export class MapFromUq extends MapData {
     protected async tuidId(tuid: string, value: any): Promise<string | number> {
         if (value === undefined || value === null) return;
 
-        let uqIn = this.joint.uqInDict[tuid];
+        let uqIn = this.joint.getUqIn(tuid);
         if (typeof uqIn !== 'object')
             throw `tuid ${tuid} is not defined in settings.in`;
 
