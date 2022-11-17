@@ -25,6 +25,7 @@ export declare class Joint {
     private scanIn;
     uqIn(uqIn: UqIn, data: any): Promise<void>;
     protected uqInID(uqIn: UqInID, data: any): Promise<number>;
+    protected uqInIX(uqIn: UqInID, data: any): Promise<void>;
     protected uqInTuid(uqIn: UqInTuid, data: any): Promise<number>;
     protected uqInTuidArr(uqIn: UqInTuidArr, data: any): Promise<number>;
     /**

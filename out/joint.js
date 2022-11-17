@@ -236,6 +236,9 @@ class Joint {
             case 'ID':
                 await this.uqInID(uqIn, data);
                 break;
+            case 'IX':
+                await this.uqInIX(uqIn, data);
+                break;
             case 'tuid':
                 await this.uqInTuid(uqIn, data);
                 break;
@@ -272,6 +275,28 @@ class Joint {
                     logger.error(body);
                 }
             }
+        }
+        catch (error) {
+            if (error.code === "ETIMEDOUT") {
+                logger.error(error);
+                await this.uqInID(uqIn, data);
+            }
+            else {
+                logger.error(uqFullName + ':' + entity);
+                logger.error(body);
+                throw error;
+            }
+        }
+    }
+    async uqInIX(uqIn, data) {
+        let { mapper, uq: uqFullName, entity } = uqIn;
+        if (uqFullName === undefined)
+            throw 'ID ' + entity + ' not defined';
+        let mapToUq = new mapData_1.MapToUq(this);
+        let body = await mapToUq.map(data, mapper);
+        let uq = await this.uqs.getUq(uqFullName);
+        try {
+            await uq.saveID(entity, body);
         }
         catch (error) {
             if (error.code === "ETIMEDOUT") {

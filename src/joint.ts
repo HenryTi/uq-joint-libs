@@ -252,6 +252,7 @@ export class Joint {
     async uqIn(uqIn: UqIn, data: any) {
         switch (uqIn.type) {
             case 'ID': await this.uqInID(uqIn as UqInID, data); break;
+            case 'IX': await this.uqInIX(uqIn as UqInID, data); break;
             case 'tuid': await this.uqInTuid(uqIn as UqInTuid, data); break;
             case 'tuid-arr': await this.uqInTuidArr(uqIn as UqInTuidArr, data); break;
             case 'map': await this.uqInMap(uqIn as UqInMap, data); break;
@@ -279,6 +280,26 @@ export class Joint {
                     logger.error(body);
                 }
             }
+        } catch (error) {
+            if (error.code === "ETIMEDOUT") {
+                logger.error(error);
+                await this.uqInID(uqIn, data);
+            } else {
+                logger.error(uqFullName + ':' + entity);
+                logger.error(body);
+                throw error;
+            }
+        }
+    }
+
+    protected async uqInIX(uqIn: UqInID, data: any): Promise<void> {
+        let { mapper, uq: uqFullName, entity } = uqIn;
+        if (uqFullName === undefined) throw 'ID ' + entity + ' not defined';
+        let mapToUq = new MapToUq(this);
+        let body = await mapToUq.map(data, mapper);
+        let uq = await this.uqs.getUq(uqFullName);
+        try {
+            await uq.saveID(entity, body);
         } catch (error) {
             if (error.code === "ETIMEDOUT") {
                 logger.error(error);

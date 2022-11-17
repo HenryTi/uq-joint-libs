@@ -21,7 +21,7 @@ export interface UqIn extends UqPullPush {
      * 要映射到的 uq中的 entity 名称
      */
     entity: string;
-    type: 'ID' | 'tuid' | 'tuid-arr' | 'map';
+    type: 'ID' | 'tuid' | 'tuid-arr' | 'map' | 'IX';
     /**
      * 配置从源数据到目的数据的转换规则
      */
@@ -52,6 +52,11 @@ export interface UqInID extends UqIn {
      */
     pull?: DataPull<UqInID> | string;
     push?: DataPush<UqInID>;
+}
+export interface UqInIX extends UqIn {
+    type: 'IX';
+    pull?: DataPull<UqInIX> | string;
+    push?: DataPush<UqInIX>;
 }
 export interface UqInTuid extends UqIn {
     type: 'tuid';

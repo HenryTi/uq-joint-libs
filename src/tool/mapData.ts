@@ -118,7 +118,7 @@ abstract class MapData {
                     break;
                 case 'boolean':
                     if (prop === true) {
-                        body[i] = data[i];
+                        body[i] = data[i] === null ? undefined : data[i];
                     }
                     else {
                     }
