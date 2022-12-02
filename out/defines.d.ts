@@ -8,6 +8,12 @@ export interface DataPullResult {
     stamp?: number;
     importing?: boolean;
 }
+export interface entityBusConfigFormat {
+    name: string;
+    intervalUnit?: number;
+    timeSlice?: number;
+    onlyFreeTime?: boolean;
+}
 export declare type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
 export declare type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
 export declare type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any, queue?: number | string) => Promise<boolean>;
@@ -123,12 +129,10 @@ export interface Settings {
      */
     uqIns: UqIn[];
     uqOuts: UqOut[];
-    uqInEntities: {
-        name: string;
-        intervalUnit: number;
-    }[];
-    uqBusSettings: string[];
+    uqInEntities: entityBusConfigFormat[];
+    uqBusSettings: (entityBusConfigFormat | string)[];
     scanInterval?: number;
+    workTime?: number[];
     notifier?: Notifier;
     userName?: string;
     password?: string;

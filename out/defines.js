@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOwnerMapName = exports.getMapName = void 0;
 ;
+;
 function getMapName(uqIn) {
     let { entity, uq } = uqIn;
     let pos = uq.indexOf('/');

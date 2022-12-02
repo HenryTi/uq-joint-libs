@@ -9,6 +9,7 @@ export declare class Joint {
     private readonly settings;
     private readonly uqs;
     private readonly unitx;
+    private readonly workTime;
     private tickCount;
     constructor(settings: Settings, prodOrTest?: ProdOrTest);
     private uqInDict;

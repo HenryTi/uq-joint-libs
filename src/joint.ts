@@ -28,14 +28,16 @@ export class Joint {
     private readonly settings: Settings;
     private readonly uqs: Uqs;
     private readonly unitx: Unitx;
+    private readonly workTime = [8, 18];
 
     private tickCount: number = -1;
 
     constructor(settings: Settings, prodOrTest: ProdOrTest = 'prod') {
         this.settings = settings;
-        let { unit, uqIns: allUqIns, scanInterval, userName, password, notifier } = settings;
+        let { unit, uqIns: allUqIns, scanInterval, workTime, userName, password, notifier } = settings;
         this.unit = unit;
         this.scanInterval = scanInterval || 3000;
+        this.workTime = workTime || [8, 18];
         this.notifierScheduler = new NotifyScheduler(notifier);
         if (allUqIns === undefined) return;
         switch (prodOrTest) {
@@ -150,14 +152,26 @@ export class Joint {
 
         for (let uqInName of uqInEntities) {
 
-            let uqIn = this.getUqIn(uqInName.name);
+            let { name: uqConfiName, intervalUnit, timeSlice, onlyFreeTime } = uqInName;
+
+            let uqIn = this.getUqIn(uqConfiName);
             if (uqIn === undefined) {
-                console.log("entity name:'" + uqInName.name + "'没有对应的mapper设置。");
+                console.log("entity name:'" + uqConfiName + "'没有对应的mapper设置。");
                 continue;
             }
 
+            if (this.tickCount % (intervalUnit || 1) !== 0) continue;
+            let start = new Date();
+            if (onlyFreeTime) {
+                let weekDay = start.getDay();
+                let hours = start.getHours();
+                if ((weekDay > 0 && weekDay < 6) && (hours >= this.workTime[0] && hours <= this.workTime[1])) {
+                    console.log('skip in ' + uqConfiName + ' for only run on free time.')
+                    continue;
+                }
+            }
+
             let { uq, type, entity, pull, pullWrite, onPullWriteError } = uqIn;
-            if (this.tickCount % (uqInName.intervalUnit || 1) !== 0) continue;
             let queueName = uq + ':' + entity;
             console.log('scan in ' + queueName + ' at ' + new Date().toLocaleString());
             let promises: PromiseLike<any>[] = [];
@@ -245,6 +259,9 @@ export class Joint {
                     } else
                         break;
                 }
+
+                if (timeSlice && Date.now() > start.valueOf() + timeSlice * 1000)
+                    break;
             }
         }
     }
@@ -497,14 +514,33 @@ export class Joint {
         let monikerPrefix = '$bus/';
 
         for (let uqBusName of uqBusSettings) {
-            let uqBus = bus[uqBusName];
+            let busConfiName, intervalUnit, timeSlice, onlyFreeTime;
+            if (typeof (uqBusName) === 'string')
+                busConfiName = uqBusName;
+            else {
+                ({ name: busConfiName, intervalUnit, timeSlice, onlyFreeTime } = uqBusName);
+            }
+
+            let uqBus = bus[busConfiName];
             if (!uqBus) continue;
+
+            if (this.tickCount % (intervalUnit || 1) !== 0) continue;
+            let start = new Date();
+            if (onlyFreeTime) {
+                let weekDay = start.getDay();
+                let hours = start.getHours();
+                if ((weekDay > 0 && weekDay < 6) && (hours >= this.workTime[0] && hours <= this.workTime[1])) {
+                    console.log('skip in ' + busConfiName + ' for only run on free time.')
+                    continue;
+                }
+            }
+
             let { face, from: busFrom, mapper, push, pull, uqIdProps, defer } = uqBus;
             // bus out(从bus中读取消息，发送到外部系统)
             let moniker = monikerPrefix + face;
             for (; ;) {
                 if (push === undefined) break;
-                console.log('scan bus out ' + uqBusName + ' at ' + new Date().toLocaleString());
+                console.log('scan bus out ' + busConfiName + ' at ' + new Date().toLocaleString());
                 let queue: number;
                 let retp = await tableFromProc('read_queue_out_p', [moniker]);
                 if (retp.length > 0) {
@@ -574,6 +610,9 @@ export class Joint {
                     }
                 }
                 await this.writeQueueOutP(moniker, newQueue);
+
+                if (timeSlice && Date.now() > start.valueOf() + timeSlice * 1000)
+                    break;
             }
 
             // bus in(从外部系统读入数据，写入bus)
@@ -581,7 +620,7 @@ export class Joint {
                 if (pull === undefined) break;
                 let queue: number, uniqueId: number;
                 try {
-                    console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
+                    console.log('scan bus in ' + busConfiName + ' at ' + new Date().toLocaleString());
                     let retp = await tableFromProc('read_queue_in_p', [moniker]);
                     let r = retp[0];
                     queue = r.queue;
@@ -596,6 +635,9 @@ export class Joint {
                     let packed = await faceSchemas.packBusData(face, inBody, importing);
                     await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer ?? 0, stamp);
                     await execProc('write_queue_in_p', [moniker, newQueue]);
+
+                    if (timeSlice && Date.now() > start.valueOf() + timeSlice * 1000)
+                        break;
                 }
                 catch (err) {
                     console.error(err);
