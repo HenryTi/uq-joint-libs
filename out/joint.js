@@ -213,7 +213,7 @@ class Joint {
                 let dataCopy = [];
                 for (let i = data.length - 1; i >= 0; i--) {
                     let message = data[i];
-                    if (type === "tuid" || type === "tuid-arr") {
+                    if (type === "tuid" || type === "tuid-arr" || type === 'ID') {
                         let no = message[uqIn.key];
                         if (dataCopy.lastIndexOf(no) >= 0)
                             continue;
