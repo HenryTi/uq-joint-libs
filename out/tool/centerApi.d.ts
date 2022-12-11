@@ -31,6 +31,7 @@ declare class CenterApi extends Fetch {
         pwd: string;
         guest?: number;
     }): Promise<User>;
+    userFromKey(key: string): Promise<User>;
     busSchema(owner: string, bus: string): Promise<string>;
     serviceBus(serviceUID: string, serviceBuses: string): Promise<void>;
     /**

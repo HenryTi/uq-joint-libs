@@ -40,6 +40,12 @@ class CenterApi extends fetch_1.Fetch {
                 return this._loginResult = userRet;
         }
     }
+    async userFromKey(key) {
+        let ret = await this.get('open/user-from-key', { key });
+        if (!ret)
+            return;
+        return ret;
+    }
     async busSchema(owner, bus) {
         let ret = await this.get('open/bus', { owner: owner, bus: bus });
         return ret.schema;
