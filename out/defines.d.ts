@@ -8,17 +8,26 @@ export interface DataPullResult {
     stamp?: number;
     importing?: boolean;
 }
+export interface entityBusConfigFormat {
+    name: string;
+    intervalUnit?: number;
+    timeSlice?: number;
+    onlyFreeTime?: boolean;
+}
 export declare type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
 export declare type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
-export declare type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any) => Promise<boolean>;
+export declare type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any, queue?: number | string) => Promise<boolean>;
 interface UqPullPush {
     pull?: DataPull<UqPullPush> | string;
     push?: DataPush<UqPullPush>;
 }
 export interface UqIn extends UqPullPush {
     uq: string;
+    /**
+     * 要映射到的 uq中的 entity 名称
+     */
     entity: string;
-    type: 'ID' | 'tuid' | 'tuid-arr' | 'map';
+    type: 'ID' | 'tuid' | 'tuid-arr' | 'map' | 'IX';
     /**
      * 配置从源数据到目的数据的转换规则
      */
@@ -40,6 +49,9 @@ export interface UqIn extends UqPullPush {
 }
 export interface UqInID extends UqIn {
     type: 'ID';
+    /**
+     * 在源数据中，ID主键的名称, 该属性所对应的值将在建立map时用作 no 值
+     */
     key: string;
     /**
      * 从
@@ -47,8 +59,16 @@ export interface UqInID extends UqIn {
     pull?: DataPull<UqInID> | string;
     push?: DataPush<UqInID>;
 }
+export interface UqInIX extends UqIn {
+    type: 'IX';
+    pull?: DataPull<UqInIX> | string;
+    push?: DataPush<UqInIX>;
+}
 export interface UqInTuid extends UqIn {
     type: 'tuid';
+    /**
+     * 在源数据中，ID主键的名称, 该属性所对应的值将在建立map时用作 no 值
+     */
     key: string;
     /**
      * 从
@@ -104,14 +124,15 @@ export interface Settings {
     name: string;
     unit: number;
     allowedIP: string[];
+    /**
+     * Joint中用到的所有uqIn的mapper配置
+     */
     uqIns: UqIn[];
     uqOuts: UqOut[];
-    uqInEntities: {
-        name: string;
-        intervalUnit: number;
-    }[];
-    uqBusSettings: string[];
+    uqInEntities: entityBusConfigFormat[];
+    uqBusSettings: (entityBusConfigFormat | string)[];
     scanInterval?: number;
+    workTime?: number[];
     notifier?: Notifier;
     userName?: string;
     password?: string;

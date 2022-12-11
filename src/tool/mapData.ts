@@ -118,7 +118,7 @@ abstract class MapData {
                     break;
                 case 'boolean':
                     if (prop === true) {
-                        body[i] = data[i];
+                        body[i] = data[i] === null ? undefined : data[i];
                     }
                     else {
                     }
@@ -128,7 +128,7 @@ abstract class MapData {
                     break;
                 case 'string':
                     let val = await this.mapProp(i, prop, data);
-                    body[i] = val;
+                    body[i] = val === null ? undefined : val;
                     break;
                 case 'object':
                     let arr = prop.$name || i;
@@ -188,7 +188,7 @@ export class MapToUq extends MapData {
     protected async tuidId(tuid: string, value: any): Promise<string | number> {
         if (value === undefined || value === null) return;
 
-        let uqIn = this.joint.uqInDict[tuid];
+        let uqIn = this.joint.getUqIn(tuid);
         if (typeof uqIn !== 'object') {
             throw `tuid ${tuid} is not defined in settings.in`;
         }
@@ -229,7 +229,7 @@ export class MapToUq extends MapData {
         return ret[0]['id'];
     }
 
-    protected async getIDNew(uqFullName: string, entity: string, key:any):Promise<number> {
+    protected async getIDNew(uqFullName: string, entity: string, key: any): Promise<number> {
         let uq = await this.joint.getUq(uqFullName);
         try {
             let vId = await uq.getIDNew(entity, key);
@@ -243,7 +243,7 @@ export class MapToUq extends MapData {
         }
     }
 
-    protected async getTuidVid(uqFullName: string, entity: string):Promise<number> {
+    protected async getTuidVid(uqFullName: string, entity: string): Promise<number> {
         try {
             let uq = await this.joint.getUq(uqFullName);
             let vId = await uq.getTuidVId(entity);
@@ -274,7 +274,7 @@ export class MapFromUq extends MapData {
     protected async tuidId(tuid: string, value: any): Promise<string | number> {
         if (value === undefined || value === null) return;
 
-        let uqIn = this.joint.uqInDict[tuid];
+        let uqIn = this.joint.getUqIn(tuid);
         if (typeof uqIn !== 'object')
             throw `tuid ${tuid} is not defined in settings.in`;
 

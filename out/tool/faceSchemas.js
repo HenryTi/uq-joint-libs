@@ -214,7 +214,8 @@ class FaceSchemas {
                 case 'smallint':
                 case 'int':
                 case 'bigint':
-                case 'dec': return Number(v);
+                case 'dec':
+                    return v === '' ? undefined : Number(v);
             }
         }
     }

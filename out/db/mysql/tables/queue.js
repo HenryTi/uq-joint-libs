@@ -50,6 +50,7 @@ const notify = {
     code: [
         "moniker INT NOT NULL",
         "notifiedAt TIMESTAMP NOT NULL",
+        "`errors` smallint NOT NULL default 0",
         "PRIMARY KEY(moniker)"
     ]
 };

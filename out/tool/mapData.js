@@ -102,7 +102,7 @@ class MapData {
                     break;
                 case 'boolean':
                     if (prop === true) {
-                        body[i] = data[i];
+                        body[i] = data[i] === null ? undefined : data[i];
                     }
                     else {
                     }
@@ -112,7 +112,7 @@ class MapData {
                     break;
                 case 'string':
                     let val = await this.mapProp(i, prop, data);
-                    body[i] = val;
+                    body[i] = val === null ? undefined : val;
                     break;
                 case 'object':
                     let arr = prop.$name || i;
@@ -172,7 +172,7 @@ class MapToUq extends MapData {
     async tuidId(tuid, value) {
         if (value === undefined || value === null)
             return;
-        let uqIn = this.joint.uqInDict[tuid];
+        let uqIn = this.joint.getUqIn(tuid);
         if (typeof uqIn !== 'object') {
             throw `tuid ${tuid} is not defined in settings.in`;
         }
@@ -259,7 +259,7 @@ class MapFromUq extends MapData {
     async tuidId(tuid, value) {
         if (value === undefined || value === null)
             return;
-        let uqIn = this.joint.uqInDict[tuid];
+        let uqIn = this.joint.getUqIn(tuid);
         if (typeof uqIn !== 'object')
             throw `tuid ${tuid} is not defined in settings.in`;
         let entitySchema = (0, defines_1.getMapName)(uqIn);

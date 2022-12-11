@@ -9,11 +9,11 @@ export declare class Joint {
     private readonly settings;
     private readonly uqs;
     private readonly unitx;
+    private readonly workTime;
     private tickCount;
     constructor(settings: Settings, prodOrTest?: ProdOrTest);
-    readonly uqInDict: {
-        [tuid: string]: UqIn;
-    };
+    private uqInDict;
+    getUqIn(uqFullName: string): UqIn;
     readonly unit: number;
     createRouter(): Router;
     getUq(uqFullName: string): Promise<Uq>;
@@ -26,6 +26,7 @@ export declare class Joint {
     private scanIn;
     uqIn(uqIn: UqIn, data: any): Promise<void>;
     protected uqInID(uqIn: UqInID, data: any): Promise<number>;
+    protected uqInIX(uqIn: UqInID, data: any): Promise<void>;
     protected uqInTuid(uqIn: UqInTuid, data: any): Promise<number>;
     protected uqInTuidArr(uqIn: UqInTuidArr, data: any): Promise<number>;
     /**

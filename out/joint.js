@@ -20,6 +20,7 @@ const logger = (0, log4js_1.getLogger)('joint');
 class Joint {
     constructor(settings, prodOrTest = 'prod') {
         this.queueOutPCache = {};
+        this.workTime = [8, 18];
         this.tickCount = -1;
         this.uqInDict = {};
         this.tick = async () => {
@@ -40,9 +41,10 @@ class Joint {
             }
         };
         this.settings = settings;
-        let { unit, uqIns: allUqIns, scanInterval, userName, password, notifier } = settings;
+        let { unit, uqIns: allUqIns, scanInterval, workTime, userName, password, notifier } = settings;
         this.unit = unit;
         this.scanInterval = scanInterval || 3000;
+        this.workTime = workTime || [8, 18];
         this.notifierScheduler = new notifyScheduler_1.NotifyScheduler(notifier);
         if (allUqIns === undefined)
             return;
@@ -59,11 +61,31 @@ class Joint {
                 throw new Error('prodOrTest not valid in JOINT counstructor:' + prodOrTest);
         }
         for (let uqIn of allUqIns) {
-            let { entity, type } = uqIn;
-            if (this.uqInDict[entity] !== undefined)
+            if (!uqIn)
+                continue;
+            let { uq, entity } = uqIn;
+            let uqFullName = uq + ":" + entity;
+            if (this.uqInDict[uqFullName] !== undefined)
                 throw 'can not have multiple ' + entity;
-            this.uqInDict[entity] = uqIn;
+            this.uqInDict[uqFullName] = uqIn;
         }
+    }
+    getUqIn(uqFullName) {
+        let uqIn = this.uqInDict[uqFullName];
+        if (uqIn === undefined) {
+            let find = 0;
+            for (const key in this.uqInDict) {
+                let pos = key.indexOf(":");
+                if (pos >= 0 && key.substring(pos + 1) === uqFullName) {
+                    find++;
+                    uqIn = this.uqInDict[key];
+                }
+            }
+            if (find !== 1)
+                uqIn = undefined;
+        }
+        ;
+        return uqIn;
     }
     createRouter() {
         return (0, router_1.createRouter)(this.settings);
@@ -111,12 +133,24 @@ class Joint {
         if (uqInEntities === undefined)
             return;
         for (let uqInName of uqInEntities) {
-            let uqIn = this.uqInDict[uqInName.name];
-            if (uqIn === undefined)
+            let { name: uqConfiName, intervalUnit, timeSlice, onlyFreeTime } = uqInName;
+            let uqIn = this.getUqIn(uqConfiName);
+            if (uqIn === undefined) {
+                console.log("entity name:'" + uqConfiName + "'没有对应的mapper设置。");
                 continue;
+            }
+            if (this.tickCount % (intervalUnit || 1) !== 0)
+                continue;
+            let start = new Date();
+            if (onlyFreeTime) {
+                let weekDay = start.getDay();
+                let hours = start.getHours();
+                if ((weekDay > 0 && weekDay < 6) && (hours >= this.workTime[0] && hours <= this.workTime[1])) {
+                    console.log('skip in ' + uqConfiName + ' for only run on free time.');
+                    continue;
+                }
+            }
             let { uq, type, entity, pull, pullWrite, onPullWriteError } = uqIn;
-            if (this.tickCount % (uqInName.intervalUnit || 1) !== 0)
-                continue;
             let queueName = uq + ':' + entity;
             console.log('scan in ' + queueName + ' at ' + new Date().toLocaleString());
             let promises = [];
@@ -179,14 +213,14 @@ class Joint {
                 let dataCopy = [];
                 for (let i = data.length - 1; i >= 0; i--) {
                     let message = data[i];
-                    if (type === "tuid" || type === "tuid-arr") {
+                    if (type === "tuid" || type === "tuid-arr" || type === 'ID') {
                         let no = message[uqIn.key];
                         if (dataCopy.lastIndexOf(no) >= 0)
                             continue;
                         dataCopy.push(no);
                     }
                     if (pullWrite !== undefined)
-                        promises.push(pullWrite(this, uqIn, message));
+                        promises.push(pullWrite(this, uqIn, message, lastPointer));
                     else
                         promises.push(this.uqIn(uqIn, message));
                 }
@@ -206,6 +240,8 @@ class Joint {
                     else
                         break;
                 }
+                if (timeSlice && Date.now() > start.valueOf() + timeSlice * 1000)
+                    break;
             }
         }
     }
@@ -213,6 +249,9 @@ class Joint {
         switch (uqIn.type) {
             case 'ID':
                 await this.uqInID(uqIn, data);
+                break;
+            case 'IX':
+                await this.uqInIX(uqIn, data);
                 break;
             case 'tuid':
                 await this.uqInTuid(uqIn, data);
@@ -237,7 +276,7 @@ class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveID(entity, body);
-            if (!body.$id) {
+            if (!body["id"]) {
                 let { id, inId } = ret;
                 if (id) {
                     if (id < 0)
@@ -263,6 +302,28 @@ class Joint {
             }
         }
     }
+    async uqInIX(uqIn, data) {
+        let { mapper, uq: uqFullName, entity } = uqIn;
+        if (uqFullName === undefined)
+            throw 'ID ' + entity + ' not defined';
+        let mapToUq = new mapData_1.MapToUq(this);
+        let body = await mapToUq.map(data, mapper);
+        let uq = await this.uqs.getUq(uqFullName);
+        try {
+            await uq.saveID(entity, body);
+        }
+        catch (error) {
+            if (error.code === "ETIMEDOUT") {
+                logger.error(error);
+                await this.uqInID(uqIn, data);
+            }
+            else {
+                logger.error(uqFullName + ':' + entity);
+                logger.error(body);
+                throw error;
+            }
+        }
+    }
     async uqInTuid(uqIn, data) {
         let { key, mapper, uq: uqFullName, entity: tuid } = uqIn;
         if (key === undefined)
@@ -275,7 +336,7 @@ class Joint {
         let uq = await this.uqs.getUq(uqFullName);
         try {
             let ret = await uq.saveTuid(tuid, body);
-            if (!body.$id) {
+            if (!body["$id"]) {
                 let { id, inId } = ret;
                 if (id) {
                     if (id < 0)
@@ -463,16 +524,33 @@ class Joint {
             return;
         let monikerPrefix = '$bus/';
         for (let uqBusName of uqBusSettings) {
-            let uqBus = bus[uqBusName];
+            let busConfiName, intervalUnit, timeSlice, onlyFreeTime;
+            if (typeof (uqBusName) === 'string')
+                busConfiName = uqBusName;
+            else {
+                ({ name: busConfiName, intervalUnit, timeSlice, onlyFreeTime } = uqBusName);
+            }
+            let uqBus = bus[busConfiName];
             if (!uqBus)
                 continue;
+            if (this.tickCount % (intervalUnit || 1) !== 0)
+                continue;
+            let start = new Date();
+            if (onlyFreeTime) {
+                let weekDay = start.getDay();
+                let hours = start.getHours();
+                if ((weekDay > 0 && weekDay < 6) && (hours >= this.workTime[0] && hours <= this.workTime[1])) {
+                    console.log('skip in ' + busConfiName + ' for only run on free time.');
+                    continue;
+                }
+            }
             let { face, from: busFrom, mapper, push, pull, uqIdProps, defer } = uqBus;
             // bus out(从bus中读取消息，发送到外部系统)
             let moniker = monikerPrefix + face;
             for (;;) {
                 if (push === undefined)
                     break;
-                console.log('scan bus out ' + uqBusName + ' at ' + new Date().toLocaleString());
+                console.log('scan bus out ' + busConfiName + ' at ' + new Date().toLocaleString());
                 let queue;
                 let retp = await (0, tool_1.tableFromProc)('read_queue_out_p', [moniker]);
                 if (retp.length > 0) {
@@ -548,14 +626,16 @@ class Joint {
                     }
                 }
                 await this.writeQueueOutP(moniker, newQueue);
+                if (timeSlice && Date.now() > start.valueOf() + timeSlice * 1000)
+                    break;
             }
             // bus in(从外部系统读入数据，写入bus)
             for (;;) {
                 if (pull === undefined)
                     break;
+                let queue, uniqueId;
                 try {
-                    console.log('scan bus in ' + uqBusName + ' at ' + new Date().toLocaleString());
-                    let queue, uniqueId;
+                    console.log('scan bus in ' + busConfiName + ' at ' + new Date().toLocaleString());
                     let retp = await (0, tool_1.tableFromProc)('read_queue_in_p', [moniker]);
                     let r = retp[0];
                     queue = r.queue;
@@ -571,9 +651,13 @@ class Joint {
                     let packed = await faceSchemas_1.faceSchemas.packBusData(face, inBody, importing);
                     await this.unitx.writeBus(face, joinName, uniqueId, busVersion, packed, defer !== null && defer !== void 0 ? defer : 0, stamp);
                     await (0, tool_1.execProc)('write_queue_in_p', [moniker, newQueue]);
+                    if (timeSlice && Date.now() > start.valueOf() + timeSlice * 1000)
+                        break;
                 }
                 catch (err) {
                     console.error(err);
+                    await this.notifierScheduler.notify(moniker, queue.toString());
+                    break;
                 }
             }
         }

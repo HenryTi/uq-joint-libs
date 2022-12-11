@@ -164,7 +164,7 @@ export abstract class Uq {
         return await this.uqApi.schema(entityName);
     }
 
-    async getIDNew(ID: string, keys: {[key:string]:any}): Promise<number> {
+    async getIDNew(ID: string, keys: { [key: string]: any }): Promise<number> {
         return await this.uqApi.getIDNew(ID, keys);
     }
 
@@ -212,18 +212,18 @@ export abstract class Uq {
         }
 
         this.uqApi = new UqApi(realUrl, unit, uqToken && uqToken.token);
-	}
-	
-	protected abstract getReadUrl(uqUrl: {url:string, urlTest:string}):string;
+    }
 
-	protected async unitUrl(unit: number): Promise<string> {
-		let uqUrl = await centerApi.urlFromUq(unit, this.uqFullName);
-		let {db} = uqUrl;
-		let url = this.getReadUrl(uqUrl);
+    protected abstract getReadUrl(uqUrl: { url: string, urlTest: string }): string;
+
+    protected async unitUrl(unit: number): Promise<string> {
+        let uqUrl = await centerApi.urlFromUq(unit, this.uqFullName);
+        let { db } = uqUrl;
+        let url = this.getReadUrl(uqUrl);
         //let { db, url, urlTest } = uqUrl;
-		let realUrl = host.getUqUrl(db, url);
-		return realUrl;
-	}
+        let realUrl = host.getUqUrl(db, url);
+        return realUrl;
+    }
 
     private buildTuids(tuids: any) {
         for (let i in tuids) {
@@ -413,15 +413,15 @@ export abstract class Uq {
 }
 
 export class UqProd extends Uq {
-	protected getReadUrl(uqUrl: {url:string, urlTest:string}):string {
-		return uqUrl.url;
-	}
+    protected getReadUrl(uqUrl: { url: string, urlTest: string }): string {
+        return uqUrl.url;
+    }
 }
 
 export class UqTest extends Uq {
-	protected getReadUrl(uqUrl: {url:string, urlTest:string}):string {
-		return uqUrl.urlTest;
-	}
+    protected getReadUrl(uqUrl: { url: string, urlTest: string }): string {
+        return uqUrl.urlTest;
+    }
 }
 
 export interface Prop {
