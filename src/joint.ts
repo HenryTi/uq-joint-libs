@@ -600,12 +600,14 @@ export class Joint {
                 if (json !== undefined) {
                     let mapFromUq = new MapFromUq(this);
                     let outBody = await mapFromUq.map(json, mapper);
+                    let succes = false;
                     try {
-                        let succes = await push(this, uqBus, queue, outBody);
-                        if (!succes) break;
+                        succes = await push(this, uqBus, queue, outBody);
                     } catch (error) {
                         console.error(error);
-                        await this.notifierScheduler.notify(moniker, queue.toString());
+                    }
+                    if (!succes) {
+                        await this.notifierScheduler.notify(moniker, `current: ${queue.toString()}, next: ${newQueue.toString()}`);
                         break;
                     }
                 }
