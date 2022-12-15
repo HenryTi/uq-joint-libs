@@ -1,6 +1,7 @@
 import config from 'config';
 import { databaseName } from '../db/mysql/database';
 import { execSql } from "../db/mysql/tool";
+import DefaultNotifier from './defaultNotifier';
 import { Notifier } from "./smsNotifier";
 
 export class NotifyScheduler {
@@ -16,6 +17,9 @@ export class NotifyScheduler {
     private maxErrors: number;
 
     constructor(notifier: Notifier) {
+        if (notifier === undefined) {
+            notifier = new DefaultNotifier();
+        }
         this.notifier = notifier;
 
         this.getLastNotify = `select UNIX_TIMESTAMP(a.notifiedAt) as notifiedAt, \`errors\` from \`${databaseName}\`.notify a 

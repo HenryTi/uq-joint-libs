@@ -7,9 +7,13 @@ exports.NotifyScheduler = void 0;
 const config_1 = __importDefault(require("config"));
 const database_1 = require("../db/mysql/database");
 const tool_1 = require("../db/mysql/tool");
+const defaultNotifier_1 = __importDefault(require("./defaultNotifier"));
 class NotifyScheduler {
     constructor(notifier) {
         this.enableNotify = false;
+        if (notifier === undefined) {
+            notifier = new defaultNotifier_1.default();
+        }
         this.notifier = notifier;
         this.getLastNotify = `select UNIX_TIMESTAMP(a.notifiedAt) as notifiedAt, \`errors\` from \`${database_1.databaseName}\`.notify a 
             inner join \`${database_1.databaseName}\`.moniker m on m.id = a.moniker 
