@@ -65,6 +65,12 @@ class CenterApi extends Fetch {
         }
     }
 
+    /**
+     * 根据key查询注册客户信息 
+     * @param key 可以是name/mobile/email 
+     * @returns 未找到，返回undefinde，否则返回对象格式如下：
+     * {"id":76349,"name":"li.guosheng@jk-sci.com","nick":null,"icon":null,"email":"li.guosheng@jk-sci.com","mobile":null,"mobile_country":86}
+     */
     async userFromKey(key: string): Promise<User> {
         let ret = await this.get('open/user-from-key', { key });
         if (!ret) return;

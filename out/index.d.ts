@@ -8,3 +8,4 @@ export { map } from "./tool/map";
 export { decrypt } from "./tool/hashPassword";
 export { Fetch } from './tool/fetch';
 export { getUserId } from './db/mysql/getUserId';
+export { Notifier } from './notifier/smsNotifier';
