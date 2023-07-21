@@ -5,6 +5,9 @@ export interface BusMessage {
     from: string;
     body: string;
 }
+/**
+ * 封装UnitX上的接口（如读写bus）
+ */
 export declare abstract class Unitx {
     private unit;
     private prevUnitxApi;

@@ -52,10 +52,21 @@ class CenterApi extends fetch_1.Fetch {
             return;
         return ret;
     }
+    /**
+     * 查询bus的schema
+     * @param owner
+     * @param bus
+     * @returns
+     */
     async busSchema(owner, bus) {
         let ret = await this.get('open/bus', { owner: owner, bus: bus });
         return ret.schema;
     }
+    /**
+     * 不知道干什么的，没有地方用这个函数
+     * @param serviceUID
+     * @param serviceBuses
+     */
     async serviceBus(serviceUID, serviceBuses) {
         await this.post('open/save-service-bus', {
             service: serviceUID,
@@ -82,6 +93,12 @@ class CenterApi extends fetch_1.Fetch {
     async uqUrl(unit, uq) {
         return await this.get('open/uq-url', { unit: unit, uq: uq });
     }
+    /**
+     * 从中心服务器上获取 某个uq的 配置信息（对应的db名称，uq所在服务器的访问地址等）
+     * @param unit
+     * @param uqFullName
+     * @returns
+     */
     async urlFromUq(unit, uqFullName) {
         return await this.post('open/url-from-uq', { unit: unit, uq: uqFullName });
     }
@@ -140,5 +157,8 @@ class CenterApi extends fetch_1.Fetch {
         return await this.post('open/queue-in', param);
     }
 }
+/**
+ * 包含中心服务器的api（），通过该全局常量调用这些api
+ */
 exports.centerApi = new CenterApi();
 //# sourceMappingURL=centerApi.js.map

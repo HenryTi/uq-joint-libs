@@ -23,7 +23,7 @@ const resDebugHost = 'localhost:3015'; //'192.168.86.63';
 const uqDebugHost = 'localhost:3015'; //'192.168.86.63';
 const uqDebugBuilderHost = 'localhost:3009';
 /**
- * 几类host(center host/res host/uq host/unitx host/uq build host)地址的配置对象
+ * 全局常量，包含几类host(center host/res host/uq host/unitx host/uq build host)地址的配置对象
  */
 const hosts = {
     centerhost: {
@@ -47,6 +47,11 @@ const hosts = {
         local: false
     }
 };
+/**
+ * 从host地址拼接出中心服务器的url
+ * @param host
+ * @returns
+ */
 function centerUrlFromHost(host) {
     if (host.startsWith('https://') === true) {
         if (host.endsWith('/'))
@@ -74,7 +79,7 @@ const fetchOptions = {
 };
 class Host {
     /**
-     * 设置centerApi的buseUrl
+     * 设置centerApi的buseUrl，所有待用uq的接口均通过该对象的方法
      */
     async start() {
         if (exports.isDevelopment === true) {
@@ -89,7 +94,7 @@ class Host {
     }
     debugHostUrl(host) { return `http://${host}/hello`; }
     /**
-     * 这个好像什么也没干啊？
+     * 测试并设置各种host是否可用（即设置全局常量hosts各属性的local值，true为可用，否则不可用）
      */
     async tryLocal() {
         let promises = [];
@@ -146,6 +151,12 @@ class Host {
         }
         return this.resHost;
     }
+    /**
+     *
+     * @param url
+     * @param debugHost
+     * @returns
+     */
     getUrlOrDebug(url, debugHost = 'uqhost') {
         if (exports.isDevelopment === false)
             return url;
@@ -166,6 +177,12 @@ class Host {
         url = this.getUrlOrDebug(url);
         return url + path;
     }
+    /**
+     * 根据uq对应的db名称及其所在服务器的地址，拼接出该uq的根url地址
+     * @param db
+     * @param url
+     * @returns
+     */
     getUqUrl(db, url) {
         let path = uqPath + db + '/';
         let urlOrDebug = this.getUrlOrDebug(url);

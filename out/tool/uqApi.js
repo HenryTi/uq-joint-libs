@@ -16,12 +16,12 @@ class Caller {
 exports.Caller = Caller;
 const methodsWithBody = ['POST', 'PUT'];
 class UqApi extends fetch_1.Fetch {
+    get apiToken() { return this._apiToken; }
     constructor(baseUrl, unit, apiToken) {
         super(baseUrl);
         this.unit = unit;
         this._apiToken = apiToken;
     }
-    get apiToken() { return this._apiToken; }
     async xcall(caller) {
         let urlPrefix = 'tv/';
         let options = this.buildOptions();

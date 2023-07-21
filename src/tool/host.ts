@@ -26,7 +26,7 @@ interface HostValue {
 }
 
 /**
- * 几类host(center host/res host/uq host/unitx host/uq build host)地址的配置对象 
+ * 全局常量，包含几类host(center host/res host/uq host/unitx host/uq build host)地址的配置对象 
  */
 const hosts: { [name: string]: HostValue } = {
     centerhost: {
@@ -51,6 +51,11 @@ const hosts: { [name: string]: HostValue } = {
     }
 }
 
+/**
+ * 从host地址拼接出中心服务器的url
+ * @param host 
+ * @returns 
+ */
 function centerUrlFromHost(host: string) {
     if (host.startsWith('https://') === true) {
         if (host.endsWith('/')) host = host.substr(0, host.length - 1);
@@ -58,6 +63,7 @@ function centerUrlFromHost(host: string) {
     }
     return `http://${host}/tv/`;
 }
+
 function centerWsFromHost(host: string) {
     let https = 'https://';
     if (host.startsWith(https) === true) {
@@ -86,7 +92,7 @@ class Host {
     resHost: string;
 
     /**
-     * 设置centerApi的buseUrl
+     * 设置centerApi的buseUrl，所有待用uq的接口均通过该对象的方法
      */
     async start() {
         if (isDevelopment === true) {
@@ -97,13 +103,14 @@ class Host {
         // console.error('centerhost is not defined in config');
         this.ws = centerWsFromHost(host);
         this.resHost = this.getResHost();
+
         centerApi.initBaseUrl(this.centerUrl);
     }
 
     private debugHostUrl(host: string) { return `http://${host}/hello` }
 
     /**
-     * 这个好像什么也没干啊？ 
+     * 测试并设置各种host是否可用（即设置全局常量hosts各属性的local值，true为可用，否则不可用）
      */
     private async tryLocal() {
         let promises: PromiseLike<any>[] = [];
@@ -162,6 +169,12 @@ class Host {
         return this.resHost;
     }
 
+    /**
+     * 
+     * @param url 
+     * @param debugHost 
+     * @returns 
+     */
     getUrlOrDebug(url: string, debugHost: string = 'uqhost'): string {
         if (isDevelopment === false) return url;
         let host = hosts[debugHost];
@@ -170,6 +183,7 @@ class Host {
         if (local === false) return url;
         return `http://${value}/`;
     }
+
     getUrlOrTest(db: string, url: string, urlTest: string): string {
         let path: string = db === '$unitx' ? uqUnitxPath : uqPath + db + '/';
         if (isDevelopment === true) {
@@ -178,6 +192,13 @@ class Host {
         url = this.getUrlOrDebug(url);
         return url + path;
     }
+
+    /**
+     * 根据uq对应的db名称及其所在服务器的地址，拼接出该uq的根url地址 
+     * @param db 
+     * @param url 
+     * @returns 
+     */
     getUqUrl(db: string, url: string): string {
         let path: string = uqPath + db + '/';
         let urlOrDebug = this.getUrlOrDebug(url);

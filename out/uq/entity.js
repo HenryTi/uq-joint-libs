@@ -5,6 +5,7 @@ const objPropIgnoreCase_1 = require("../tool/objPropIgnoreCase");
 const tab = '\t';
 const ln = '\n';
 class Entity {
+    get sName() { return this.jName || this.name; }
     constructor(entities, name, typeId) {
         //protected get tvApi() {return this.uq.uqApi;}
         //async getApiFrom() {return this.uq.uqApi;}
@@ -15,7 +16,6 @@ class Entity {
         this.sys = this.name.indexOf('$') >= 0;
         this.ver = 0;
     }
-    get sName() { return this.jName || this.name; }
     fieldMap(arr) {
         if (arr === undefined)
             arr = '$';

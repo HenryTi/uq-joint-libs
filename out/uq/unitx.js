@@ -31,6 +31,9 @@ class UnitxApi extends fetch_1.Fetch {
         return ret;
     }
 }
+/**
+ * 封装UnitX上的接口（如读写bus）
+ */
 class Unitx /*extends Uq*/ {
     constructor(unit) {
         this.unit = unit;

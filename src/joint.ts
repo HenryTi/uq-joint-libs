@@ -171,12 +171,11 @@ export class Joint {
                 }
             }
 
-            let { uq, type, entity, pull, pullWrite, onPullWriteError } = uqIn;
+            let { uq, type, entity, pull, pullWrite, onPullWriteError, getUniqueKey } = uqIn;
             let queueName = uq + ':' + entity;
             console.log('scan in ' + queueName + ' at ' + new Date().toLocaleString());
             let promises: PromiseLike<any>[] = [];
             for (; ;) {
-                let message: any;
                 let queue: string;
                 let ret: DataPullResult = undefined;
                 if (pull !== undefined) {
@@ -232,11 +231,17 @@ export class Joint {
                 let dataCopy = [];
                 for (let i = data.length - 1; i >= 0; i--) {
                     let message = data[i];
-                    if (type === "tuid" || type === "tuid-arr" || type === 'ID') {
-                        let no = message[(uqIn as UqInTuid).key];
-                        if (dataCopy.lastIndexOf(no) >= 0)
+                    let uniqueKey: string;
+                    if (getUniqueKey !== undefined)
+                        uniqueKey = getUniqueKey(message);
+                    else if (type === "tuid" || type === "tuid-arr" || type === 'ID') {
+                        uniqueKey = message[(uqIn as UqInTuid).key];
+                    }
+
+                    if (uniqueKey !== undefined) {
+                        if (dataCopy.lastIndexOf(uniqueKey) >= 0)
                             continue;
-                        dataCopy.push(no);
+                        dataCopy.push(uniqueKey);
                     }
 
                     if (pullWrite !== undefined)

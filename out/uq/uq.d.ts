@@ -52,17 +52,30 @@ export declare abstract class Uq {
     loadTuidDivValue(tuidName: string, divName: string, id: number, ownerId: number, allProps: boolean): Promise<any>;
     setMap(map: string, body: any): Promise<void>;
     delMap(map: string, body: any): Promise<void>;
+    /**
+     * 初始化本uq的 uqApi(用于执行后台调用)
+     * @param userName
+     * @param password
+     */
     private initUqApi;
     protected abstract getReadUrl(uqUrl: {
         url: string;
         urlTest: string;
     }): string;
+    /**
+     * 获取本uq的根url地址
+     * @param unit
+     * @returns
+     */
     protected unitUrl(unit: number): Promise<string>;
     private buildTuids;
     private buildAccess;
     private fromType;
     private fromObj;
     private buildSheet;
+    /**
+     * 加载本uq的所有实体定义
+     */
     protected loadEntities(): Promise<void>;
     buildEntities(entities: any): void;
     getTuid(name: string, div?: string, tuidUrl?: string): Tuid;

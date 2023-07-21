@@ -14,9 +14,9 @@ export interface entityBusConfigFormat {
     timeSlice?: number;
     onlyFreeTime?: boolean;
 }
-export declare type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
-export declare type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
-export declare type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any, queue?: number | string) => Promise<boolean>;
+export type DataPull<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number | string) => Promise<DataPullResult>;
+export type DataPush<T extends UqPullPush> = (joint: Joint, uqIn: T, queue: number, data: any) => Promise<boolean>;
+export type PullWrite<T extends UqIn> = (joint: Joint, uqIn: T, data: any, queue?: number | string) => Promise<boolean>;
 interface UqPullPush {
     pull?: DataPull<UqPullPush> | string;
     push?: DataPush<UqPullPush>;
@@ -46,6 +46,7 @@ export interface UqIn extends UqPullPush {
      */
     firstPullWrite?: PullWrite<UqIn>;
     push?: DataPush<UqIn>;
+    getUniqueKey?: (data: any) => string;
 }
 export interface UqInID extends UqIn {
     type: 'ID';

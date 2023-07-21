@@ -48,6 +48,8 @@ export interface UqIn extends UqPullPush {
      */
     firstPullWrite?: PullWrite<UqIn>;
     push?: DataPush<UqIn>;
+
+    getUniqueKey?: (data: any) => string;
 }
 
 export interface UqInID extends UqIn {

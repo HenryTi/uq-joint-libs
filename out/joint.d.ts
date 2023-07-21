@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Settings, UqIn, UqOut, UqInTuid, UqInMap, UqInTuidArr, UqInID } from "./defines";
 import { Uq } from "./uq/uq";
-export declare type ProdOrTest = 'prod' | 'test';
+export type ProdOrTest = 'prod' | 'test';
 export declare class Joint {
     private readonly scanInterval;
     private readonly notifierScheduler;

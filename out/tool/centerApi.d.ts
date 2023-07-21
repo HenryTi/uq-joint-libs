@@ -38,7 +38,18 @@ declare class CenterApi extends Fetch {
      * {"id":76349,"name":"li.guosheng@jk-sci.com","nick":null,"icon":null,"email":"li.guosheng@jk-sci.com","mobile":null,"mobile_country":86}
      */
     userFromKey(key: string): Promise<User>;
+    /**
+     * 查询bus的schema
+     * @param owner
+     * @param bus
+     * @returns
+     */
     busSchema(owner: string, bus: string): Promise<string>;
+    /**
+     * 不知道干什么的，没有地方用这个函数
+     * @param serviceUID
+     * @param serviceBuses
+     */
     serviceBus(serviceUID: string, serviceBuses: string): Promise<void>;
     /**
      * 获取某个unit所对应的unitx服务器的地址
@@ -48,6 +59,12 @@ declare class CenterApi extends Fetch {
     unitUnitx(unit: number): Promise<CenterUnitxUrls>;
     uqToken(unit: number, uqOwner: string, uqName: string): Promise<any>;
     uqUrl(unit: number, uq: number): Promise<any>;
+    /**
+     * 从中心服务器上获取 某个uq的 配置信息（对应的db名称，uq所在服务器的访问地址等）
+     * @param unit
+     * @param uqFullName
+     * @returns
+     */
     urlFromUq(unit: number, uqFullName: string): Promise<any>;
     uqDb(name: string): Promise<any>;
     pushTo(msg: any): Promise<void>;
@@ -85,5 +102,8 @@ declare class CenterApi extends Fetch {
      */
     queueIn(param: any): Promise<number>;
 }
+/**
+ * 包含中心服务器的api（），通过该全局常量调用这些api
+ */
 export declare const centerApi: CenterApi;
 export {};

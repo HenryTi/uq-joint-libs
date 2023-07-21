@@ -26,10 +26,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fetch = void 0;
 const node_fetch_1 = __importStar(require("node-fetch"));
 class Fetch {
+    get apiToken() { return undefined; }
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
     }
-    get apiToken() { return undefined; }
     initBaseUrl(baseUrl) {
         this.baseUrl = baseUrl;
     }

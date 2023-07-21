@@ -1,1 +1,1 @@
-export declare type ProdOrTest = 'prod' | 'test';
+export type ProdOrTest = 'prod' | 'test';

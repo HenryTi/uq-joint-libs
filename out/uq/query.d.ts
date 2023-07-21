@@ -1,7 +1,7 @@
 import { Entity } from './entity';
 import { QueryQueryCaller, QueryPageCaller } from './caller';
 import { ArrFields } from './field';
-export declare type QueryPageApi = (name: string, pageStart: any, pageSize: number, params: any) => Promise<string>;
+export type QueryPageApi = (name: string, pageStart: any, pageSize: number, params: any) => Promise<string>;
 export declare class Query extends Entity {
     get typeName(): string;
     private pageStart;

@@ -200,6 +200,11 @@ export abstract class Uq {
         await this.uqApi.delMap(map, body);
     }
 
+    /**
+     * 初始化本uq的 uqApi(用于执行后台调用) 
+     * @param userName 
+     * @param password 
+     */
     private async initUqApi(userName: string, password: string): Promise<void> {
         let { unit } = this.uqs;
         let realUrl = await this.unitUrl(unit);
@@ -216,6 +221,11 @@ export abstract class Uq {
 
     protected abstract getReadUrl(uqUrl: { url: string, urlTest: string }): string;
 
+    /**
+     * 获取本uq的根url地址 
+     * @param unit 
+     * @returns 
+     */
     protected async unitUrl(unit: number): Promise<string> {
         let uqUrl = await centerApi.urlFromUq(unit, this.uqFullName);
         let { db } = uqUrl;
@@ -281,6 +291,10 @@ export abstract class Uq {
         if (sheet === undefined) sheet = this.newSheet(name, obj.id);
         sheet.build(obj);
     }
+
+    /**
+     * 加载本uq的所有实体定义
+     */
     protected async loadEntities() {
         let entities = await this.uqApi.loadEntities();
         this.buildEntities(entities);

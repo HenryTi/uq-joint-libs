@@ -187,6 +187,11 @@ class Uq {
     async delMap(map, body) {
         await this.uqApi.delMap(map, body);
     }
+    /**
+     * 初始化本uq的 uqApi(用于执行后台调用)
+     * @param userName
+     * @param password
+     */
     async initUqApi(userName, password) {
         let { unit } = this.uqs;
         let realUrl = await this.unitUrl(unit);
@@ -198,6 +203,11 @@ class Uq {
         }
         this.uqApi = new uqApi_1.UqApi(realUrl, unit, uqToken && uqToken.token);
     }
+    /**
+     * 获取本uq的根url地址
+     * @param unit
+     * @returns
+     */
     async unitUrl(unit) {
         let uqUrl = await centerApi_1.centerApi.urlFromUq(unit, this.uqFullName);
         let { db } = uqUrl;
@@ -276,6 +286,9 @@ class Uq {
             sheet = this.newSheet(name, obj.id);
         sheet.build(obj);
     }
+    /**
+     * 加载本uq的所有实体定义
+     */
     async loadEntities() {
         let entities = await this.uqApi.loadEntities();
         this.buildEntities(entities);

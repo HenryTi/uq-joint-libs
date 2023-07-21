@@ -7,12 +7,12 @@ declare class Host {
     ws: string;
     resHost: string;
     /**
-     * 设置centerApi的buseUrl
+     * 设置centerApi的buseUrl，所有待用uq的接口均通过该对象的方法
      */
     start(): Promise<void>;
     private debugHostUrl;
     /**
-     * 这个好像什么也没干啊？
+     * 测试并设置各种host是否可用（即设置全局常量hosts各属性的local值，true为可用，否则不可用）
      */
     private tryLocal;
     /**
@@ -21,8 +21,20 @@ declare class Host {
      */
     private getCenterHost;
     private getResHost;
+    /**
+     *
+     * @param url
+     * @param debugHost
+     * @returns
+     */
     getUrlOrDebug(url: string, debugHost?: string): string;
     getUrlOrTest(db: string, url: string, urlTest: string): string;
+    /**
+     * 根据uq对应的db名称及其所在服务器的地址，拼接出该uq的根url地址
+     * @param db
+     * @param url
+     * @returns
+     */
     getUqUrl(db: string, url: string): string;
     localCheck(urlDebug: string): Promise<boolean>;
 }
